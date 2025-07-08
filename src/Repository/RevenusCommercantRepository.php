@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Role;
+use App\Entity\RevenusCommercant;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Role>
+ * @extends ServiceEntityRepository<RevenusCommercant>
  */
-class RoleRepository extends ServiceEntityRepository
+class RevenusCommercantRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Role::class);
+        parent::__construct($registry, RevenusCommercant::class);
     }
 
     //    /**
-    //     * @return Role[] Returns an array of Role objects
+    //     * @return RevenusCommercant[] Returns an array of RevenusCommercant objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class RoleRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Role
+    //    public function findOneBySomeField($value): ?RevenusCommercant
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')

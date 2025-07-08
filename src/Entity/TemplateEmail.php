@@ -2,22 +2,23 @@
 
 namespace App\Entity;
 
-use App\Repository\RoleRepository;
+use App\Repository\TemplateEmailRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RoleRepository::class)]
-class Role
+#[ORM\Entity(repositoryClass: TemplateEmailRepository::class)]
+class TemplateEmail
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 50)]
+    #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column]
-    private array $permissions = [];
+    #[ORM\Column(type: Types::TEXT)]
+    private ?string $contenu = null;
 
     public function getId(): ?int
     {
@@ -43,14 +44,14 @@ class Role
         return $this;
     }
 
-    public function getPermissions(): array
+    public function getContenu(): ?string
     {
-        return $this->permissions;
+        return $this->contenu;
     }
 
-    public function setPermissions(array $permissions): static
+    public function setContenu(string $contenu): static
     {
-        $this->permissions = $permissions;
+        $this->contenu = $contenu;
 
         return $this;
     }

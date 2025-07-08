@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Role;
+use App\Entity\ResetMotDePasse;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Role>
+ * @extends ServiceEntityRepository<ResetMotDePasse>
  */
-class RoleRepository extends ServiceEntityRepository
+class ResetMotDePasseRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Role::class);
+        parent::__construct($registry, ResetMotDePasse::class);
     }
 
     //    /**
-    //     * @return Role[] Returns an array of Role objects
+    //     * @return ResetMotDePasse[] Returns an array of ResetMotDePasse objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class RoleRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Role
+    //    public function findOneBySomeField($value): ?ResetMotDePasse
     //    {
     //        return $this->createQueryBuilder('r')
     //            ->andWhere('r.exampleField = :val')

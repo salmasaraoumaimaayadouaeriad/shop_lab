@@ -2,11 +2,11 @@
 
 namespace App\Entity;
 
-use App\Repository\RoleRepository;
+use App\Repository\PlanAbonnementRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: RoleRepository::class)]
-class Role
+#[ORM\Entity(repositoryClass: PlanAbonnementRepository::class)]
+class PlanAbonnement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -17,7 +17,10 @@ class Role
     private ?string $nom = null;
 
     #[ORM\Column]
-    private array $permissions = [];
+    private ?float $prix = null;
+
+    #[ORM\Column]
+    private array $limites = [];
 
     public function getId(): ?int
     {
@@ -43,14 +46,26 @@ class Role
         return $this;
     }
 
-    public function getPermissions(): array
+    public function getPrix(): ?float
     {
-        return $this->permissions;
+        return $this->prix;
     }
 
-    public function setPermissions(array $permissions): static
+    public function setPrix(float $prix): static
     {
-        $this->permissions = $permissions;
+        $this->prix = $prix;
+
+        return $this;
+    }
+
+    public function getLimites(): array
+    {
+        return $this->limites;
+    }
+
+    public function setLimites(array $limites): static
+    {
+        $this->limites = $limites;
 
         return $this;
     }
