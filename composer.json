@@ -13,7 +13,11 @@
         "doctrine/orm": "^3.5",
         "mtdowling/jmespath.php": "^2.8",
         "php-http/guzzle7-adapter": "^1.1",
+<<<<<<< HEAD
         "phpdocumentor/reflection-docblock": "^5.6.2",
+=======
+        "phpdocumentor/reflection-docblock": "^5.6",
+>>>>>>> 593d24f02035621cb9262085f33a9a5fc2a18c8f
         "phpstan/phpdoc-parser": "^2.1",
         "symfony/asset": "7.3.*",
         "symfony/asset-mapper": "7.3.*",
