@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop Lab - Register{% endblock %}
+
+{% block body %}
+    <div class="left-section">
+        <div>
+            <nav>
+                <div class="nav-left">
+                    <a href="{{ path('app_home') }}">Home</a>
+                    <a href="#">About Us</a>
+                    <a href="#">Help</a>
+                </div>
+                <div class="logo">SHOPLAB</div>
+            </nav>
+            
+            <div class="hero">
+                <h1>Welcome to Shop Lab</h1>
+                <p>Wanna drop your own online store? Say less.</p>
+                <p>Pick a vibe, customize the drip, upload your fire products, and boom – you're live.</p>
+                <p>No coding, no stress, just full creator energy.</p>
+                <p>Start building now. Your brand era starts today.</p>
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            <div>
+                <span class="contact-label">Phone</span><br>
+                <span class="contact-value">+123-456-7890</span>
+            </div>
+            <div>
+                <span class="contact-label">E-Mail</span><br>
+                <span class="contact-value">hello@reallygreatsite.com</span>
+            </div>
+            <div>
+                <span class="contact-label">Website</span><br>
+                <span class="contact-value">www.reallygreatsite.com</span>
+            </div>
+            <div>
+                <span class="contact-label">Address</span><br>
+                <span class="contact-value">123 Anywhere St., Any City</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="right-section">
+        <div class="login-form">
+            <h2>CREATE YOUR ACCOUNT</h2>
+            
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="error-message">{{ flash_error }}</div>
+            {% endfor %}
+            
+            {% if form_errors(registrationForm) %}
+                <div class="error-message">{{ form_errors(registrationForm) }}</div>
+            {% endif %}
+            
+            {{ form_start(registrationForm) }}
+                <div class="form-group">
+                    <label for="{{ registrationForm.email.vars.id }}">Email Address :</label>
+                    {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' '}}) }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ registrationForm.plainPassword.vars.id }}">Password :</label>
+                    {{ form_widget(registrationForm.plainPassword, {'attr': {'placeholder': ' '}}) }}
+                </div>
+                
+                <div class="checkbox-group">
+                    {{ form_widget(registrationForm.agreeTerms) }}
+                    {{ form_label(registrationForm.agreeTerms, 'I agree to the Terms and Conditions') }}
+                </div>
+                
+                <button type="submit" class="login-button">REGISTER</button>
+            {{ form_end(registrationForm) }}
+            
+            <div class="signup-link">
+                Already have an account?<br>
+                <a href="{{ path('app_login') }}">Sign In now</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+{% endblock %}

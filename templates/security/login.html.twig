@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop Lab - Login{% endblock %}
+
+{% block body %}
+    <div class="left-section">
+        <div>
+            <nav>
+                <a href="{{ path('app_home') }}">Home</a>
+                <a href="#">About Us</a>
+                <a href="#">Help</a>
+            </nav>
+            
+            <div class="hero">
+                <h1>Welcome to Shop Lab</h1>
+                <p>Wanna drop your own online store? Say less.</p>
+                <p>Pick a vibe, customize the drip, upload your fire products, and boom – you're live.</p>
+                <p>No coding, no stress, just full creator energy.</p>
+                <p>Start building now. Your brand era starts today.</p>
+                <a href="{{ path('app_register') }}" class="cta-button">Start building now</a>
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            <div>Phone<br>+123-456-7890</div>
+            <div>Website<br>www.reallygreatsite.com</div>
+            <div>E-Mail<br>hello@reallygreatsite.com</div>
+            <div>Address<br>123 Anywhere St., Any City</div>
+        </div>
+    </div>
+    
+    <div class="right-section">
+        <div class="login-form">
+            <h2>LOGIN TO YOUR ACCOUNT</h2>
+            
+            {% if error %}
+                <div class="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_login') }}">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="_username" value="{{ last_username }}" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="_password" required>
+                </div>
+                
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="signup-link">
+                    Don't have an account?<br>
+                    <a href="{{ path('app_register') }}">Sign Up now</a>
+                </div>
+                
+                <button type="submit" class="login-button">LOGIN</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+{% endblock %}

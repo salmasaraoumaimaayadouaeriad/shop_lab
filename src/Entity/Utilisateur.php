@@ -2,72 +2,59 @@
 
 namespace App\Entity;
 
-use App\Repository\UtilisateurRepository;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-#[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
-class Utilisateur
+#[ORM\Entity]
+#[ORM\Table(name: 'utilisateur')]
+class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'string', length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(type: 'string', length: 180, unique: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $motDePasse = null;
+    #[ORM\Column(type: 'string', length: 255)]
+    private string $password;
 
-    #[ORM\Column(length: 3)]
+    #[ORM\Column(type: 'string', length: 3)]
     private ?string $devise = null;
 
-    #[ORM\Column(length: 100)]
+    #[ORM\Column(type: 'string', length: 100)]
     private ?string $pays = null;
 
-    #[ORM\Column(length: 50)]
-    private ?string $role = null;
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
-    /**
-     * @var Collection<int, Session>
-     */
-    #[ORM\OneToMany(targetEntity: Session::class, mappedBy: 'utilisateur')]
-    private Collection $session;
-
-    /**
-     * @var Collection<int, Administrateur>
-     */
-    #[ORM\OneToMany(targetEntity: Administrateur::class, mappedBy: 'utilisateur')]
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Administrateur::class)]
     private Collection $administrateur;
 
-    /**
-     * @var Collection<int, Commercant>
-     */
-    #[ORM\OneToMany(targetEntity: Commercant::class, mappedBy: 'utilisateur')]
-    private Collection $comercant;
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Commercant::class)]
+    private Collection $commercant;
+
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Session::class)]
+    private Collection $session;
 
     public function __construct()
     {
-        $this->session = new ArrayCollection();
         $this->administrateur = new ArrayCollection();
-        $this->comercant = new ArrayCollection();
+        $this->commercant = new ArrayCollection();
+        $this->session = new ArrayCollection();
     }
 
+    // Getters and setters
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function setId(int $id): static
-    {
-        $this->id = $id;
-
-        return $this;
     }
 
     public function getNom(): ?string
@@ -75,10 +62,9 @@ class Utilisateur
         return $this->nom;
     }
 
-    public function setNom(string $nom): static
+    public function setNom(string $nom): self
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -87,22 +73,20 @@ class Utilisateur
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
-    public function getMotDePasse(): ?string
+    public function getPassword(): string
     {
-        return $this->motDePasse;
+        return $this->password;
     }
 
-    public function setMotDePasse(string $motDePasse): static
+    public function setPassword(string $password): self
     {
-        $this->motDePasse = $motDePasse;
-
+        $this->password = $password;
         return $this;
     }
 
@@ -111,10 +95,9 @@ class Utilisateur
         return $this->devise;
     }
 
-    public function setDevise(string $devise): static
+    public function setDevise(string $devise): self
     {
         $this->devise = $devise;
-
         return $this;
     }
 
@@ -123,112 +106,53 @@ class Utilisateur
         return $this->pays;
     }
 
-    public function setPays(string $pays): static
+    public function setPays(string $pays): self
     {
         $this->pays = $pays;
-
         return $this;
     }
 
-    public function getRole(): ?string
+    public function getRoles(): array
     {
-        return $this->role;
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
     }
 
-    public function setRole(string $role): static
+    public function setRoles(array $roles): self
     {
-        $this->role = $role;
-
+        $this->roles = $roles;
         return $this;
     }
 
-    /**
-     * @return Collection<int, Session>
-     */
-    public function getSession(): Collection
+    public function getSalt(): ?string
     {
-        return $this->session;
+        return null;
     }
 
-    public function addSession(Session $session): static
+    public function getUserIdentifier(): string
     {
-        if (!$this->session->contains($session)) {
-            $this->session->add($session);
-            $session->setUtilisateur($this);
-        }
-
-        return $this;
+        return $this->email;
     }
 
-    public function removeSession(Session $session): static
+    public function eraseCredentials(): void
     {
-        if ($this->session->removeElement($session)) {
-            // set the owning side to null (unless already changed)
-            if ($session->getUtilisateur() === $this) {
-                $session->setUtilisateur(null);
-            }
-        }
-
-        return $this;
+        // Clear sensitive data if any
     }
 
-    /**
-     * @return Collection<int, Administrateur>
-     */
+    // Inverse relations
     public function getAdministrateur(): Collection
     {
         return $this->administrateur;
     }
 
-    public function addAdministrateur(Administrateur $administrateur): static
+    public function getCommercant(): Collection
     {
-        if (!$this->administrateur->contains($administrateur)) {
-            $this->administrateur->add($administrateur);
-            $administrateur->setUtilisateur($this);
-        }
-
-        return $this;
+        return $this->commercant;
     }
 
-    public function removeAdministrateur(Administrateur $administrateur): static
+    public function getSession(): Collection
     {
-        if ($this->administrateur->removeElement($administrateur)) {
-            // set the owning side to null (unless already changed)
-            if ($administrateur->getUtilisateur() === $this) {
-                $administrateur->setUtilisateur(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Commercant>
-     */
-    public function getComercant(): Collection
-    {
-        return $this->comercant;
-    }
-
-    public function addComercant(Commercant $comercant): static
-    {
-        if (!$this->comercant->contains($comercant)) {
-            $this->comercant->add($comercant);
-            $comercant->setUtilisateur($this);
-        }
-
-        return $this;
-    }
-
-    public function removeComercant(Commercant $comercant): static
-    {
-        if ($this->comercant->removeElement($comercant)) {
-            // set the owning side to null (unless already changed)
-            if ($comercant->getUtilisateur() === $this) {
-                $comercant->setUtilisateur(null);
-            }
-        }
-
-        return $this;
+        return $this->session;
     }
 }

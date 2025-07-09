@@ -13,7 +13,7 @@ class Commercant
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'comercant')]
+    #[ORM\ManyToOne(inversedBy: 'commercant')] // ✅ Match this to the property name in Utilisateur
     private ?Utilisateur $utilisateur = null;
 
     #[ORM\ManyToOne]
@@ -27,7 +27,6 @@ class Commercant
     public function setId(int $id): static
     {
         $this->id = $id;
-
         return $this;
     }
 
@@ -39,7 +38,6 @@ class Commercant
     public function setUtilisateur(?Utilisateur $utilisateur): static
     {
         $this->utilisateur = $utilisateur;
-
         return $this;
     }
 
@@ -51,7 +49,6 @@ class Commercant
     public function setBoutiquePrincipale(?Boutique $boutiquePrincipale): static
     {
         $this->boutiquePrincipale = $boutiquePrincipale;
-
         return $this;
     }
 }

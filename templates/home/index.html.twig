@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shop Lab - Home{% endblock %}
+
+{% block body %}
+    <div class="left-section">
+        <div>
+            <nav>
+                <a href="{{ path('app_home') }}">Home</a>
+                <a href="#">About Us</a>
+                <a href="#">Help</a>
+            </nav>
+            
+            <div class="hero">
+                <h1>Welcome to Shop Lab, {{ username }}!</h1>
+                {% if app.user %}
+                    <p>Logged in as: {{ app.user.email }}</p>
+                    <p>Manage your boutiques or explore products.</p>
+                    <div class="home-actions">
+                        <a href="{{ path('app_boutique_list') }}" class="cta-button">My Boutiques</a>
+                        <a href="{{ path('app_logout') }}" class="cta-button logout-btn">Logout</a>
+                    </div>
+                {% else %}
+                    <p>Please <a href="{{ path('app_login') }}">sign in</a> to access your dashboard.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            <div>Phone<br>+123-456-7890</div>
+            <div>Website<br>www.reallygreatsite.com</div>
+            <div>E-Mail<br>hello@reallygreatsite.com</div>
+            <div>Address<br>123 Anywhere St., Any City</div>
+        </div>
+    </div>
+    
+    <div class="right-section">
+        <div class="dashboard-preview">
+            <h2>Your Dashboard</h2>
+            <p>View your boutiques, sales, and more. Start managing your store today!</p>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+{% endblock %}
