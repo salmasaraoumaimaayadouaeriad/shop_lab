@@ -51,6 +51,10 @@
                 <div class="error-message">{{ flash_error }}</div>
             {% endfor %}
             
+            {% for flash_error in app.flashes('error') %}
+                <div class="error-message">{{ flash_error }}</div>
+            {% endfor %}
+            
             {% if form_errors(registrationForm) %}
                 <div class="error-message">{{ form_errors(registrationForm) }}</div>
             {% endif %}
@@ -59,6 +63,21 @@
                 <div class="form-group">
                     <label for="{{ registrationForm.email.vars.id }}">Email Address :</label>
                     {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' '}}) }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ registrationForm.nom.vars.id }}">Full Name :</label>
+                    {{ form_widget(registrationForm.nom, {'attr': {'placeholder': ' '}}) }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ registrationForm.devise.vars.id }}">Currency :</label>
+                    {{ form_widget(registrationForm.devise, {'attr': {'placeholder': 'e.g., USD'}}) }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ registrationForm.pays.vars.id }}">Country :</label>
+                    {{ form_widget(registrationForm.pays, {'attr': {'placeholder': ' '}}) }}
                 </div>
                 
                 <div class="form-group">

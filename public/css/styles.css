@@ -22,7 +22,7 @@
 body {
     display: flex;
     min-height: 100vh;
-    background: radial-gradient(ellipse at center, var(--secondary) 0%, #f0f7f6 50%, var(--primary) 100%);
+    background: radial-gradient(ellipse at center, var(--secondary) 0%, #829794 50%, var(--primary) 100%);
     color: #333;
     position: relative;
     overflow-x: hidden;

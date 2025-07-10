@@ -32,27 +32,33 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Check if email already exists
+            $existingUser = $entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $form->get('email')->getData()]);
+            if ($existingUser) {
+                $this->addFlash('error', 'This email is already used. Please use another one or log in.');
+                return $this->redirectToRoute('app_register');
+            }
+
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            // encode the plain password
+            // Set additional user properties
+            $user->setNom($form->get('nom')->getData());
+            $user->setDevise($form->get('devise')->getData());
+            $user->setPays($form->get('pays')->getData());
+
+            // Encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+
+            // Mark user as verified by default (no email verification)
+            $user->setIsVerified(true);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
-                (new TemplatedEmail())
-                    ->from(new Address('mailer@your-domain.com', 'SHOPLAB Support'))
-                    ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
-            );
-
-            // do anything else you need here, like send an email
-
-            return $security->login($user, LoginAuthenticator::class, 'main');
+            // Add success notification and redirect to login
+            $this->addFlash('success', 'Registration successful! Please log in.');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [
@@ -65,7 +71,7 @@ class RegistrationController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-        // validate email confirmation link, sets User::isVerified=true and persists
+        // Validate email confirmation link, sets User::isVerified=true and persists
         try {
             /** @var Utilisateur $user */
             $user = $this->getUser();
