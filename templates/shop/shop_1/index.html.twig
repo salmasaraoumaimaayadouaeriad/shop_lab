@@ -807,14 +807,6 @@
                 <input type="text" id="siteNameInput" class="form-control" value="{{ site_name|default('Stylish') }}" autocomplete="off">
             </div>
             <div class="mb-3">
-                <label for="primaryColorInput" class="form-label mb-0">Primary Color:</label>
-                <input type="color" id="primaryColorInput" class="form-control form-control-color" value="{{ primary_color|default('#111111') }}">
-            </div>
-            <div class="mb-3">
-                <label for="secondaryColorInput" class="form-label mb-0">Secondary Color:</label>
-                <input type="color" id="secondaryColorInput" class="form-control form-control-color" value="{{ secondary_color|default('#6c757d') }}">
-            </div>
-            <div class="mb-3">
                 <label>Background: <input type="color" id="backgroundColorInput" value="{{ background_color|default('#f8f8f8') }}"></label>
                 <label style="margin-left: 1em;">Text: <input type="color" id="textColorInput" value="{{ text_color|default('#212529') }}"></label>
                 <label style="margin-left: 1em;">Link: <input type="color" id="linkColorInput" value="{{ link_color|default('#ce071e') }}"></label>
