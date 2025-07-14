@@ -805,7 +805,7 @@
             <div class="mb-3">
                 <label for="siteNameInput" class="form-label mb-0">Site Name:</label>
                 <input type="text" id="siteNameInput" class="form-control" value="{{ site_name|default('Stylish') }}" autocomplete="off">
-            </div>
+    </div>
             <div class="mb-3">
                 <label>Background: <input type="color" id="backgroundColorInput" value="{{ background_color|default('#f8f8f8') }}"></label>
                 <label style="margin-left: 1em;">Text: <input type="color" id="textColorInput" value="{{ text_color|default('#212529') }}"></label>
@@ -817,16 +817,17 @@
                 <label>Get In Touch Section:<br>
                     <textarea id="getInTouchInput" rows="4" style="width: 100%;" autocomplete="off">{{ get_in_touch|default('Stylish Online Store 123 Main Street, Toulouse - France.\nCall us: (+33) 800 456 789-987\ncontact@yourwebsite.com') }}</textarea>
                 </label>
-            </div>
+        </div>
             <hr>
             <div class="mb-3">
                 <button type="button" id="addProductBtn" class="btn btn-primary w-100">Add Product</button>
-            </div>
+    </div>
             <div id="addProductForm" style="display:none; margin-bottom: 1em;">
                 <label class="form-label">Product Image:<input type="file" id="productImageInput" accept="image/*" class="form-control" autocomplete="off"></label>
                 <label class="form-label">Product Name:<input type="text" id="productNameInput" class="form-control" autocomplete="name"></label>
                 <label class="form-label">Description:<textarea id="productDescInput" class="form-control" autocomplete="off"></textarea></label>
                 <label class="form-label">Price:<input type="number" id="productPriceInput" class="form-control" min="0" step="0.01" autocomplete="off"></label>
+                <label class="form-label">Category:<input type="text" id="productCategoryInput" class="form-control" autocomplete="off"></label>
                 <button type="button" id="saveProductBtn" class="btn btn-success mt-2">Save Product</button>
                 <button type="button" id="cancelProductBtn" class="btn btn-secondary mt-2">Cancel</button>
             </div>
@@ -1615,18 +1616,18 @@
         var loginForm = document.getElementById('login-form');
         if (loginForm) {
             loginForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                console.log('Login form submitted');
-            });
+            e.preventDefault();
+            console.log('Login form submitted');
+        });
         }
 
         var searchForm = document.getElementById('search-form');
         if (searchForm) {
             searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const query = this.querySelector('input[name="q"]').value;
-                console.log('Search query:', query);
-            });
+            e.preventDefault();
+            const query = this.querySelector('input[name="q"]').value;
+            console.log('Search query:', query);
+        });
         }
 
     // Live update site name and colors
@@ -1769,6 +1770,7 @@
                             <h3 class="card-title fs-6 fw-normal m-0">${prod.name}</h3>
                             <p class="mb-1">${prod.desc}</p>
                             <span class="card-price fw-bold">$${prod.price}</span>
+                            <span class="badge bg-secondary mt-1">${prod.categorie || ''}</span>
                         </div>
                     </div>
                 </div>`;
@@ -1794,6 +1796,7 @@
             var name = document.getElementById('productNameInput').value;
             var desc = document.getElementById('productDescInput').value;
             var price = document.getElementById('productPriceInput').value;
+            var categorie = document.getElementById('productCategoryInput').value;
             var imgInput = document.getElementById('productImageInput');
             if (!name || !desc || !price || !imgInput.files[0]) {
                 alert('Please fill all fields and select an image.');
@@ -1805,7 +1808,8 @@
                     name,
                     desc,
                     price: parseFloat(price).toFixed(2),
-                    image: e.target.result
+                    image: e.target.result,
+                    categorie
                 });
                 renderProducts();
                 var addProductForm = document.getElementById('addProductForm');
@@ -1813,6 +1817,7 @@
                 document.getElementById('productNameInput').value = '';
                 document.getElementById('productDescInput').value = '';
                 document.getElementById('productPriceInput').value = '';
+                document.getElementById('productCategoryInput').value = '';
                 document.getElementById('productImageInput').value = '';
             };
             reader.readAsDataURL(imgInput.files[0]);

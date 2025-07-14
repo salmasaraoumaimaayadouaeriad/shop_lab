@@ -768,48 +768,54 @@
 
     <!-- Template Showcases -->
     {% for niche in niches %}
-        <section class="template-showcase 
-                    {% if 'fashion' in niche.name|lower %}fashion-showcase
-                    {% elseif 'electronic' in niche.name|lower %}electronics-showcase
-                    {% elseif 'home' in niche.name|lower %}home-showcase{% endif %}">
-            <div class="container">
-                <h2 class="section-title">{{ niche.name }}</h2>
-                <div class="template-grid">
-                    {% for template in niche.templates|batch(3)|first %}
-                        <div class="template-card">
-                            <img src="{{ template.preview|default('/placeholder.svg?height=200&width=300') }}" 
-                                 class="template-card-img" 
-                                 alt="{{ template.name|default('Template Preview') }}">
-                            <div class="template-card-body">
-                                <h5 class="template-card-title">{{ template.name|default('Coming Soon') }}</h5>
-                                <a href="{{ path('app_niche', {'slug': niche.name|lower|replace({' & ': '-', ' ': '-', ',': ''}) }) }}" 
-                                   class="template-preview-btn">
-                                    Preview Template
-                                    <span>→</span>
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <!-- Show placeholder cards when no templates -->
-                        {% for i in 1..3 %}
+        {% if 'fashion' in niche.name|lower %}
+            <section class="template-showcase fashion-showcase">
+                <div class="container">
+                    <h2 class="section-title">{{ niche.name }}</h2>
+                    <div class="template-grid">
+                        {% for template in niche.templates|batch(3)|first %}
                             <div class="template-card">
-                                <img src="/placeholder.svg?height=200&width=300" 
+                                <img src="{{ template.preview|default('/placeholder.svg?height=200&width=300') }}" 
                                      class="template-card-img" 
-                                     alt="Template Preview">
+                                     alt="{{ template.name|default('Template Preview') }}">
                                 <div class="template-card-body">
-                                    <h5 class="template-card-title">Coming Soon</h5>
-                                    <a href="{{ path('app_niche', {'slug': niche.name|lower|replace({' & ': '-', ' ': '-', ',': ''}) }) }}" 
-                                       class="template-preview-btn">
-                                        Preview Template
-                                        <span>→</span>
-                                    </a>
+                                    <h5 class="template-card-title">{{ template.name|default('Coming Soon') }}</h5>
+                                    {% if template.name == 'Trendy Boutique' %}
+                                        <a href="https://127.0.0.1:8000/perview?#" class="template-preview-btn">
+                                            Preview Template
+                                            <span>→</span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{{ path('app_niche', {'slug': niche.name|lower|replace({' & ': '-', ' ': '-', ',': ''}) }) }}" 
+                                           class="template-preview-btn">
+                                            Preview Template
+                                            <span>→</span>
+                                        </a>
+                                    {% endif %}
                                 </div>
                             </div>
+                        {% else %}
+                            <!-- Show placeholder cards when no templates -->
+                            {% for i in 1..3 %}
+                                <div class="template-card">
+                                    <img src="/placeholder.svg?height=200&width=300" 
+                                         class="template-card-img" 
+                                         alt="Template Preview">
+                                    <div class="template-card-body">
+                                        <h5 class="template-card-title">Coming Soon</h5>
+                                        <a href="{{ path('app_niche', {'slug': niche.name|lower|replace({' & ': '-', ' ': '-', ',': ''}) }) }}" 
+                                           class="template-preview-btn">
+                                            Preview Template
+                                            <span>→</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endfor %}
 
     <!-- Stats Section -->
