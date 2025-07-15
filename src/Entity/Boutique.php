@@ -54,6 +54,21 @@ class Boutique
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $getInTouch = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $customTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $customDescription = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $customImage = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $customCategories = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $customPanelJson = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -199,6 +214,52 @@ class Boutique
     public function setGetInTouch(?string $getInTouch): static
     {
         $this->getInTouch = $getInTouch;
+        return $this;
+    }
+
+    public function getCustomTitle(): ?string
+    {
+        return $this->customTitle;
+    }
+    public function setCustomTitle(?string $customTitle): static
+    {
+        $this->customTitle = $customTitle;
+        return $this;
+    }
+    public function getCustomDescription(): ?string
+    {
+        return $this->customDescription;
+    }
+    public function setCustomDescription(?string $customDescription): static
+    {
+        $this->customDescription = $customDescription;
+        return $this;
+    }
+    public function getCustomImage(): ?string
+    {
+        return $this->customImage;
+    }
+    public function setCustomImage(?string $customImage): static
+    {
+        $this->customImage = $customImage;
+        return $this;
+    }
+    public function getCustomCategories(): ?array
+    {
+        return $this->customCategories;
+    }
+    public function setCustomCategories(?array $customCategories): static
+    {
+        $this->customCategories = $customCategories;
+        return $this;
+    }
+    public function getCustomPanelJson(): ?array
+    {
+        return $this->customPanelJson;
+    }
+    public function setCustomPanelJson(?array $customPanelJson): static
+    {
+        $this->customPanelJson = $customPanelJson;
         return $this;
     }
 }
