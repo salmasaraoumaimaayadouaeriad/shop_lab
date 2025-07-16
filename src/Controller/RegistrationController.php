@@ -56,6 +56,12 @@ class RegistrationController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
+            // Create and persist a Commercant for this user
+            $commercant = new \App\Entity\Commercant();
+            $commercant->setUtilisateur($user);
+            $entityManager->persist($commercant);
+            $entityManager->flush();
+
             // Add success notification and redirect to login
             $this->addFlash('success', 'Registration successful! Please log in.');
             return $this->redirectToRoute('app_login');

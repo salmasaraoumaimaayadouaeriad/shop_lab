@@ -958,9 +958,7 @@
 
             <!-- Action Buttons -->
             <div class="d-grid gap-2 mt-4">
-                <button type="button" class="btn-custom" onclick="saveConfig()">
-                    <i class="fas fa-save"></i> Save Configuration
-                </button>
+                <button id="save-config-btn" type="button" class="btn btn-danger btn-block">SAVE CONFIGURATION</button>
                 <button type="button" class="btn-outline-custom" onclick="exportConfig()">
                     <i class="fas fa-download"></i> Export Config
                 </button>
@@ -2023,6 +2021,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Custom JavaScript from user
         {{ custom_js|raw }}
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const saveBtn = document.getElementById('save-config-btn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', async function (event) {
+                    event.preventDefault(); // Prevent form submission
+
+                    // Example config, replace with your actual config gathering
+                    const config = getCurrentConfig();
+
+                    try {
+                        const response = await fetch('/api/boutique/create', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(config)
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            alert('Boutique created! ID: ' + result.boutique_id);
+                        } else {
+                            alert('Error: ' + (result.error || 'Unknown error'));
+                        }
+                    } catch (e) {
+                        alert('Network or server error');
+                    }
+                });
+            }
+        });
+
+        // Dummy config function for testing
+        function getCurrentConfig() {
+            return { nom: 'Test Boutique', slug: 'test-boutique-' + Date.now() };
+        }
     </script>
 </body>
 </html>
