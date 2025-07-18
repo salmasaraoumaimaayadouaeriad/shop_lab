@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Repository\BoutiqueRepository;
+use App\Entity\Utilisateur;
+use App\Entity\Commercant;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,15 +20,30 @@ class HomeController extends AbstractController
 
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
-            'username' => $user ? $user->getNom() : 'Guest',
+            'username' => $user ? $user->getUserIdentifier() : 'Guest',
         ]);
     }
 
-    #[Route('/dashboard', name: 'app_dashboard')]
+    #[Route('/dashboard', name: 'dashboard')]
     #[IsGranted('ROLE_USER')]
-    public function dashboard(): Response
+    public function dashboard(BoutiqueRepository $boutiqueRepository): Response
     {
-        // Example list of niches and templates
+        /** @var \App\Entity\Utilisateur $user */
+        $user = $this->getUser();
+
+        // Get all Commercant entities for this user
+        $commercants = $user->getCommercant();
+
+        // Get all boutiques for these commercants
+        $boutiques = [];
+        foreach ($commercants as $commercant) {
+            $userBoutiques = $boutiqueRepository->findBy(['commercant' => $commercant]);
+            foreach ($userBoutiques as $boutique) {
+                $boutiques[] = $boutique;
+            }
+        }
+
+        // Restore the static niches variable for dashboard content
         $niches = [
             [
                 'name' => 'Fashion & Cosmetics',
@@ -48,7 +66,10 @@ class HomeController extends AbstractController
                 ],
             ],
         ];
+
+        // Pass both boutiques and niches to the template
         return $this->render('dashboard/index.html.twig', [
+            'boutiques' => $boutiques,
             'niches' => $niches,
         ]);
     }

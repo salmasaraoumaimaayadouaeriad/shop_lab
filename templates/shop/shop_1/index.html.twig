@@ -7,8 +7,8 @@
     <meta name="description" content="{{ site_name|default('Stylish') }} - {{ tagline|default('Premium Online Store') }}">
     <title>{{ site_name|default('Stylish') }} - {{ tagline|default('Premium Online Store') }}</title>
     
-    {% if favicon_url %}
-    <link rel="icon" href="{{ favicon_url }}">
+    {% if favicon_url|default('') %}
+    <link rel="icon" href="{{ favicon_url|default('') }}">
     {% endif %}
     
     <!-- Preload critical resources -->
@@ -46,9 +46,9 @@
             --card-bg: {{ card_bg|default('#ffffff') }};
             --border-color: {{ border_color|default('#dee2e6') }};
             --success-color: {{ success_color|default('#28a745') }};
-            --warning-color: {{ warning_color|default('#ffc107') }};
-            --danger-color: {{ danger_color|default('#dc3545') }};
-            --info-color: {{ info_color|default('#17a2b8') }};
+            --warning-color: {{ warning_color|default('#ffc107')|default('') }};
+            --danger-color: {{ danger_color|default('#dc3545')|default('') }};
+            --info-color: {{ info_color|default('#17a2b8')|default('') }};
             
             /* Typography */
             --font-family: "{{ font_family|default('Inter') }}", sans-serif;
@@ -596,16 +596,18 @@
         {{ custom_css|raw }}
     </style>
 
-    {% if google_analytics %}
+    {% if google_analytics|default('') %}
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics }}"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics|default('') }}"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-        gtag('config', '{{ google_analytics }}');
+        gtag('config', '{{ google_analytics|default('') }}');
     </script>
     {% endif %}
+
+    <meta name="csrf-token" content="{{ csrf_token('edit_boutique') }}">
 </head>
 
 <body>
@@ -637,7 +639,7 @@
             <div id="general-tab" class="tab-content active">
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-store"></i> Site Name</label>
-                    <input type="text" id="siteName" class="form-control-custom" value="{{ site_name|default('Stylish') }}">
+                    <input type="text" id="site_name" class="form-control-custom" value="{{ site_name|default('Stylish') }}">
                 </div>
 
                 <div class="form-group">
@@ -647,41 +649,41 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-heading"></i> Hero Title</label>
-                    <input type="text" id="heroTitle" class="form-control-custom" value="{{ hero_title|default('Stylish Shoes Collection') }}">
+                    <input type="text" id="hero_title" class="form-control-custom" value="{{ hero_title|default('Stylish Shoes Collection') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-align-left"></i> Hero Subtitle</label>
-                    <textarea id="heroSubtitle" class="form-control-custom" rows="3">{{ hero_subtitle|default('Discover the latest trends in footwear') }}</textarea>
+                    <textarea id="hero_subtitle" class="form-control-custom" rows="3">{{ hero_subtitle|default('Discover the latest trends in footwear') }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-mouse-pointer"></i> Hero Button Text</label>
-                    <input type="text" id="heroButtonText" class="form-control-custom" value="{{ hero_button_text|default('Shop Now') }}">
+                    <input type="text" id="hero_button_text" class="form-control-custom" value="{{ hero_button_text|default('Shop Now') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-mouse-pointer"></i> Hero Button 2 Text</label>
-                    <input type="text" id="heroButton2Text" class="form-control-custom" value="{{ hero_button_2_text|default('Learn More') }}">
+                    <input type="text" id="hero_button_2_text" class="form-control-custom" value="{{ hero_button_2_text|default('Learn More') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-image"></i> Logo URL</label>
-                    <input type="url" id="logoUrl" class="form-control-custom" value="{{ logo_url|default('') }}" placeholder="https://example.com/logo.png">
+                    <input type="url" id="logo_url" class="form-control-custom" value="{{ logo_url|default('') }}" placeholder="https://example.com/logo.png">
                     <label class="form-label mt-2"><i class="fas fa-upload"></i> Upload Logo</label>
                     <input type="file" id="logoFile" class="form-control-custom" accept="image/*">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-image"></i> Favicon URL</label>
-                    <input type="url" id="faviconUrl" class="form-control-custom" value="{{ favicon_url|default('') }}" placeholder="https://example.com/favicon.ico">
+                    <input type="url" id="favicon_url" class="form-control-custom" value="{{ favicon_url|default('') }}" placeholder="https://example.com/favicon.ico">
                     <label class="form-label mt-2"><i class="fas fa-upload"></i> Upload Favicon</label>
                     <input type="file" id="faviconFile" class="form-control-custom" accept="image/*">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-image"></i> Hero Image URL</label>
-                    <input type="url" id="heroImageUrl" class="form-control-custom" value="{{ hero_image_url|default('') }}" placeholder="https://example.com/hero.jpg">
+                    <input type="url" id="hero_image_url" class="form-control-custom" value="{{ hero_image_url|default('') }}" placeholder="https://example.com/hero.jpg">
                     <label class="form-label mt-2"><i class="fas fa-upload"></i> Upload Hero Image</label>
                     <input type="file" id="heroImageFile" class="form-control-custom" accept="image/*">
                 </div>
@@ -692,62 +694,62 @@
                 <div class="color-grid">
                     <div class="color-input-group">
                         <label class="form-label">Primary Color</label>
-                        <input type="color" id="primaryColor" value="{{ primary_color|default('#111111') }}">
+                        <input type="color" id="primary_color" value="{{ primary_color|default('#111111') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Secondary Color</label>
-                        <input type="color" id="secondaryColor" value="{{ secondary_color|default('#6c757d') }}">
+                        <input type="color" id="secondary_color" value="{{ secondary_color|default('#6c757d') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Background Color</label>
-                        <input type="color" id="backgroundColor" value="{{ background_color|default('#f8f8f8') }}">
+                        <input type="color" id="background_color" value="{{ background_color|default('#f8f8f8') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Text Color</label>
-                        <input type="color" id="textColor" value="{{ text_color|default('#212529') }}">
+                        <input type="color" id="text_color" value="{{ text_color|default('#212529') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Link Color</label>
-                        <input type="color" id="linkColor" value="{{ link_color|default('#ce071e') }}">
+                        <input type="color" id="link_color" value="{{ link_color|default('#ce071e') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Button Color</label>
-                        <input type="color" id="buttonColor" value="{{ button_color|default('#e74c3c') }}">
+                        <input type="color" id="button_color" value="{{ button_color|default('#e74c3c') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Accent Color</label>
-                        <input type="color" id="accentColor" value="{{ accent_color|default('#111111') }}">
+                        <input type="color" id="accent_color" value="{{ accent_color|default('#111111') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Header Background</label>
-                        <input type="color" id="headerBg" value="{{ header_bg|default('#ffffff') }}">
+                        <input type="color" id="header_bg" value="{{ header_bg|default('#ffffff') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Footer Background</label>
-                        <input type="color" id="footerBg" value="{{ footer_bg|default('#f5f5f5') }}">
+                        <input type="color" id="footer_bg" value="{{ footer_bg|default('#f5f5f5') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Card Background</label>
-                        <input type="color" id="cardBg" value="{{ card_bg|default('#ffffff') }}">
+                        <input type="color" id="card_bg" value="{{ card_bg|default('#ffffff') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Border Color</label>
-                        <input type="color" id="borderColor" value="{{ border_color|default('#dee2e6') }}">
+                        <input type="color" id="border_color" value="{{ border_color|default('#dee2e6') }}">
                     </div>
                     <div class="color-input-group">
                         <label class="form-label">Success Color</label>
-                        <input type="color" id="successColor" value="{{ success_color|default('#28a745') }}">
+                        <input type="color" id="success_color" value="{{ success_color|default('#28a745') }}">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-image"></i> Background Image URL</label>
-                    <input type="url" id="backgroundImage" class="form-control-custom" value="{{ background_image|default('') }}" placeholder="https://example.com/bg.jpg">
+                    <input type="url" id="background_image" class="form-control-custom" value="{{ background_image|default('') }}" placeholder="https://example.com/bg.jpg">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-adjust"></i> Overlay Opacity: <span id="overlayOpacityValue">{{ overlay_opacity|default('0.5') }}</span></label>
-                    <input type="range" id="overlayOpacity" class="range-slider" min="0" max="1" step="0.1" value="{{ overlay_opacity|default('0.5') }}">
+                    <input type="range" id="overlay_opacity" class="range-slider" min="0" max="1" step="0.1" value="{{ overlay_opacity|default('0.5') }}">
                 </div>
             </div>
 
@@ -755,7 +757,7 @@
             <div id="typography-tab" class="tab-content">
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-font"></i> Font Family</label>
-                    <select id="fontFamily" class="form-control-custom">
+                    <select id="font_family" class="form-control-custom">
                         <option value="Inter" {{ font_family == 'Inter' ? 'selected' : '' }}>Inter</option>
                         <option value="Roboto" {{ font_family == 'Roboto' ? 'selected' : '' }}>Roboto</option>
                         <option value="Open Sans" {{ font_family == 'Open Sans' ? 'selected' : '' }}>Open Sans</option>
@@ -768,7 +770,7 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-heading"></i> Heading Font</label>
-                    <select id="headingFont" class="form-control-custom">
+                    <select id="heading_font" class="form-control-custom">
                         <option value="Playfair Display" {{ heading_font == 'Playfair Display' ? 'selected' : '' }}>Playfair Display</option>
                         <option value="Merriweather" {{ heading_font == 'Merriweather' ? 'selected' : '' }}>Merriweather</option>
                         <option value="Lora" {{ heading_font == 'Lora' ? 'selected' : '' }}>Lora</option>
@@ -780,27 +782,27 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-text-height"></i> Font Size: <span id="fontSizeValue">{{ font_size|default('16') }}px</span></label>
-                    <input type="range" id="fontSize" class="range-slider" min="12" max="24" value="{{ font_size|default('16') }}">
+                    <input type="range" id="font_size" class="range-slider" min="12" max="24" value="{{ font_size|default('16') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-text-height"></i> Heading Size: <span id="headingSizeValue">{{ heading_size|default('2.5') }}rem</span></label>
-                    <input type="range" id="headingSize" class="range-slider" min="1.5" max="4" step="0.1" value="{{ heading_size|default('2.5') }}">
+                    <input type="range" id="heading_size" class="range-slider" min="1.5" max="4" step="0.1" value="{{ heading_size|default('2.5') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-arrows-alt-v"></i> Line Height: <span id="lineHeightValue">{{ line_height|default('1.6') }}</span></label>
-                    <input type="range" id="lineHeight" class="range-slider" min="1" max="2.5" step="0.1" value="{{ line_height|default('1.6') }}">
+                    <input type="range" id="line_height" class="range-slider" min="1" max="2.5" step="0.1" value="{{ line_height|default('1.6') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-arrows-alt-h"></i> Letter Spacing: <span id="letterSpacingValue">{{ letter_spacing|default('0') }}px</span></label>
-                    <input type="range" id="letterSpacing" class="range-slider" min="-2" max="5" step="0.5" value="{{ letter_spacing|default('0') }}">
+                    <input type="range" id="letter_spacing" class="range-slider" min="-2" max="5" step="0.5" value="{{ letter_spacing|default('0') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-bold"></i> Font Weight</label>
-                    <select id="fontWeight" class="form-control-custom">
+                    <select id="font_weight" class="form-control-custom">
                         <option value="300" {{ font_weight == '300' ? 'selected' : '' }}>Light (300)</option>
                         <option value="400" {{ font_weight == '400' ? 'selected' : '' }}>Normal (400)</option>
                         <option value="500" {{ font_weight == '500' ? 'selected' : '' }}>Medium (500)</option>
@@ -811,7 +813,7 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-bold"></i> Heading Weight</label>
-                    <select id="headingWeight" class="form-control-custom">
+                    <select id="heading_weight" class="form-control-custom">
                         <option value="400" {{ heading_weight == '400' ? 'selected' : '' }}>Normal (400)</option>
                         <option value="500" {{ heading_weight == '500' ? 'selected' : '' }}>Medium (500)</option>
                         <option value="600" {{ heading_weight == '600' ? 'selected' : '' }}>Semi Bold (600)</option>
@@ -826,12 +828,12 @@
             <div id="layout-tab" class="tab-content">
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-arrows-alt-h"></i> Container Width: <span id="containerWidthValue">{{ container_width|default('1200') }}px</span></label>
-                    <input type="range" id="containerWidth" class="range-slider" min="800" max="1600" step="50" value="{{ container_width|default('1200') }}">
+                    <input type="range" id="container_width" class="range-slider" min="800" max="1600" step="50" value="{{ container_width|default('1200') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-border-style"></i> Border Radius: <span id="borderRadiusValue">{{ border_radius|default('8') }}px</span></label>
-                    <input type="range" id="borderRadius" class="range-slider" min="0" max="50" value="{{ border_radius|default('8') }}">
+                    <input type="range" id="border_radius" class="range-slider" min="0" max="50" value="{{ border_radius|default('8') }}">
                 </div>
 
                 <div class="form-group">
@@ -841,24 +843,24 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-arrows-alt-v"></i> Header Height: <span id="headerHeightValue">{{ header_height|default('80') }}px</span></label>
-                    <input type="range" id="headerHeight" class="range-slider" min="60" max="120" value="{{ header_height|default('80') }}">
+                    <input type="range" id="header_height" class="range-slider" min="60" max="120" value="{{ header_height|default('80') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-shadow"></i> Shadow Intensity: <span id="shadowIntensityValue">{{ shadow_intensity|default('0.1') }}</span></label>
-                    <input type="range" id="shadowIntensity" class="range-slider" min="0" max="0.5" step="0.05" value="{{ shadow_intensity|default('0.1') }}">
+                    <input type="range" id="shadow_intensity" class="range-slider" min="0" max="0.5" step="0.05" value="{{ shadow_intensity|default('0.1') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-eye-dropper"></i> Blur Effect: <span id="blurEffectValue">{{ blur_effect|default('0') }}px</span></label>
-                    <input type="range" id="blurEffect" class="range-slider" min="0" max="20" value="{{ blur_effect|default('0') }}">
+                    <input type="range" id="blur_effect" class="range-slider" min="0" max="20" value="{{ blur_effect|default('0') }}">
                 </div>
 
                 <!-- Feature Toggles -->
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-search"></i> Show Search</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="showSearch" {{ show_search == 'true' ? 'checked' : '' }}>
+                        <input type="checkbox" id="show_search" {{ show_search == 'true' ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -866,7 +868,7 @@
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-shopping-cart"></i> Show Cart</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="showCart" {{ show_cart == 'true' ? 'checked' : '' }}>
+                        <input type="checkbox" id="show_cart" {{ show_cart == 'true' ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -874,7 +876,7 @@
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-user"></i> Show Login</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="showLogin" {{ show_login == 'true' ? 'checked' : '' }}>
+                        <input type="checkbox" id="show_login" {{ show_login == 'true' ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -882,7 +884,7 @@
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-share-alt"></i> Show Social Links</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="showSocial" {{ show_social == 'true' ? 'checked' : '' }}>
+                        <input type="checkbox" id="show_social" {{ show_social == 'true' ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -890,7 +892,7 @@
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-magic"></i> Enable Animations</label>
                     <label class="toggle-switch">
-                        <input type="checkbox" id="enableAnimations" {{ enable_animations == 'true' ? 'checked' : '' }}>
+                        <input type="checkbox" id="enable_animations" {{ enable_animations == 'true' ? 'checked' : '' }}>
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
@@ -915,37 +917,37 @@
 
                 <div class="form-group">
                     <label class="form-label"><i class="fab fa-facebook"></i> Facebook URL</label>
-                    <input type="url" id="socialFacebook" class="form-control-custom" value="{{ social_facebook|default('#') }}">
+                    <input type="url" id="social_facebook" class="form-control-custom" value="{{ social_facebook|default('#') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fab fa-instagram"></i> Instagram URL</label>
-                    <input type="url" id="socialInstagram" class="form-control-custom" value="{{ social_instagram|default('#') }}">
+                    <input type="url" id="social_instagram" class="form-control-custom" value="{{ social_instagram|default('#') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fab fa-twitter"></i> Twitter URL</label>
-                    <input type="url" id="socialTwitter" class="form-control-custom" value="{{ social_twitter|default('#') }}">
+                    <input type="url" id="social_twitter" class="form-control-custom" value="{{ social_twitter|default('#') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fab fa-youtube"></i> YouTube URL</label>
-                    <input type="url" id="socialYoutube" class="form-control-custom" value="{{ social_youtube|default('#') }}">
+                    <input type="url" id="social_youtube" class="form-control-custom" value="{{ social_youtube|default('#') }}">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-chart-line"></i> Google Analytics ID</label>
-                    <input type="text" id="googleAnalytics" class="form-control-custom" value="{{ google_analytics|default('') }}" placeholder="GA-XXXXXXXXX-X">
+                    <input type="text" id="google_analytics" class="form-control-custom" value="{{ google_analytics|default('') }}" placeholder="GA-XXXXXXXXX-X">
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fas fa-code"></i> Custom CSS</label>
-                    <textarea id="customCss" class="form-control-custom" rows="6" placeholder="/* Your custom CSS here */">{{ custom_css|default('') }}</textarea>
+                    <textarea id="custom_css" class="form-control-custom" rows="6" placeholder="/* Your custom CSS here */">{{ custom_css|default('') }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label"><i class="fab fa-js"></i> Custom JavaScript</label>
-                    <textarea id="customJs" class="form-control-custom" rows="6" placeholder="// Your custom JavaScript here">{{ custom_js|default('') }}</textarea>
+                    <textarea id="custom_js" class="form-control-custom" rows="6" placeholder="// Your custom JavaScript here">{{ custom_js|default('') }}</textarea>
                 </div>
                 <hr>
                 <div class="form-group">
@@ -1358,7 +1360,7 @@
         // Real-time updates
         document.addEventListener('DOMContentLoaded', function() {
             // Site name updates
-            const siteNameInput = document.getElementById('siteName');
+            const siteNameInput = document.getElementById('site_name');
             const siteNameDisplay = document.getElementById('siteNameDisplay');
             const footerSiteName = document.getElementById('footerSiteName');
             
@@ -1383,7 +1385,7 @@
             }
 
             // Hero content updates
-            const heroTitleInput = document.getElementById('heroTitle');
+            const heroTitleInput = document.getElementById('hero_title');
             const heroTitleDisplay = document.getElementById('heroTitleDisplay');
             
             if (heroTitleInput) {
@@ -1392,7 +1394,7 @@
                 });
             }
 
-            const heroSubtitleInput = document.getElementById('heroSubtitle');
+            const heroSubtitleInput = document.getElementById('hero_subtitle');
             const heroSubtitleDisplay = document.getElementById('heroSubtitleDisplay');
             
             if (heroSubtitleInput) {
@@ -1401,7 +1403,7 @@
                 });
             }
 
-            const heroButtonTextInput = document.getElementById('heroButtonText');
+            const heroButtonTextInput = document.getElementById('hero_button_text');
             const heroButton1Display = document.getElementById('heroButton1Display');
             
             if (heroButtonTextInput) {
@@ -1410,7 +1412,7 @@
                 });
             }
 
-            const heroButton2TextInput = document.getElementById('heroButton2Text');
+            const heroButton2TextInput = document.getElementById('hero_button_2_text');
             const heroButton2Display = document.getElementById('heroButton2Display');
             
             if (heroButton2TextInput) {
@@ -1421,9 +1423,9 @@
 
             // Color updates
             const colorInputs = [
-                'primaryColor', 'secondaryColor', 'backgroundColor', 'textColor',
-                'linkColor', 'buttonColor', 'accentColor', 'headerBg', 'footerBg',
-                'cardBg', 'borderColor', 'successColor'
+                'primary_color', 'secondary_color', 'background_color', 'text_color',
+                'link_color', 'button_color', 'accent_color', 'header_bg', 'footer_bg',
+                'card_bg', 'border_color', 'success_color'
             ];
 
             colorInputs.forEach(inputId => {
@@ -1438,17 +1440,17 @@
 
             // Range slider updates
             const rangeInputs = [
-                { id: 'fontSize', display: 'fontSizeValue', suffix: 'px', cssVar: '--font-size' },
-                { id: 'headingSize', display: 'headingSizeValue', suffix: 'rem', cssVar: '--heading-size' },
-                { id: 'lineHeight', display: 'lineHeightValue', suffix: '', cssVar: '--line-height' },
-                { id: 'letterSpacing', display: 'letterSpacingValue', suffix: 'px', cssVar: '--letter-spacing' },
-                { id: 'containerWidth', display: 'containerWidthValue', suffix: 'px', cssVar: '--container-width' },
-                { id: 'borderRadius', display: 'borderRadiusValue', suffix: 'px', cssVar: '--border-radius' },
+                { id: 'font_size', display: 'fontSizeValue', suffix: 'px', cssVar: '--font-size' },
+                { id: 'heading_size', display: 'headingSizeValue', suffix: 'rem', cssVar: '--heading-size' },
+                { id: 'line_height', display: 'lineHeightValue', suffix: '', cssVar: '--line-height' },
+                { id: 'letter_spacing', display: 'letterSpacingValue', suffix: 'px', cssVar: '--letter-spacing' },
+                { id: 'container_width', display: 'containerWidthValue', suffix: 'px', cssVar: '--container-width' },
+                { id: 'border_radius', display: 'borderRadiusValue', suffix: 'px', cssVar: '--border-radius' },
                 { id: 'spacing', display: 'spacingValue', suffix: 'rem', cssVar: '--spacing' },
-                { id: 'headerHeight', display: 'headerHeightValue', suffix: 'px', cssVar: '--header-height' },
-                { id: 'shadowIntensity', display: 'shadowIntensityValue', suffix: '', cssVar: '--shadow-intensity' },
-                { id: 'blurEffect', display: 'blurEffectValue', suffix: 'px', cssVar: '--blur-effect' },
-                { id: 'overlayOpacity', display: 'overlayOpacityValue', suffix: '', cssVar: '--overlay-opacity' }
+                { id: 'header_height', display: 'headerHeightValue', suffix: 'px', cssVar: '--header-height' },
+                { id: 'shadow_intensity', display: 'shadowIntensityValue', suffix: '', cssVar: '--shadow-intensity' },
+                { id: 'blur_effect', display: 'blurEffectValue', suffix: 'px', cssVar: '--blur-effect' },
+                { id: 'overlay_opacity', display: 'overlayOpacityValue', suffix: '', cssVar: '--overlay-opacity' }
             ];
 
             rangeInputs.forEach(({ id, display, suffix, cssVar }) => {
@@ -1464,14 +1466,14 @@
             });
 
             // Font family updates
-            const fontFamilyInput = document.getElementById('fontFamily');
+            const fontFamilyInput = document.getElementById('font_family');
             if (fontFamilyInput) {
                 fontFamilyInput.addEventListener('change', function() {
                     document.documentElement.style.setProperty('--font-family', `"${this.value}", sans-serif`);
                 });
             }
 
-            const headingFontInput = document.getElementById('headingFont');
+            const headingFontInput = document.getElementById('heading_font');
             if (headingFontInput) {
                 headingFontInput.addEventListener('change', function() {
                     document.documentElement.style.setProperty('--heading-font', `"${this.value}", serif`);
@@ -1479,14 +1481,14 @@
             }
 
             // Font weight updates
-            const fontWeightInput = document.getElementById('fontWeight');
+            const fontWeightInput = document.getElementById('font_weight');
             if (fontWeightInput) {
                 fontWeightInput.addEventListener('change', function() {
                     document.documentElement.style.setProperty('--font-weight', this.value);
                 });
             }
 
-            const headingWeightInput = document.getElementById('headingWeight');
+            const headingWeightInput = document.getElementById('heading_weight');
             if (headingWeightInput) {
                 headingWeightInput.addEventListener('change', function() {
                     document.documentElement.style.setProperty('--heading-weight', this.value);
@@ -1495,10 +1497,10 @@
 
             // Toggle switches
             const toggles = [
-                { id: 'showSearch', element: 'searchAction' },
-                { id: 'showCart', element: 'cartAction' },
-                { id: 'showLogin', element: 'loginAction' },
-                { id: 'showSocial', element: 'socialLinks' }
+                { id: 'show_search', element: 'searchAction' },
+                { id: 'show_cart', element: 'cartAction' },
+                { id: 'show_login', element: 'loginAction' },
+                { id: 'show_social', element: 'socialLinks' }
             ];
 
             toggles.forEach(({ id, element }) => {
@@ -1542,10 +1544,10 @@
 
             // Social media updates
             const socialInputs = [
-                { id: 'socialFacebook', link: 'facebookLink' },
-                { id: 'socialInstagram', link: 'instagramLink' },
-                { id: 'socialTwitter', link: 'twitterLink' },
-                { id: 'socialYoutube', link: 'youtubeLink' }
+                { id: 'social_facebook', link: 'facebookLink' },
+                { id: 'social_instagram', link: 'instagramLink' },
+                { id: 'social_twitter', link: 'twitterLink' },
+                { id: 'social_youtube', link: 'youtubeLink' }
             ];
 
             socialInputs.forEach(({ id, link }) => {
@@ -1560,7 +1562,7 @@
             });
 
             // Logo and favicon updates
-            const logoUrlInput = document.getElementById('logoUrl');
+            const logoUrlInput = document.getElementById('logo_url');
             const logoFileInput = document.getElementById('logoFile');
             const logoDisplay = document.getElementById('logoDisplay');
 
@@ -1588,7 +1590,7 @@
                 });
             }
 
-            const faviconUrlInput = document.getElementById('faviconUrl');
+            const faviconUrlInput = document.getElementById('favicon_url');
             const faviconFileInput = document.getElementById('faviconFile');
             if (faviconUrlInput) {
                 faviconUrlInput.addEventListener('input', function() {
@@ -1621,7 +1623,7 @@
             }
 
             // Background image update
-            const backgroundImageInput = document.getElementById('backgroundImage');
+            const backgroundImageInput = document.getElementById('background_image');
             if (backgroundImageInput) {
                 backgroundImageInput.addEventListener('input', function() {
                     if (this.value) {
@@ -1636,7 +1638,7 @@
             }
 
             // Custom CSS update
-            const customCssInput = document.getElementById('customCss');
+            const customCssInput = document.getElementById('custom_css');
             let customStyleElement = document.getElementById('customStyles');
             
             if (customCssInput) {
@@ -2026,21 +2028,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const saveBtn = document.getElementById('save-config-btn');
             if (saveBtn) {
                 saveBtn.addEventListener('click', async function (event) {
-                    event.preventDefault(); // Prevent form submission
-
-                    // Example config, replace with your actual config gathering
+                    event.preventDefault();
                     const config = getCurrentConfig();
-
                     try {
-                        const response = await fetch('/api/boutique/create', {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch('{{ saveUrl }}', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
                             body: JSON.stringify(config)
                         });
-
                         const result = await response.json();
                         if (result.success) {
-                            alert('Boutique created! ID: ' + result.boutique_id);
+                            alert('Configuration saved!');
                         } else {
                             alert('Error: ' + (result.error || 'Unknown error'));
                         }
@@ -2053,7 +2056,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Dummy config function for testing
         function getCurrentConfig() {
-            return { nom: 'Test Boutique', slug: 'test-boutique-' + Date.now() };
+            const config = {};
+            document.querySelectorAll('#customizeForm input, #customizeForm textarea, #customizeForm select').forEach(input => {
+                if (input.type === 'checkbox') {
+                    config[input.id] = input.checked ? 'true' : 'false';
+                } else {
+                    config[input.id] = input.value;
+                }
+            });
+            return config;
         }
     </script>
 </body>

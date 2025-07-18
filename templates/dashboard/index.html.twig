@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --gradient-primary: linear-gradient(135deg,rgb(124, 230, 254) 0%,rgb(35, 33, 34) 100%);
             --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
             --shadow-primary: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
             --shadow-hover: 0 35px 60px -12px rgba(139, 92, 246, 0.4);
+            --sidebar-width: 400px;
         }
 
         * {
@@ -27,6 +29,360 @@
             overflow-x: hidden;
             position: relative;
             min-height: 100vh;
+        }
+
+        /* Profile Button */
+        .profile-toggle {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 1001;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .profile-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Profile Sidebar */
+        .profile-sidebar {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .sidebar-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-close:hover {
+            transform: scale(1.1);
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .profile-details h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .profile-details p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Sidebar Tabs */
+        .sidebar-tabs {
+            display: flex;
+            background: rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #64748b;
+            position: relative;
+        }
+
+        .tab-button.active {
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            padding: 1.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Template Cards in Sidebar */
+        .template-item {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .template-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .template-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .template-title {
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .template-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-draft {
+            background: rgba(251, 191, 36, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-published {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 120px;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-edit {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn-view {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+
+        .btn-view:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        /* Edit Modal */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .edit-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .color-picker-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .color-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-option.selected {
+            border-color: #8b5cf6;
+            transform: scale(1.1);
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         /* Container fixes for proper centering */
@@ -223,6 +579,19 @@
             .features-grid {
                 grid-template-columns: 1fr;
                 gap: 1rem;
+            }
+            
+            .profile-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .profile-toggle {
+                top: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
             }
         }
 
@@ -654,6 +1023,153 @@
 <!-- Mouse Follower -->
 <div class="mouse-follower" id="mouseFollower"></div>
 
+<!-- Profile Toggle Button -->
+<button class="profile-toggle" id="profileToggle">
+    <i class="fas fa-user"></i>
+</button>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Profile Sidebar -->
+<div class="profile-sidebar" id="profileSidebar">
+    <div class="sidebar-header">
+        <button class="sidebar-close" id="sidebarClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2>My Profile</h2>
+        <div class="profile-info">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-details">
+                <h3>{{ app.user.nom|default('User') }}</h3>
+                <p>{{ app.user.email|default('') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Tabs -->
+    <div class="sidebar-tabs">
+        <button class="tab-button active" data-tab="templates">
+            <i class="fas fa-palette"></i> Templates
+        </button>
+        <button class="tab-button" data-tab="settings">
+            <i class="fas fa-cog"></i> Settings
+        </button>
+    </div>
+
+    <!-- Templates Tab -->
+    <div class="tab-content active" id="templates-tab">
+        {% for boutique in boutiques %}
+            <div class="template-item">
+                <div class="template-header">
+                    <h4 class="template-title">{{ boutique.nom }}</h4>
+                    <span class="template-status status-published">Saved</span>
+                </div>
+                <div class="template-preview" style="background-image: url('{{ boutique.logo ?: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=300&h=120&fit=crop' }}');"></div>
+                <div class="template-actions">
+                    <a class="btn-small btn-edit" href="{{ path('boutique_edit', {'id': boutique.id}) }}">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="#" class="btn-small btn-view">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </div>
+            </div>
+        {% else %}
+            <p>No boutiques found.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-content" id="settings-tab">
+        <div class="form-group">
+            <label class="form-label">Profile Name</label>
+            <input type="text" class="form-input" value="John Creator">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" value="john@example.com">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Subscription</label>
+            <select class="form-input">
+                <option>Pro Member</option>
+                <option>Basic Member</option>
+                <option>Enterprise</option>
+            </select>
+        </div>
+        <button class="btn-primary-gradient" style="width: 100%; justify-content: center;">
+            Save Changes
+        </button>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="edit-modal" id="editModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Edit Template</h3>
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="editForm">
+            <div class="form-group">
+                <label class="form-label">Template Name</label>
+                <input type="text" class="form-input" id="templateName" placeholder="Enter template name">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input form-textarea" id="templateDescription" placeholder="Describe your template"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Primary Color</label>
+                <div class="color-picker-group">
+                    <div class="color-option selected" style="background: linear-gradient(135deg, #8b5cf6, #ec4899);" data-color="purple"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #3b82f6, #06b6d4);" data-color="blue"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #10b981, #34d399);" data-color="green"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);" data-color="yellow"></div>
+                    <div class="color-option" style="background: linear-gradient(135deg, #ef4444, #f97316);" data-color="red"></div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-input" id="templateCategory">
+                    <option>Fashion & Apparel</option>
+                    <option>Electronics & Tech</option>
+                    <option>Home & Garden</option>
+                    <option>Beauty & Cosmetics</option>
+                    <option>Sports & Fitness</option>
+                    <option>Art & Crafts</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select class="form-input" id="templateStatus">
+                    <option value="draft">Draft</option>
+                    <option value="published">Published</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                <button type="submit" class="btn-primary-gradient" style="flex: 1; justify-content: center;">
+                    Save Changes
+                </button>
+                <button type="button" class="btn-outline-gradient" style="flex: 1; justify-content: center;" onclick="closeEditModal()">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="content-wrapper">
     <!-- Hero Section -->
     <section class="hero-section">
@@ -663,7 +1179,7 @@
                     Welcome to<br>
                     <span style="position: relative;">
                         Shop Lab
-                        <span style="position: absolute; ;top: -20px; right: -20px; font-size: 2rem;">✨</span>
+                        <span style="position: absolute; top: -20px; right: -20px; font-size: 2rem;">✨</span>
                     </span>
                 </h1>
             </div>
@@ -777,7 +1293,7 @@
                 <div class="template-grid">
                     {% for template in niche.templates|batch(3)|first %}
                         <div class="template-card">
-                            <img src="{{ template.preview|default('/placeholder.svg?height=200&width=300') }}" 
+                            <img src="{{ template.preview|default('https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop') }}" 
                                  class="template-card-img" 
                                  alt="{{ template.name|default('Template Preview') }}">
                             <div class="template-card-body">
@@ -793,7 +1309,7 @@
                         <!-- Show placeholder cards when no templates -->
                         {% for i in 1..3 %}
                             <div class="template-card">
-                                <img src="/placeholder.svg?height=200&width=300" 
+                                <img src="https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
                                      class="template-card-img" 
                                      alt="Template Preview">
                                 <div class="template-card-body">
@@ -843,6 +1359,100 @@
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Profile Sidebar Toggle
+            const profileToggle = document.getElementById('profileToggle');
+            const profileSidebar = document.getElementById('profileSidebar');
+            const sidebarClose = document.getElementById('sidebarClose');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                profileSidebar.classList.add('active');
+                sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                profileSidebar.classList.remove('active');
+                sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            profileToggle.addEventListener('click', openSidebar);
+            sidebarClose.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Tab Switching
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    button.classList.add('active');
+                    document.getElementById(tabName + '-tab').classList.add('active');
+                });
+            });
+
+            // Edit Modal
+            const editModal = document.getElementById('editModal');
+            const modalClose = document.getElementById('modalClose');
+            const editForm = document.getElementById('editForm');
+
+            window.openEditModal = function(templateName) {
+                document.getElementById('modalTitle').textContent = `Edit ${templateName}`;
+                document.getElementById('templateName').value = templateName;
+                editModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            };
+
+            window.closeEditModal = function() {
+                editModal.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+
+            modalClose.addEventListener('click', closeEditModal);
+            editModal.addEventListener('click', function(e) {
+                if (e.target === editModal) {
+                    closeEditModal();
+                }
+            });
+
+            // Color Picker
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    colorOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                });
+            });
+
+            // Form Submission
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form data
+                const formData = {
+                    name: document.getElementById('templateName').value,
+                    description: document.getElementById('templateDescription').value,
+                    category: document.getElementById('templateCategory').value,
+                    status: document.getElementById('templateStatus').value,
+                    color: document.querySelector('.color-option.selected').getAttribute('data-color')
+                };
+                
+                // Simulate saving
+                console.log('Saving template:', formData);
+                
+                // Show success message (you can replace this with actual save logic)
+                alert('Template saved successfully!');
+                closeEditModal();
+            });
+
             // Mouse follower
             const mouseFollower = document.getElementById('mouseFollower');
             let mouseX = 0, mouseY = 0;
@@ -880,7 +1490,7 @@
             }, observerOptions);
 
             // Observe all cards and sections
-            document.querySelectorAll('.feature-card, .niche-card, .template-card, .stat-item').forEach(el => {
+            document.querySelectorAll('.feature-card, .niche-card, .template-card, .stat-item, .template-item').forEach(el => {
                 observer.observe(el);
             });
 
@@ -892,6 +1502,24 @@
                     const speed = 0.2 + (index * 0.1);
                     el.style.transform = `translateY(${scrolled * speed}px)`;
                 });
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // ESC to close sidebar or modal
+                if (e.key === 'Escape') {
+                    if (editModal.classList.contains('active')) {
+                        closeEditModal();
+                    } else if (profileSidebar.classList.contains('active')) {
+                        closeSidebar();
+                    }
+                }
+                
+                // Ctrl/Cmd + P to open profile
+                if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                    e.preventDefault();
+                    openSidebar();
+                }
             });
         });
     </script>
