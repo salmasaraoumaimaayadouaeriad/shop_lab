@@ -1432,7 +1432,8 @@
                 const input = document.getElementById(inputId);
                 if (input) {
                     input.addEventListener('input', function() {
-                        const cssVar = '--' + inputId.replace(/([A-Z])/g, '-$1').toLowerCase();
+                        // Convert snake_case to kebab-case for CSS variable
+                        const cssVar = '--' + inputId.replace(/_/g, '-');
                         document.documentElement.style.setProperty(cssVar, this.value);
                     });
                 }
