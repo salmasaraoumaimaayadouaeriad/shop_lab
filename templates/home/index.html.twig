@@ -6,7 +6,7 @@
     <div class="left-section">
         <div>
             <nav>
-                <a href="{{ path('app_home') }}">Home</a>
+                <a href="{{ path('dashboard') }}">Home</a>
                 <a href="#">About Us</a>
                 <a href="#">Help</a>
             </nav>
@@ -17,7 +17,7 @@
                     <p>Logged in as: {{ app.user.email }}</p>
                     <p>Manage your boutiques or explore products.</p>
                     <div class="home-actions">
-                        <a href="{{ path('app_boutique_list') }}" class="cta-button">My Boutiques</a>
+                        <a href="{{ path('dashboard_my_boutiques') }}" class="cta-button">My Boutiques</a>
                         <a href="{{ path('app_logout') }}" class="cta-button logout-btn">Logout</a>
                     </div>
                 {% else %}

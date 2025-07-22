@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Boutique{% endblock %}
+
+{% block body %}
+<h1>Modifier la Boutique: {{ boutique.nom }}</h1>
+<div style="max-width:600px;margin:auto;">
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary" type="submit">Enregistrer</button>
+        <a href="{{ path('app_commercant') }}" class="btn btn-secondary">Retour</a>
+    {{ form_end(form) }}
+</div>
+{% endblock %} 

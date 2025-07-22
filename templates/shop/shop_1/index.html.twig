@@ -1046,8 +1046,9 @@
                         </div>
                     </div>
                     <div class="col-lg-6 text-center animate-slide-right">
-                        <img src="https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg" 
-                             alt="Hero Image" 
+                        <img id="heroImageDisplay"
+                             src="{{ hero_image_url|default('https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg') }}"
+                             alt="Hero Image"
                              class="img-fluid rounded shadow-lg animate-pulse"
                              style="max-height: 500px; object-fit: cover;">
                     </div>
@@ -2066,6 +2067,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             return config;
+        }
+
+        // Hero image live update
+        const heroImageUrlInput = document.getElementById('hero_image_url');
+        const heroImageFileInput = document.getElementById('heroImageFile');
+        const heroImageDisplay = document.getElementById('heroImageDisplay');
+
+        if (heroImageUrlInput && heroImageDisplay) {
+            heroImageUrlInput.addEventListener('input', function() {
+                heroImageDisplay.src = this.value || 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg';
+            });
+        }
+        if (heroImageFileInput && heroImageDisplay) {
+            heroImageFileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        heroImageDisplay.src = evt.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
         }
     </script>
 </body>

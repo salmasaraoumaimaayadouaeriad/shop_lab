@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Boutiques{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="mb-4">My Boutiques</h1>
+    {% if boutiques|length > 0 %}
+        <div class="row">
+            {% for boutique in boutiques %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ boutique.nom }}</h5>
+                            <p class="card-text">{{ boutique.description ?? 'No description.' }}</p>
+                            <a href="{{ path('boutique_customize', {'id': boutique.id}) }}" class="btn btn-primary mb-2">Edit</a>
+                            <a href="{{ path('subscription_index') }}" class="btn btn-success">Launch</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have not created any boutiques yet.</p>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ boutique.nom }}</title>
+    {% if boutique.favicon %}
+        <link rel="icon" href="{{ boutique.getFaviconUrl() }}">
+    {% endif %}
+    {% if boutique.customCss %}
+        <style>{{ boutique.customCss|raw }}</style>
+    {% endif %}
+</head>
+<body>
+    <h1>{{ boutique.nom }}</h1>
+    <p>{{ boutique.description }}</p>
+    {% if boutique.logo %}
+        <img src="{{ boutique.getLogoUrl() }}" alt="Logo" style="max-width:200px;">
+    {% endif %}
+
+    {# Example for customizations array (if you use it) #}
+    {% if customizations['backgroundColor'] is defined %}
+        <div style="background: {{ customizations.backgroundColor }}">
+            <!-- Custom content here -->
+        </div>
+    {% endif %}
+
+    {# Add more custom fields as needed #}
+
+    {% if boutique.customJs %}
+        <script>{{ boutique.customJs|raw }}</script>
+    {% endif %}
+</body>
+</html> 

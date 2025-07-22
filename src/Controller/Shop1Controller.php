@@ -231,4 +231,81 @@ class Shop1Controller extends AbstractController
             ]
         ));
     }
+
+    #[Route('/shop/{slug}', name: 'public_shop')]
+    public function publicShop(
+        \App\Repository\BoutiqueRepository $boutiqueRepository,
+        string $slug
+    ): Response {
+        $boutique = $boutiqueRepository->findOneBy(['slug' => $slug]);
+        if (!$boutique) {
+            throw $this->createNotFoundException('Shop not found');
+        }
+        $config = $boutique->getCustomPanelJson() ?? [];
+        $defaults = [
+            'favicon_url' => null,
+            'site_name' => 'Stylish',
+            'tagline' => 'Premium Online Store',
+            'primary_color' => '#111111',
+            'secondary_color' => '#6c757d',
+            'background_color' => '#f8f8f8',
+            'text_color' => '#212529',
+            'link_color' => '#ce071e',
+            'button_color' => '#e74c3c',
+            'accent_color' => '#111111',
+            'header_bg' => '#ffffff',
+            'footer_bg' => '#f5f5f5',
+            'card_bg' => '#ffffff',
+            'border_color' => '#dee2e6',
+            'success_color' => '#28a745',
+            'font_family' => 'Inter',
+            'heading_font' => 'Playfair Display',
+            'font_size' => '16',
+            'heading_size' => '2.5',
+            'line_height' => '1.6',
+            'letter_spacing' => '0',
+            'font_weight' => '400',
+            'heading_weight' => '700',
+            'container_width' => '1200',
+            'border_radius' => '8',
+            'spacing' => '1',
+            'header_height' => '80',
+            'sidebar_width' => '250',
+            'overlay_opacity' => '0.5',
+            'blur_effect' => '0',
+            'shadow_intensity' => '0.1',
+            'light_color' => '#fff',
+            'dark_color' => '#000',
+            'background_image' => null,
+            'hero_title' => 'Stylish Shoes Collection',
+            'hero_subtitle' => 'Discover the latest trends in footwear',
+            'hero_button_text' => 'Shop Now',
+            'hero_button_2_text' => 'Learn More',
+            'logo_url' => '',
+            'favicon_url' => '',
+            'email' => 'contact@yourwebsite.com',
+            'phone' => '(+33) 800 456 789-987',
+            'address' => '123 Main Street, Toulouse - France',
+            'social_facebook' => '#',
+            'social_instagram' => '#',
+            'social_twitter' => '#',
+            'social_youtube' => '#',
+            'footer_text' => '© Copyright Stylish 2025.',
+            'custom_css' => '',
+            'custom_js' => '',
+            'show_search' => 'true',
+            'show_cart' => 'true',
+            'show_login' => 'true',
+            'show_social' => 'true',
+            'enable_animations' => 'true',
+            'products' => [],
+        ];
+        return $this->render('shop/shop_1/public.html.twig', array_merge(
+            $defaults,
+            $config,
+            [
+                'boutique' => $boutique,
+            ]
+        ));
+    }
 }
