@@ -54,7 +54,138 @@
             margin: 0 auto;
         }
 
-        /* Step Indicator */
+        /* Success Popup Styles */
+        .success-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .success-popup.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-popup-content {
+            background: white;
+            border-radius: 2rem;
+            padding: 3rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .success-popup.show .success-popup-content {
+            transform: scale(1);
+        }
+
+        .success-popup-icon {
+            width: 5rem;
+            height: 5rem;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            color: white;
+            animation: successPulse 2s infinite;
+        }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-popup-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .success-popup-message {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .success-popup-url {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid #bae6fd;
+        }
+
+        .success-popup-url-text {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 1rem;
+            color: #0369a1;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .success-popup-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .success-popup-btn {
+            padding: 1rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .success-popup-btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .success-popup-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            color: white;
+        }
+
+        .success-popup-btn-secondary {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .success-popup-btn-secondary:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        /* Rest of your existing styles remain the same... */
         .step-indicator {
             display: flex;
             align-items: center;
@@ -109,7 +240,6 @@
             background: var(--gradient-primary);
         }
 
-        /* Main Content Card */
         .content-card {
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(20px);
@@ -127,7 +257,6 @@
             box-shadow: var(--shadow-hover);
         }
 
-        /* Plan Cards */
         .plans-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -215,12 +344,11 @@
         }
 
         .plan-features .cross {
-            color: #ef小学; /* Updated to fix color code */
+            color: #ef4444;
             margin-right: 0.75rem;
             font-size: 1.1rem;
         }
 
-        /* Form Styles */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -271,7 +399,6 @@
             resize: vertical;
         }
 
-        /* Navigation Buttons */
         .navigation-buttons {
             display: flex;
             justify-content: space-between;
@@ -304,7 +431,7 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-hover);
-            color: #fff; /* Added to ensure text color remains white on hover */
+            color: #fff;
         }
 
         .btn-secondary {
@@ -333,66 +460,6 @@
             color: white;
         }
 
-        /* Success Screen */
-        .success-screen {
-            text-align: center;
-            padding: 3rem 0;
-        }
-
-        .success-icon {
-            width: 6rem;
-            height: 6rem;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            font-size: 2rem;
-            color: white;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .success-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #1f2937;
-            margin-bottom: 1rem;
-        }
-
-        .success-subtitle {
-            font-size: 1.25rem;
-            color: #64748b;
-            margin-bottom: 2rem;
-        }
-
-        .shop-url-card {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border-radius: 1rem;
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 500px;
-            border: 1px solid #bae6fd;
-        }
-
-        .shop-url {
-            font-family: 'Monaco', 'Menlo', monospace;
-            font-size: 1.1rem;
-            color: #0369a1;
-            font-weight: 600;
-            background: white;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        /* Loading States */
         .loading-spinner {
             display: inline-block;
             width: 1rem;
@@ -408,55 +475,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .content-card {
-                padding: 2rem 1.5rem;
-                margin: 0 1rem;
-            }
-
-            .plans-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .navigation-buttons {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .step-indicator {
-                gap: 0.5rem;
-            }
-
-            .step-line {
-                width: 2rem;
-                margin: 0 0.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .subscription-container {
-                padding: 1rem;
-            }
-
-            .step-circle {
-                width: 2.5rem;
-                height: 2.5rem;
-                font-size: 0.9rem;
-            }
-
-            .plan-card {
-                padding: 1.5rem;
-            }
-        }
-
-        /* Payment Method Styles */
         #payment-element {
             margin: 2rem 0;
             padding: 1rem;
@@ -497,11 +515,100 @@
         .payment-method-option:hover {
             border-color: #8b5cf6;
         }
+
+        @media (max-width: 768px) {
+            .content-card {
+                padding: 2rem 1.5rem;
+                margin: 0 1rem;
+            }
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .navigation-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .step-indicator {
+                gap: 0.5rem;
+            }
+
+            .step-line {
+                width: 2rem;
+                margin: 0 0.5rem;
+            }
+
+            .success-popup-content {
+                padding: 2rem;
+                margin: 1rem;
+            }
+
+            .success-popup-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .subscription-container {
+                padding: 1rem;
+            }
+
+            .step-circle {
+                width: 2.5rem;
+                height: 2.5rem;
+                font-size: 0.9rem;
+            }
+
+            .plan-card {
+                padding: 1.5rem;
+            }
+        }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="subscription-container">
+    <!-- Success Popup -->
+    <div class="success-popup" id="successPopup">
+        <div class="success-popup-content">
+            <div class="success-popup-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="success-popup-title">🎉 Subscription Successful!</h2>
+            <p class="success-popup-message" id="successMessage">
+                Congratulations! Your store has been created successfully.
+            </p>
+            <div class="success-popup-url">
+                <div style="font-weight: 600; color: #1f2937; margin-bottom: 0.5rem;">
+                    <i class="fas fa-globe" style="color: #0369a1; margin-right: 0.5rem;"></i>
+                    Your Store URL:
+                </div>
+                <div class="success-popup-url-text" id="successUrl">
+                    yourstore.shoplab.com
+                </div>
+            </div>
+            <div class="success-popup-buttons">
+                <a href="#" class="success-popup-btn success-popup-btn-primary" id="visitStoreBtn" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Visit Your Store
+                </a>
+                <a href="{{ path('dashboard') }}" class="success-popup-btn success-popup-btn-secondary">
+                    <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container for notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" style="z-index: 9999;"></div>
+
     <!-- Header -->
     <div class="subscription-header">
         <h1 class="subscription-title">Launch Your Store</h1>
@@ -535,7 +642,7 @@
 
     <!-- Main Content -->
     <div class="content-card">
-        <form id="subscriptionForm" method="POST" action="{{ path('subscription_process') }}">
+        <form id="subscriptionForm" method="POST" action="{{ path('subscription_process') }}" novalidate>
             <!-- Step 1: Plan Selection -->
             <div class="step-content active" id="content-1">
                 <h2 style="text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #1f2937;">
@@ -545,7 +652,7 @@
                 <div class="plans-grid">
                     <!-- Basic Plan -->
                     <div class="plan-card" data-plan="basic">
-                        <div class="plan-badge">-15%</div>
+                        <div class="plan-badge">FREE</div>
                         <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; text-align: center;">BASIC</h3>
                         <div class="plan-price" style="text-align: center;">FREE</div>
                         <div class="plan-period" style="text-align: center;">Per Month</div>
@@ -567,7 +674,7 @@
                     </div>
 
                     <!-- Standard Plan -->
-                    <div class=" plan-card" data-plan="standard">
+                    <div class="plan-card" data-plan="standard">
                         <div class="popular-badge">MOST POPULAR</div>
                         <div class="plan-badge">-20%</div>
                         <h3 style="font-size: 1.5rem; font-weight: 700; color: #1f2937; text-align: center;">STANDARD</h3>
@@ -733,7 +840,6 @@
             </div>
 
             <!-- Step 4: Payment Information -->
-            <!-- Step 4: Payment Information -->
             <div class="step-content" id="content-4" style="display: none; max-width: 800px; margin: 0 auto; padding: 2rem;">
                 <h2 style="text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 2rem; color: #1f2937;">
                     Payment Information
@@ -752,10 +858,6 @@
                     <div class="payment-method-option" data-method="bank" style="flex: 0 0 200px; padding: 1.5rem; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s ease; background: #f9fafb; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         <i class="fas fa-university" style="font-size: 1.5rem; color: #10b981;"></i>
                         <div style="font-weight: 600; margin-top: 0.5rem; color: #374151;">Bank Transfer</div>
-                    </div>
-                    <div class="payment-method-option" data-method="paypal" style="flex: 0 0 200px; padding: 1.5rem; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.75rem; cursor: pointer; transition: all 0.3s ease; background: #f9fafb; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: none;">
-                        <i class="fab fa-paypal" style="font-size: 1.5rem; color: #0070ba;"></i>
-                        <div style="font-weight: 600; margin-top: 0.5rem; color: #374151;">PayPal</div>
                     </div>
                 </div>
 
@@ -835,7 +937,7 @@
                         <div class="error-message"></div>
                     </div>
                     <p style="color: #64748b; font-size: 0.875rem; margin-top: 1rem;">
-                        Note: Bank transfer payments require manual verification. You’ll receive a confirmation email with payment instructions.
+                        Note: Bank transfer payments require manual verification. You'll receive a confirmation email with payment instructions.
                     </p>
                 </div>
 
@@ -844,7 +946,6 @@
                 <input type="hidden" name="payment_method" id="paymentMethod" value="card">
                 <input type="hidden" name="payment_intent" id="paymentIntent" value="">
             </div>
-            
 
             <!-- Step 5: Shop Customization -->
             <div class="step-content" id="content-5" style="display: none;">
@@ -918,33 +1019,6 @@
                 </button>
             </div>
         </form>
-
-        <!-- Success Screen -->
-        <div id="successScreen" style="display: none;">
-            <div class="success-screen">
-                <div class="success-icon">
-                    <i class="fas fa-check"></i>
-                </div>
-                <h2 class="success-title">Congratulations! 🎉</h2>
-                <p class="success-subtitle">
-                    Your store is being set up. You'll receive your custom URL and login details via email within 5 minutes.
-                </p>
-                
-                <div class="shop-url-card">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem;">
-                        <i class="fas fa-globe" style="color: #0369a1;"></i>
-                        <span style="font-weight: 600; color: #1f2937;">Your Store URL:</span>
-                    </div>
-                    <div class="shop-url" id="generatedUrl">
-                        yourstore.shoplab.com
-                    </div>
-                </div>
-                
-                <a href="{{ path('dashboard') }}" class="btn btn-primary" style="margin-top: 2rem;">
-                    Go to Dashboard
-                </a>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}
@@ -1026,9 +1100,6 @@
                         document.getElementById('card-details').style.display = 'block';
                     } else if (this.dataset.method === 'bank') {
                         document.getElementById('bank-details').style.display = 'block';
-                    } else if (this.dataset.method === 'paypal') {
-                        document.getElementById('card-details').style.display = 'none';
-                        document.getElementById('bank-details').style.display = 'none';
                     }
                 });
             });
@@ -1106,6 +1177,8 @@
 
             function validateStep(step) {
                 let isValid = true;
+                console.log('Validating step:', step); // Debug log
+                
                 if (step === 1) {
                     if (!selectedPlan) {
                         document.getElementById('planError').style.display = 'block';
@@ -1114,15 +1187,6 @@
                 } else if (step === 4 && selectedPlan !== 'basic') {
                     const paymentMethod = document.getElementById('paymentMethod').value;
                     if (paymentMethod === 'card') {
-                        const { error } = stripe.createPaymentMethod({
-                            type: 'card',
-                            card: cardElement,
-                        });
-                        if (error) {
-                            document.getElementById('card-errors').textContent = error.message;
-                            isValid = false;
-                        }
-                        // Validate billing fields
                         const billingFields = document.querySelectorAll('#card-details [required]');
                         billingFields.forEach(field => {
                             const errorDiv = field.parentNode.querySelector('.error-message');
@@ -1136,40 +1200,34 @@
                             }
                         });
                     } else if (paymentMethod === 'bank') {
-                        const ribCode = document.querySelector('input[name="rib_code"]').value;
-                        const bankName = document.querySelector('input[name="bank_name"]').value;
-                        const accountHolder = document.querySelector('input[name="account_holder"]').value;
-                        const errorDivs = document.querySelectorAll('#bank-details .error-message');
-                        errorDivs.forEach(div => div.textContent = '');
+                        const ribCode = document.querySelector('input[name="rib_code"]')?.value || '';
+                        const bankName = document.querySelector('input[name="bank_name"]')?.value || '';
+                        const accountHolder = document.querySelector('input[name="account_holder"]')?.value || '';
+                        
                         if (!ribCode || !bankName || !accountHolder) {
-                            errorDivs.forEach((div, index) => {
-                                if (!ribCode && index === 0) div.textContent = 'RIB is required';
-                                if (!bankName && index === 2) div.textContent = 'Bank name is required';
-                                if (!accountHolder && index === 3) div.textContent = 'Account holder is required';
-                            });
                             isValid = false;
-                        } else if (!ribCode.match(/^\d{23}$/)) {
-                            document.querySelector('#bank-details input[name="rib_code"]').nextElementSibling.textContent = 'RIB must be 23 digits';
-                            isValid = false;
-                        }
-                        const iban = document.querySelector('input[name="iban"]').value;
-                        if (iban && !/^[A-Z]{2}\d{2}[0-9A-Z]{11,30}$/.test(iban)) {
-                            document.querySelector('#bank-details input[name="iban"]').nextElementSibling.textContent = 'Invalid IBAN format';
-                            isValid = false;
+                            alert('Please fill in all required bank details');
                         }
                     }
                 } else {
+                    // Validate other steps
                     const stepContent = document.getElementById(`content-${step}`);
                     const requiredFields = stepContent.querySelectorAll('[required]');
+                    
+                    console.log('Found required fields:', requiredFields.length); // Debug log
+                    
                     requiredFields.forEach(field => {
                         const errorDiv = field.parentNode.querySelector('.error-message');
                         if (!field.value.trim()) {
                             field.classList.add('error');
                             if (errorDiv) errorDiv.textContent = 'This field is required';
                             isValid = false;
+                            console.log('Field validation failed:', field.name); // Debug log
                         } else {
                             field.classList.remove('error');
                             if (errorDiv) errorDiv.textContent = '';
+                            
+                            // Email validation
                             if (field.type === 'email' && field.value) {
                                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                                 if (!emailRegex.test(field.value)) {
@@ -1181,6 +1239,8 @@
                         }
                     });
                 }
+                
+                console.log('Validation result:', isValid); // Debug log
                 return isValid;
             }
 
@@ -1223,63 +1283,149 @@
                 }
             });
 
-            // Form Submission
-            document.getElementById('subscriptionForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                if (!validateStep(currentStep)) {
+            // Success Popup Functions
+            function showSuccessPopup(data) {
+                console.log('Showing success popup with data:', data); // Debug log
+                
+                const popup = document.getElementById('successPopup');
+                const message = document.getElementById('successMessage');
+                const url = document.getElementById('successUrl');
+                const visitBtn = document.getElementById('visitStoreBtn');
+
+                if (!popup || !message || !url || !visitBtn) {
+                    console.error('Popup elements not found');
+                    alert('Success! Your store URL: ' + data.shop_url);
                     return;
                 }
+
+                message.textContent = data.message || 'Subscription successful!';
+                url.textContent = data.shop_url || 'yourstore.shoplab.com';
+                visitBtn.href = data.shop_url || '#';
+
+                popup.classList.add('show');
+                console.log('Popup should now be visible'); // Debug log
+            }
+
+            function hideSuccessPopup() {
+                const popup = document.getElementById('successPopup');
+                popup.classList.remove('show');
+            }
+
+            // Close popup when clicking outside
+            document.getElementById('successPopup').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hideSuccessPopup();
+                }
+            });
+
+            // Utility to disable required on hidden fields
+            function disableHiddenRequiredFields() {
+                document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+                    if (!field.offsetParent) {
+                        field.dataset.wasRequired = 'true';
+                        field.required = false;
+                    }
+                });
+            }
+            function restoreRequiredFields() {
+                document.querySelectorAll('input, select, textarea').forEach(field => {
+                    if (field.dataset.wasRequired) {
+                        field.required = true;
+                        delete field.dataset.wasRequired;
+                    }
+                });
+            }
+
+            // Form Submission - FIXED VERSION
+            document.getElementById('subscriptionForm').addEventListener('submit', async function(e) {
+                disableHiddenRequiredFields(); // This must be first!
+                e.preventDefault();
+                
+                console.log('Form submitted'); // Debug log
+                
+                if (!validateStep(currentStep)) {
+                    console.log('Validation failed'); // Debug log
+                    return;
+                }
+                
                 const submitBtn = document.getElementById('submitBtn');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<div class="loading-spinner"></div> Processing...';
                 submitBtn.disabled = true;
+                
                 const formData = new FormData(this);
+                
+                // Add payment data for non-basic plans
                 if (selectedPlan !== 'basic') {
                     formData.append('payment_method', document.getElementById('paymentMethod').value);
                     if (document.getElementById('paymentMethod').value === 'bank') {
-                        formData.append('rib_code', document.querySelector('input[name="rib_code"]').value);
-                        formData.append('bank_name', document.querySelector('input[name="bank_name"]').value);
-                        formData.append('account_holder', document.querySelector('input[name="account_holder"]').value);
-                        formData.append('iban', document.querySelector('input[name="iban"]').value || '');
-                        formData.append('bic_swift', document.querySelector('input[name="bic_swift"]').value || '');
+                        formData.append('rib_code', document.querySelector('input[name="rib_code"]')?.value || '');
+                        formData.append('bank_name', document.querySelector('input[name="bank_name"]')?.value || '');
+                        formData.append('account_holder', document.querySelector('input[name="account_holder"]')?.value || '');
+                        formData.append('iban', document.querySelector('input[name="iban"]')?.value || '');
+                        formData.append('bic_swift', document.querySelector('input[name="bic_swift"]')?.value || '');
                     } else {
                         formData.append('payment_intent', document.getElementById('paymentIntent').value);
-                        formData.append('billing_name', document.querySelector('input[name="billing_name"]').value);
-                        formData.append('billing_address1', document.querySelector('input[name="billing_address1"]').value);
-                        formData.append('billing_address2', document.querySelector('input[name="billing_address2"]').value || '');
-                        formData.append('billing_city', document.querySelector('input[name="billing_city"]').value);
-                        formData.append('billing_postal_code', document.querySelector('input[name="billing_postal_code"]').value);
-                        formData.append('billing_country', document.querySelector('input[name="billing_country"]').value);
+                        formData.append('billing_name', document.querySelector('input[name="billing_name"]')?.value || '');
+                        formData.append('billing_address1', document.querySelector('input[name="billing_address1"]')?.value || '');
+                        formData.append('billing_address2', document.querySelector('input[name="billing_address2"]')?.value || '');
+                        formData.append('billing_city', document.querySelector('input[name="billing_city"]')?.value || '');
+                        formData.append('billing_postal_code', document.querySelector('input[name="billing_postal_code"]')?.value || '');
+                        formData.append('billing_country', document.querySelector('input[name="billing_country"]')?.value || '');
                     }
                 }
-                fetch('{{ path("subscription_process") }}', {
+                
+                try {
+                    console.log('Sending request...'); // Debug log
+                    
+                    const response = await fetch('{{ path("subscription_process") }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
+                    });
+                    
+                    console.log('Response received:', response.status); // Debug log
+                    
+                    const data = await response.json();
+                    console.log('Response data:', data); // Debug log
+                    
                     if (data.success) {
-                        const shopName = document.querySelector('[name="shop_name"]').value;
-                        const customDomain = document.querySelector('[name="custom_domain"]').value;
-                        const generatedUrl = customDomain || `${shopName.toLowerCase().replace(/\s+/g, '')}.shoplab.com`;
-                        document.getElementById('generatedUrl').textContent = generatedUrl;
-                        document.getElementById('subscriptionForm').style.display = 'none';
-                        document.getElementById('successScreen').style.display = 'block';
+                        console.log('Success! Showing popup...'); // Debug log
+                        showSuccessPopup(data);
                     } else {
+                        console.error('Error:', data.message);
                         alert('Error: ' + data.message);
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+                } catch (error) {
+                    console.error('Fetch error:', error);
                     alert('An error occurred. Please try again.');
-                })
-                .finally(() => {
+                } finally {
                     submitBtn.innerHTML = originalText;
                     submitBtn.disabled = false;
-                });
+                    restoreRequiredFields();
+                }
+            });
+
+            // Template Selection Based on Niche - FIXED VERSION
+            document.getElementById('nicheSelect').addEventListener('change', function() {
+                const templateSelect = document.getElementById('templateSelect');
+                const selectedNiche = this.value;
+                
+                console.log('Niche selected:', selectedNiche); // Debug log
+                
+                templateSelect.innerHTML = '<option value="">Select Template</option>';
+                
+                if (selectedNiche && templates[selectedNiche]) {
+                    templates[selectedNiche].forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = template.toLowerCase().replace(/\s+/g, '-');
+                        option.textContent = template;
+                        templateSelect.appendChild(option);
+                    });
+                    console.log('Templates loaded for niche:', selectedNiche); // Debug log
+                }
             });
 
             // Initialize

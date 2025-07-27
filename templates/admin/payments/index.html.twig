@@ -1,0 +1,217 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Paiements - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Paiements</h1>
+    </div>
+
+    <!-- Payment Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Paiements Actifs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ subscriptions|filter(s => s.statut == 'active')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Paiements Gelés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ subscriptions|filter(s => s.statut == 'frozen')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-pause-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Revenus Mensuels
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                €{{ subscriptions|filter(s => s.statut == 'active')|reduce((carry, s) => carry + s.prix, 0)|number_format(2) }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-euro-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Paiements en Attente
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ subscriptions|filter(s => s.statut == 'pending')|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscriptions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Abonnements ({{ subscriptions|length }})
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Commerçant</th>
+                            <th>Boutique</th>
+                            <th>Plan</th>
+                            <th>Prix</th>
+                            <th>Statut</th>
+                            <th>Méthode</th>
+                            <th>Date début</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subscription in subscriptions %}
+                        <tr>
+                            <td>{{ subscription.id }}</td>
+                            <td>
+                                <div>{{ subscription.commercant.nom }}</div>
+                                <small class="text-muted">{{ subscription.commercant.email }}</small>
+                            </td>
+                            <td>
+                                {% if subscription.boutique %}
+                                    <a href="{{ path('admin_boutique_show', {id: subscription.boutique.id}) }}">
+                                        {{ subscription.boutique.nom }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">Non assignée</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ subscription.plan|upper }}</span>
+                            </td>
+                            <td>
+                                {% if subscription.prix %}
+                                    <strong>€{{ subscription.prix }}</strong>
+                                {% else %}
+                                    <span class="text-muted">Gratuit</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set status_class = {
+                                    'active': 'success',
+                                    'pending': 'warning',
+                                    'cancelled': 'danger',
+                                    'frozen': 'info'
+                                } %}
+                                <span class="badge bg-{{ status_class[subscription.statut] ?? 'secondary' }}">
+                                    {{ subscription.statut|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% set method_icons = {
+                                    'card': 'fas fa-credit-card',
+                                    'bank': 'fas fa-university',
+                                    'paypal': 'fab fa-paypal'
+                                } %}
+                                <i class="{{ method_icons[subscription.paymentMethod] ?? 'fas fa-question' }}"></i>
+                                {{ subscription.paymentMethod|title }}
+                            </td>
+                            <td>{{ subscription.dateDebut|date('d/m/Y') }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" 
+                                            onclick="showSubscriptionDetails({{ subscription.id }})" title="Détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <form method="POST" action="{{ path('admin_payment_toggle_status', {id: subscription.id}) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-{{ subscription.statut == 'active' ? 'warning' : 'success' }}" 
+                                                title="{{ subscription.statut == 'active' ? 'Geler' : 'Activer' }}">
+                                            <i class="fas fa-{{ subscription.statut == 'active' ? 'pause' : 'play' }}"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">Aucun abonnement trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscription Details Modal -->
+<div class="modal fade" id="subscriptionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Détails de l'abonnement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="subscription-details">
+                <!-- Content loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSubscriptionDetails(id) {
+    fetch(`/admin/payments/${id}/details`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('subscription-details').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('subscriptionModal')).show();
+        });
+}
+</script>
+{% endblock %}

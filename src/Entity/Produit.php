@@ -27,7 +27,7 @@ class Produit
     #[ORM\Column]
     private ?float $prix = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $image = null;
 
     #[ORM\Column(length: 100)]

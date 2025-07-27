@@ -49,7 +49,7 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         }
 
         // Redirect to dashboard after login
-        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('dashboard'));
     }
 
     protected function getLoginUrl(Request $request): string

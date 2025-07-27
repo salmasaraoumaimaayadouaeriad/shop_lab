@@ -21,6 +21,10 @@ class ClientFinal
     #[ORM\JoinColumn(nullable: false)]
     private ?Adresse $adressePrincipale = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Boutique $boutique = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -54,6 +58,17 @@ class ClientFinal
     {
         $this->adressePrincipale = $adressePrincipale;
 
+        return $this;
+    }
+
+    public function getBoutique(): ?Boutique
+    {
+        return $this->boutique;
+    }
+
+    public function setBoutique(?Boutique $boutique): static
+    {
+        $this->boutique = $boutique;
         return $this;
     }
 }

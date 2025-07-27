@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Commerçant - {{ config.site_name|default(boutique.nom)|default('Boutique') }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --sidebar-width: 250px;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
+            padding: 0;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-header h4 {
+            color: white;
+            margin: 0;
+            font-weight: 600;
+        }
+        .sidebar-header small {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 1rem 0;
+            margin: 0;
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 2rem;
+        }
+        .sidebar-menu li a i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .top-header {
+            background: white;
+            padding: 1rem 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-header h5 {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .table-responsive {
+            padding: 0;
+        }
+        .table th {
+            background-color: #f8fafc;
+            border: none;
+            font-weight: 600;
+            color: #475569;
+            padding: 1rem;
+        }
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-confirmed { background: #d1fae5; color: #065f46; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-shipped { background: #e0e7ff; color: #5b21b6; }
+        .status-delivered { background: #d1fae5; color: #065f46; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        .btn-action {
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .top-header {
+                margin-left: 0;
+                padding-left: 4rem;
+            }
+        }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .editable-field {
+            border: 1px solid transparent;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+        }
+        .editable-field:hover {
+            border-color: #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .editable-field.editing {
+            border-color: var(--primary-color);
+            background-color: white;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+        }
+        .product-image {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Toggle Button -->
+    <button class="mobile-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-store"></i> {{ config.site_name|default(boutique.nom)|default('Ma Boutique') }}</h4>
+            <small>{{ config.description|default(boutique.slogan)|default('Tableau de bord commerçant') }}</small>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">
+                <i class="fas fa-chart-pie"></i> Tableau de bord
+            </a></li>
+            <li><a href="#orders" class="nav-link" onclick="showSection('orders')">
+                <i class="fas fa-shopping-cart"></i> Commandes
+            </a></li>
+            <li><a href="#products" class="nav-link" onclick="showSection('products')">
+                <i class="fas fa-box"></i> Produits
+            </a></li>
+            <li><a href="#payments" class="nav-link" onclick="showSection('payments')">
+                <i class="fas fa-credit-card"></i> Paiements
+            </a></li>
+            <li><a href="#settings" class="nav-link" onclick="showSection('settings')">
+                <i class="fas fa-cog"></i> Paramètres
+            </a></li>
+            <li><a href="{{ path('app_logout') }}">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </a></li>
+        </ul>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-header">
+            <div>
+                <h3>Bienvenue, {{ user.nom|default('Commerçant') }}</h3>
+                <small class="text-muted">{{ config.description|default('Gérez votre boutique efficacement') }}</small>
+            </div>
+            <div>
+                <span class="badge bg-success">{{ config.status|default('active')|title }}</span>
+            </div>
+        </div>
+        
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section">
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dbeafe; color: #1e40af;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>{{ orders|length }}</h3>
+                    <p class="text-muted mb-0">Total Commandes</p>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i> +{{ ((orders|length * 0.12)|round) }}% ce mois
+                    </small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #d1fae5; color: #065f46;">
+                        <i class="fas fa-euro"></i>
+                    </div>
+                    <h3>{{ config.devise|default('€') }}{% set total = 0 %}{% for order in orders %}{% set total = total + order.montant %}{% endfor %}{{ total|number_format(2, ',', ' ') }}</h3>
+                    <p class="text-muted mb-0">Chiffre d'affaires</p>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i> +8.2% ce mois
+                    </small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7; color: #92400e;">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h3>{{ products|length }}</h3>
+                    <p class="text-muted mb-0">Produits Actifs</p>
+                    <small class="text-warning">
+                        <i class="fas fa-minus"></i> Stable cette semaine
+                    </small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fee2e2; color: #991b1b;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>{% set pending = 0 %}{% for order in orders %}{% if order.statut == 'pending' %}{% set pending = pending + 1 %}{% endif %}{% endfor %}{{ pending }}</h3>
+                    <p class="text-muted mb-0">Commandes en attente</p>
+                    <small class="text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Nécessite attention
+                    </small>
+                </div>
+            </div>
+
+            <!-- Recent Orders Overview -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>Commandes Récentes</h5>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showSection('orders')">
+                        Voir tout
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Client</th>
+                                <th>Statut</th>
+                                <th>Total</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders|slice(0, 5) %}
+                            <tr>
+                                <td><strong>ORD-{{ order.id }}</strong></td>
+                                <td>{{ order.client.utilisateur.nom|default('Client') }}</td>
+                                <td><span class="status-badge status-{{ order.statut }}">{{ order.statut|title }}</span></td>
+                                <td><strong>{{ config.devise|default('€') }}{{ order.montant|number_format(2, ',', ' ') }}</strong></td>
+                                <td>{{ order.date|date('d M Y') }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Aucune commande trouvée</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div id="orders-section" class="content-section" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>Gestion des Commandes</h5>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm me-2" onclick="exportOrders()">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="order-search" placeholder="Rechercher par N° commande ou client..." onkeyup="filterOrders()">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="status-filter" onchange="filterOrders()">
+                                <option value="">Tous les statuts</option>
+                                <option value="pending">En attente</option>
+                                <option value="confirmed">Confirmée</option>
+                                <option value="processing">En cours</option>
+                                <option value="shipped">Expédiée</option>
+                                <option value="delivered">Livrée</option>
+                                <option value="cancelled">Annulée</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="date" class="form-control" id="date-filter" onchange="filterOrders()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Client</th>
+                                <th>Statut</th>
+                                <th>Total</th>
+                                <th>Méthode</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table">
+                            {% for order in orders %}
+                            <tr data-order-id="{{ order.id }}" data-status="{{ order.statut }}" data-date="{{ order.date|date('Y-m-d') }}">
+                                <td><strong>ORD-{{ order.id }}</strong></td>
+                                <td>
+                                    <div>{{ order.client.utilisateur.nom|default('Client') }}</div>
+                                    <small class="text-muted">{{ order.client.utilisateur.email|default('') }}</small>
+                                </td>
+                                <td>
+                                    <select class="form-select form-select-sm status-select" onchange="updateOrderStatus(this, {{ order.id }})">
+                                        <option value="pending" {% if order.statut == 'pending' %}selected{% endif %}>En attente</option>
+                                        <option value="confirmed" {% if order.statut == 'confirmed' %}selected{% endif %}>Confirmée</option>
+                                        <option value="processing" {% if order.statut == 'processing' %}selected{% endif %}>En cours</option>
+                                        <option value="shipped" {% if order.statut == 'shipped' %}selected{% endif %}>Expédiée</option>
+                                        <option value="delivered" {% if order.statut == 'delivered' %}selected{% endif %}>Livrée</option>
+                                        <option value="cancelled" {% if order.statut == 'cancelled' %}selected{% endif %}>Annulée</option>
+                                    </select>
+                                </td>
+                                <td><strong>{{ config.devise|default('€') }}{{ order.montant|number_format(2, ',', ' ') }}</strong></td>
+                                <td>{{ order.methodePaiment|title }}</td>
+                                <td>{{ order.date|date('d M Y') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewOrder({{ order.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success" onclick="printInvoice({{ order.id }})">
+                                        <i class="fas fa-print"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted">Aucune commande trouvée</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div id="products-section" class="content-section">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>Gestion des Produits</h5>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                        <i class="fas fa-plus"></i> Ajouter Produit
+                    </button>
+                </div>
+                
+                <div class="p-3">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="product-search" placeholder="Rechercher produits..." onkeyup="filterProducts()">
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="category-filter" onchange="filterProducts()">
+                                <option value="">Toutes catégories</option>
+                                {% set categories = [] %}
+                                {% for product in products %}
+                                    {% if product.categorie not in categories %}
+                                        {% set categories = categories|merge([product.categorie]) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for category in categories %}
+                                <option value="{{ category }}">{{ category|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="price-sort" onchange="sortProducts()">
+                                <option value="">Trier par prix</option>
+                                <option value="asc">Prix croissant</option>
+                                <option value="desc">Prix décroissant</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produit</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table">
+                            {% for product in products %}
+                            <tr data-product-id="{{ product.id }}" data-category="{{ product.categorie }}" data-price="{{ product.prix }}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ product.image|default('https://images.pexels.com/photos/3945665/pexels-photo-3945665.jpeg?auto=compress&cs=tinysrgb&w=50&h=50&fit=crop') }}" 
+                                             class="product-image me-3" alt="Product">
+                                        <div>
+                                            <div><strong class="editable-field" data-field="nom" data-id="{{ product.id }}" onclick="makeEditable(this)">{{ product.nom }}</strong></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="editable-field" data-field="categorie" data-id="{{ product.id }}" onclick="makeEditable(this)">{{ product.categorie }}</td>
+                                <td><strong class="editable-field" data-field="prix" data-id="{{ product.id }}" onclick="makeEditable(this)">{{ config.devise|default('€') }}{{ product.prix|number_format(2, ',', ' ') }}</strong></td>
+                                <td class="editable-field" data-field="description" data-id="{{ product.id }}" onclick="makeEditable(this)" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">{{ product.description|slice(0, 50) }}{% if product.description|length > 50 %}...{% endif %}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="editProduct({{ product.id }})">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct({{ product.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Aucun produit trouvé</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Section -->
+        <div id="payments-section" class="content-section" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>Historique des Paiements</h5>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="exportPayments()">
+                        <i class="fas fa-download"></i> Exporter
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID Paiement</th>
+                                <th>Montant</th>
+                                <th>Méthode</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in payments %}
+                            <tr>
+                                <td><code>PAY-{{ payment.id }}</code></td>
+                                <td><strong>{{ config.devise|default('€') }}{{ payment.montant|number_format(2, ',', ' ') }}</strong></td>
+                                <td>{{ payment.methode|title }}</td>
+                                <td>{{ payment.date|date('d M Y') }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewPayment({{ payment.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Aucun paiement trouvé</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="content-section" style="display: none;">
+            <div class="section-card">
+                <div class="section-header">
+                    <h5>Paramètres de la Boutique</h5>
+                    <button class="btn btn-success btn-sm" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> Sauvegarder
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <form id="shop-settings-form">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label class="form-label">Nom de la boutique</label>
+                                    <input type="text" class="form-control" name="site_name" value="{{ config.site_name|default(boutique.nom)|default('Ma Boutique') }}" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Description</label>
+                                    <textarea class="form-control" name="description" rows="3">{{ config.description|default('Votre description ici') }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Email de contact</label>
+                                            <input type="email" class="form-control" name="email" value="{{ config.email|default('contact@boutique.com') }}" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Téléphone</label>
+                                            <input type="tel" class="form-control" name="phone" value="{{ config.phone|default('') }}">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Adresse</label>
+                                    <textarea class="form-control" name="address" rows="2">{{ config.address|default('') }}</textarea>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Statut de la boutique</label>
+                                            <select class="form-select" name="status">
+                                                <option value="active" {% if config.status|default('active') == 'active' %}selected{% endif %}>Active</option>
+                                                <option value="inactive" {% if config.status|default('active') == 'inactive' %}selected{% endif %}>Inactive</option>
+                                                <option value="maintenance" {% if config.status|default('active') == 'maintenance' %}selected{% endif %}>Maintenance</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Devise</label>
+                                            <select class="form-select" name="devise">
+                                                <option value="€" {% if config.devise|default('€') == '€' %}selected{% endif %}>Euro (€)</option>
+                                                <option value="$" {% if config.devise|default('€') == '$' %}selected{% endif %}>Dollar ($)</option>
+                                                <option value="£" {% if config.devise|default('€') == '£' %}selected{% endif %}>Livre (£)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Logo de la boutique</label>
+                                    <div class="text-center">
+                                        <img id="logo-preview" src="{{ config.logo_url|default('https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop') }}" class="rounded mb-3" width="150" height="150" alt="Shop Logo">
+                                        <div>
+                                            <input type="url" class="form-control mb-2" name="logo_url" value="{{ config.logo_url|default('') }}" placeholder="URL du logo" onchange="updateLogoPreview(this.value)">
+                                            <small class="text-muted">URL d'image (JPG, PNG)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <form id="addProductForm" class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addProductModalLabel">Ajouter un produit</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Nom du produit</label>
+              <input type="text" class="form-control" name="nom" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Prix</label>
+              <input type="number" class="form-control" name="prix" min="0" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Catégorie</label>
+              <input type="text" class="form-control" name="categorie" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Image (URL ou fichier)</label>
+              <input type="url" class="form-control mb-2" name="image" id="addProductImageUrl" placeholder="https://...">
+              <input type="file" class="form-control" id="addProductImageFile" accept="image/*">
+              <div id="addProductImagePreview" class="mt-2" style="display: none;">
+                <img id="addProductPreviewImg" style="max-width: 100%; height: 200px; object-fit: cover; border-radius: 8px;">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" name="description" rows="3"></textarea>
+            </div>
+            <input type="hidden" name="product_id" id="editProductId">
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary" id="addProductSubmitBtn">Ajouter</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="success-toast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    Action réalisée avec succès!
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        const boutique = {{ boutique|json_encode|raw }};
+        const config = {{ config|json_encode|raw }};
+        const orders = {{ orders|json_encode|raw }};
+        const products = {{ products|json_encode|raw }};
+        const payments = {{ payments|json_encode|raw }};
+
+        let isEditMode = false;
+        let editingProductId = null;
+
+        // Navigation functions
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionName + '-section').style.display = 'block';
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            const navLink = document.querySelector('[onclick="showSection(\'' + sectionName + '\')"]');
+            if (navLink) {
+                navLink.classList.add('active');
+            }
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('show');
+            }
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+        }
+
+        // Order management functions
+        function updateOrderStatus(selectElement, orderId) {
+            const newStatus = selectElement.value;
+            selectElement.parentElement.parentElement.classList.add('loading');
+            
+            fetch(`/dashboard/shop/{{ boutique.slug }}/order/${orderId}/status`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(response => response.json())
+            .then(result => {
+                selectElement.parentElement.parentElement.classList.remove('loading');
+                if (result.success) {
+                    showToast('Statut de la commande mis à jour avec succès!');
+                    updateDashboardOrderStatus(orderId, newStatus);
+                } else {
+                    showToast(result.message || 'Erreur lors de la mise à jour', 'danger');
+                    selectElement.value = selectElement.dataset.originalValue || 'pending';
+                }
+            })
+            .catch(error => {
+                selectElement.parentElement.parentElement.classList.remove('loading');
+                showToast('Erreur de connexion', 'danger');
+                selectElement.value = selectElement.dataset.originalValue || 'pending';
+            });
+        }
+
+        function updateDashboardOrderStatus(orderId, status) {
+            const statusMap = {
+                'pending': { class: 'status-pending', text: 'En attente' },
+                'confirmed': { class: 'status-confirmed', text: 'Confirmée' },
+                'processing': { class: 'status-processing', text: 'En cours' },
+                'shipped': { class: 'status-shipped', text: 'Expédiée' },
+                'delivered': { class: 'status-delivered', text: 'Livrée' },
+                'cancelled': { class: 'status-cancelled', text: 'Annulée' }
+            };
+            
+            // Update dashboard overview if visible
+            const dashboardRows = document.querySelectorAll('#dashboard-section tbody tr');
+            dashboardRows.forEach(row => {
+                if (row.querySelector('strong')?.textContent === `ORD-${orderId}`) {
+                    const statusBadge = row.querySelector('.status-badge');
+                    if (statusBadge && statusMap[status]) {
+                        statusBadge.className = `status-badge ${statusMap[status].class}`;
+                        statusBadge.textContent = statusMap[status].text;
+                    }
+                }
+            });
+        }
+
+        function filterOrders() {
+            const searchTerm = document.getElementById('order-search').value.toLowerCase();
+            const statusFilter = document.getElementById('status-filter').value;
+            const dateFilter = document.getElementById('date-filter').value;
+            
+            const rows = document.querySelectorAll('#orders-table tr[data-order-id]');
+            
+            rows.forEach(row => {
+                const orderText = row.textContent.toLowerCase();
+                const orderStatus = row.dataset.status;
+                const orderDate = row.dataset.date;
+                
+                let show = true;
+                
+                if (searchTerm && !orderText.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                if (statusFilter && orderStatus !== statusFilter) {
+                    show = false;
+                }
+                
+                if (dateFilter && orderDate !== dateFilter) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        function exportOrders() {
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "N° Commande,Client,Statut,Total,Méthode,Date\n"
+                + orders.map(order => 
+                    `ORD-${order.id},"${order.client?.utilisateur?.nom || 'Client'}",${order.statut},${order.montant},${order.methodePaiment},${order.date}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "commandes.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Product management functions
+        function makeEditable(element) {
+            if (element.classList.contains('editing')) return;
+            
+            const originalValue = element.textContent.trim();
+            const field = element.dataset.field;
+            const productId = element.dataset.id;
+            
+            element.classList.add('editing');
+            
+            let input;
+            if (field === 'description') {
+                input = document.createElement('textarea');
+                input.rows = 2;
+            } else {
+                input = document.createElement('input');
+                input.type = field === 'prix' ? 'number' : 'text';
+                if (field === 'prix') {
+                    input.step = '0.01';
+                    input.value = originalValue.replace(/[€$£,\s]/g, '');
+                } else {
+                    input.value = originalValue;
+                }
+            }
+            
+            input.className = 'form-control form-control-sm';
+            if (field !== 'prix') input.value = originalValue;
+            
+            element.innerHTML = '';
+            element.appendChild(input);
+            input.focus();
+            
+            function saveEdit() {
+                const newValue = input.value.trim();
+                if (newValue !== originalValue.replace(/[€$£,\s]/g, '')) {
+                    updateProduct(productId, field, newValue, element, originalValue);
+                } else {
+                    element.classList.remove('editing');
+                    element.textContent = originalValue;
+                }
+            }
+            
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveEdit();
+                }
+            });
+        }
+
+        function updateProduct(productId, field, value, element, originalValue) {
+            fetch(`/dashboard/shop/{{ boutique.slug }}/product/${productId}`, {
+                method: 'PATCH',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ [field]: value })
+            })
+            .then(response => response.json())
+            .then(result => {
+                element.classList.remove('editing');
+                if (result.success) {
+                    if (field === 'prix') {
+                        element.textContent = `${config.devise || '€'}${parseFloat(value).toFixed(2)}`;
+                    } else {
+                        element.textContent = value;
+                    }
+                    showToast('Produit mis à jour avec succès!');
+                } else {
+                    element.textContent = originalValue;
+                    showToast(result.message || 'Erreur lors de la mise à jour', 'danger');
+                }
+            })
+            .catch(error => {
+                element.classList.remove('editing');
+                element.textContent = originalValue;
+                showToast('Erreur de connexion', 'danger');
+            });
+        }
+
+        function filterProducts() {
+            const searchTerm = document.getElementById('product-search').value.toLowerCase();
+            const categoryFilter = document.getElementById('category-filter').value;
+            
+            const rows = document.querySelectorAll('#products-table tr[data-product-id]');
+            
+            rows.forEach(row => {
+                const productText = row.textContent.toLowerCase();
+                const productCategory = row.dataset.category;
+                
+                let show = true;
+                
+                if (searchTerm && !productText.includes(searchTerm)) {
+                    show = false;
+                }
+                
+                if (categoryFilter && productCategory !== categoryFilter) {
+                    show = false;
+                }
+                
+                row.style.display = show ? '' : 'none';
+            });
+        }
+
+        function sortProducts() {
+            const sortOrder = document.getElementById('price-sort').value;
+            if (!sortOrder) return;
+            
+            const tbody = document.getElementById('products-table');
+            const rows = Array.from(tbody.querySelectorAll('tr[data-product-id]'));
+            
+            rows.sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+                
+                return sortOrder === 'asc' ? priceA - priceB : priceB - priceA;
+            });
+            
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        function deleteProduct(productId) {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit?')) return;
+            
+            fetch(`/dashboard/shop/{{ boutique.slug }}/product/${productId}`, {
+                method: 'DELETE',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    document.querySelector(`tr[data-product-id="${productId}"]`).remove();
+                    showToast('Produit supprimé avec succès!');
+                } else {
+                    showToast(result.message || 'Erreur lors de la suppression', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('Erreur de connexion', 'danger');
+            });
+        }
+
+        function editProduct(productId) {
+            console.log('editProduct called with:', productId);
+            isEditMode = true;
+            editingProductId = productId;
+            const product = products.find(p => String(p.id) === String(productId));
+            console.log('Found product:', product);
+            if (!product) return;
+
+            document.querySelector('#addProductModalLabel').textContent = 'Modifier le produit';
+            document.getElementById('addProductSubmitBtn').textContent = 'Modifier';
+            document.querySelector('#addProductForm [name="nom"]').value = product.nom;
+            document.querySelector('#addProductForm [name="prix"]').value = product.prix;
+            document.querySelector('#addProductForm [name="categorie"]').value = product.categorie;
+            document.querySelector('#addProductForm [name="image"]').value = product.image;
+            document.querySelector('#addProductForm [name="description"]').value = product.description;
+            document.querySelector('#editProductId').value = product.id;
+
+            const modalEl = document.getElementById('addProductModal');
+            console.log('Modal element:', modalEl);
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        // Settings functions
+        function saveSettings() {
+            const form = document.getElementById('shop-settings-form');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const formData = new FormData(form);
+            const config = {};
+            
+            for (let [key, value] of formData.entries()) {
+                config[key] = value;
+            }
+            
+            fetch(`/dashboard/shop/{{ boutique.slug }}/settings`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(config)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showToast('Paramètres sauvegardés avec succès!');
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    showToast(result.message || 'Erreur lors de la sauvegarde', 'danger');
+                }
+            })
+            .catch(error => {
+                showToast('Erreur de connexion', 'danger');
+            });
+        }
+
+        function updateLogoPreview(url) {
+            const preview = document.getElementById('logo-preview');
+            if (url) {
+                preview.src = url;
+            }
+        }
+
+        // Utility functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('success-toast');
+            const toastBody = toast.querySelector('.toast-body');
+            
+            toastBody.textContent = message;
+            toast.classList.remove('bg-success', 'bg-danger', 'bg-warning');
+            toast.classList.add(`bg-${type}`);
+            
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+        }
+
+        function viewOrder(orderId) {
+            // Implement order details modal or redirect
+            showToast(`Affichage des détails de la commande ORD-${orderId}`);
+        }
+
+        function printInvoice(orderId) {
+            // Implement invoice printing
+            showToast(`Impression de la facture pour ORD-${orderId}`);
+        }
+
+        function viewPayment(paymentId) {
+            // Implement payment details modal
+            showToast(`Affichage des détails du paiement PAY-${paymentId}`);
+        }
+
+        function exportPayments() {
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "ID Paiement,Montant,Méthode,Date\n"
+                + payments.map(payment => 
+                    `PAY-${payment.id},${payment.montant},${payment.methode},${payment.date}`
+                ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "paiements.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('dashboard');
+            
+            // Store original values for status selects
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.dataset.originalValue = select.value;
+            });
+            
+            // Responsive sidebar handling
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.getElementById('sidebar').classList.remove('show');
+                }
+            });
+
+            // Add Product Image Preview and Data URL logic
+            const imageUrlInput = document.getElementById('addProductImageUrl');
+            const imageFileInput = document.getElementById('addProductImageFile');
+            const previewDiv = document.getElementById('addProductImagePreview');
+            const previewImg = document.getElementById('addProductPreviewImg');
+
+            if (imageUrlInput) {
+                imageUrlInput.addEventListener('input', function() {
+                    if (this.value) {
+                        previewImg.src = this.value;
+                        previewDiv.style.display = 'block';
+                    } else {
+                        previewDiv.style.display = 'none';
+                    }
+                });
+            }
+            if (imageFileInput) {
+                imageFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            imageUrlInput.value = evt.target.result;
+                            previewImg.src = evt.target.result;
+                            previewDiv.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            // Add Product Form Submission (URL or Data URL)
+            document.getElementById('addProductForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const form = e.target;
+                const data = {
+                    nom: form.nom.value,
+                    prix: form.prix.value,
+                    categorie: form.categorie.value,
+                    image: form.image.value,
+                    description: form.description.value
+                };
+                const productId = document.getElementById('editProductId').value;
+                if (isEditMode && productId) {
+                    // PATCH request to update
+                    fetch(`/dashboard/shop/{{ boutique.slug }}/product/${productId}`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('Produit modifié avec succès!');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            showToast(result.message || 'Erreur lors de la modification', 'danger');
+                        }
+                    });
+                } else {
+                    // POST request to add (existing logic)
+                    fetch(`/dashboard/shop/{{ boutique.slug }}/product`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: JSON.stringify(data)
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.success) {
+                            showToast('Produit ajouté avec succès!');
+                            setTimeout(() => window.location.reload(), 1000);
+                        } else {
+                            showToast(result.message || 'Erreur lors de l\'ajout', 'danger');
+                        }
+                    });
+                }
+                isEditMode = false;
+                editingProductId = null;
+            });
+
+            // Reset modal on close
+            document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function () {
+                isEditMode = false;
+                editingProductId = null;
+                document.getElementById('addProductForm').reset();
+                document.querySelector('#addProductModalLabel').textContent = 'Ajouter un produit';
+                document.getElementById('addProductSubmitBtn').textContent = 'Ajouter';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,654 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Opérations en Masse - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Opérations en Masse</h1>
+    </div>
+
+    <!-- Bulk Operations Tabs -->
+    <ul class="nav nav-tabs mb-4" id="bulkTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#boutiques-bulk">Boutiques</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#users-bulk">Utilisateurs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#categories-bulk">Catégories</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#payments-bulk">Paiements</a>
+        </li>
+    </ul>
+
+    <div class="tab-content">
+        <!-- Boutiques Bulk Operations -->
+        <div class="tab-pane fade show active" id="boutiques-bulk">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Opérations en Masse - Boutiques</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Bulk Actions Bar -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="boutique-search" placeholder="Rechercher des boutiques...">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchBoutiques()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" disabled id="bulk-actions-btn">
+                                    Actions en masse
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="bulkAction('activate')">
+                                        <i class="fas fa-check text-success"></i> Activer sélectionnées
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkAction('suspend')">
+                                        <i class="fas fa-pause text-warning"></i> Suspendre sélectionnées
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkAction('delete')">
+                                        <i class="fas fa-trash text-danger"></i> Supprimer sélectionnées
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkAction('export')">
+                                        <i class="fas fa-download text-info"></i> Exporter sélectionnées
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="bulkAction('change-template')">
+                                        <i class="fas fa-palette text-primary"></i> Changer template
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Selection Info -->
+                    <div class="alert alert-info" id="selection-info" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="selected-count">0</span> boutique(s) sélectionnée(s)
+                        <button type="button" class="btn btn-sm btn-outline-primary ms-2" onclick="selectAll('boutiques')">
+                            Tout sélectionner
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary ms-1" onclick="clearSelection('boutiques')">
+                            Tout désélectionner
+                        </button>
+                    </div>
+
+                    <!-- Boutiques Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="boutiques-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="select-all-boutiques" onchange="toggleSelectAll('boutiques')">
+                                    </th>
+                                    <th>Nom</th>
+                                    <th>Commerçant</th>
+                                    <th>Statut</th>
+                                    <th>Template</th>
+                                    <th>Date création</th>
+                                </tr>
+                            </thead>
+                            <tbody id="boutiques-tbody">
+                                <!-- Boutiques will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <nav>
+                        <ul class="pagination justify-content-center" id="boutiques-pagination">
+                            <!-- Pagination will be generated here -->
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Bulk Operations -->
+        <div class="tab-pane fade" id="users-bulk">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Opérations en Masse - Utilisateurs</h6>
+                </div>
+                <div class="card-body">
+                    <!-- Bulk Actions Bar -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="user-search" placeholder="Rechercher des utilisateurs...">
+                                <button class="btn btn-outline-secondary" type="button" onclick="searchUsers()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" disabled id="user-bulk-actions-btn">
+                                    Actions en masse
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="userBulkAction('verify')">
+                                        <i class="fas fa-check-circle text-success"></i> Vérifier comptes
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="userBulkAction('suspend')">
+                                        <i class="fas fa-ban text-warning"></i> Suspendre comptes
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="userBulkAction('promote')">
+                                        <i class="fas fa-user-shield text-primary"></i> Promouvoir admin
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="userBulkAction('email')">
+                                        <i class="fas fa-envelope text-info"></i> Envoyer email
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="userBulkAction('export')">
+                                        <i class="fas fa-download text-secondary"></i> Exporter données
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Users Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="select-all-users" onchange="toggleSelectAll('users')">
+                                    </th>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Rôles</th>
+                                    <th>Vérifié</th>
+                                    <th>Pays</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody">
+                                <!-- Users will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Bulk Operations -->
+        <div class="tab-pane fade" id="categories-bulk">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Opérations en Masse - Catégories</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-success" onclick="importCategories()">
+                                <i class="fas fa-upload"></i> Importer catégories
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" disabled id="category-bulk-actions-btn">
+                                    Actions en masse
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="categoryBulkAction('activate')">
+                                        <i class="fas fa-eye text-success"></i> Activer sélectionnées
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="categoryBulkAction('deactivate')">
+                                        <i class="fas fa-eye-slash text-warning"></i> Désactiver sélectionnées
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="categoryBulkAction('reorder')">
+                                        <i class="fas fa-sort text-primary"></i> Réorganiser
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="categoryBulkAction('export')">
+                                        <i class="fas fa-download text-info"></i> Exporter
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="categories-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="select-all-categories" onchange="toggleSelectAll('categories')">
+                                    </th>
+                                    <th>Nom</th>
+                                    <th>Slug</th>
+                                    <th>Ordre</th>
+                                    <th>Statut</th>
+                                    <th>Date création</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categories-tbody">
+                                <!-- Categories will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Bulk Operations -->
+        <div class="tab-pane fade" id="payments-bulk">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Opérations en Masse - Paiements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <select class="form-select" id="payment-filter">
+                                    <option value="">Tous les statuts</option>
+                                    <option value="active">Actifs</option>
+                                    <option value="pending">En attente</option>
+                                    <option value="cancelled">Annulés</option>
+                                    <option value="frozen">Gelés</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" type="button" onclick="filterPayments()">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="btn-group w-100">
+                                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" disabled id="payment-bulk-actions-btn">
+                                    Actions en masse
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" onclick="paymentBulkAction('activate')">
+                                        <i class="fas fa-play text-success"></i> Activer paiements
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="paymentBulkAction('freeze')">
+                                        <i class="fas fa-pause text-warning"></i> Geler paiements
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="paymentBulkAction('refund')">
+                                        <i class="fas fa-undo text-danger"></i> Rembourser
+                                    </a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#" onclick="paymentBulkAction('export')">
+                                        <i class="fas fa-file-excel text-success"></i> Exporter Excel
+                                    </a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payments Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="payments-table">
+                            <thead>
+                                <tr>
+                                    <th width="50">
+                                        <input type="checkbox" id="select-all-payments" onchange="toggleSelectAll('payments')">
+                                    </th>
+                                    <th>ID</th>
+                                    <th>Commerçant</th>
+                                    <th>Plan</th>
+                                    <th>Montant</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payments-tbody">
+                                <!-- Payments will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Action Confirmation Modal -->
+<div class="modal fade" id="bulkActionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulk-action-title">Confirmer l'action</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="bulk-action-body">
+                <!-- Content will be set dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" id="confirm-bulk-action">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Modal -->
+<div class="modal fade" id="progressModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Traitement en cours...</h5>
+            </div>
+            <div class="modal-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar" id="bulk-progress" role="progressbar" style="width: 0%"></div>
+                </div>
+                <div id="progress-status">Initialisation...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedItems = {
+    boutiques: new Set(),
+    users: new Set(),
+    categories: new Set(),
+    payments: new Set()
+};
+
+// Load initial data
+document.addEventListener('DOMContentLoaded', function() {
+    loadBoutiques();
+    loadUsers();
+    loadCategories();
+    loadPayments();
+});
+
+// Toggle select all
+function toggleSelectAll(type) {
+    const checkbox = document.getElementById(`select-all-${type}`);
+    const checkboxes = document.querySelectorAll(`#${type}-tbody input[type="checkbox"]`);
+    
+    checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+        if (checkbox.checked) {
+            selectedItems[type].add(cb.value);
+        } else {
+            selectedItems[type].delete(cb.value);
+        }
+    });
+    
+    updateSelectionInfo(type);
+}
+
+// Update selection info
+function updateSelectionInfo(type) {
+    const count = selectedItems[type].size;
+    const info = document.getElementById('selection-info');
+    const countSpan = document.getElementById('selected-count');
+    const bulkBtn = document.getElementById(`${type === 'boutiques' ? 'bulk-actions-btn' : type.slice(0, -1) + '-bulk-actions-btn'}`);
+    
+    if (count > 0) {
+        info.style.display = 'block';
+        countSpan.textContent = count;
+        if (bulkBtn) bulkBtn.disabled = false;
+    } else {
+        info.style.display = 'none';
+        if (bulkBtn) bulkBtn.disabled = true;
+    }
+}
+
+// Bulk actions
+function bulkAction(action) {
+    const selected = Array.from(selectedItems.boutiques);
+    if (selected.length === 0) return;
+    
+    showBulkActionModal(action, selected, 'boutiques');
+}
+
+function userBulkAction(action) {
+    const selected = Array.from(selectedItems.users);
+    if (selected.length === 0) return;
+    
+    showBulkActionModal(action, selected, 'users');
+}
+
+function categoryBulkAction(action) {
+    const selected = Array.from(selectedItems.categories);
+    if (selected.length === 0) return;
+    
+    showBulkActionModal(action, selected, 'categories');
+}
+
+function paymentBulkAction(action) {
+    const selected = Array.from(selectedItems.payments);
+    if (selected.length === 0) return;
+    
+    showBulkActionModal(action, selected, 'payments');
+}
+
+// Show bulk action confirmation modal
+function showBulkActionModal(action, selected, type) {
+    const modal = document.getElementById('bulkActionModal');
+    const title = document.getElementById('bulk-action-title');
+    const body = document.getElementById('bulk-action-body');
+    const confirmBtn = document.getElementById('confirm-bulk-action');
+    
+    const actionTexts = {
+        activate: 'Activer',
+        suspend: 'Suspendre',
+        delete: 'Supprimer',
+        export: 'Exporter',
+        verify: 'Vérifier',
+        promote: 'Promouvoir',
+        email: 'Envoyer email',
+        freeze: 'Geler',
+        refund: 'Rembourser'
+    };
+    
+    title.textContent = `${actionTexts[action]} ${selected.length} élément(s)`;
+    body.innerHTML = `
+        <p>Êtes-vous sûr de vouloir <strong>${actionTexts[action].toLowerCase()}</strong> les ${selected.length} élément(s) sélectionné(s) ?</p>
+        ${action === 'delete' ? '<p class="text-danger"><small>Cette action est irréversible.</small></p>' : ''}
+    `;
+    
+    confirmBtn.onclick = () => {
+        executeBulkAction(action, selected, type);
+        bootstrap.Modal.getInstance(modal).hide();
+    };
+    
+    new bootstrap.Modal(modal).show();
+}
+
+// Execute bulk action
+function executeBulkAction(action, selected, type) {
+    const progressModal = new bootstrap.Modal(document.getElementById('progressModal'));
+    progressModal.show();
+    
+    const progressBar = document.getElementById('bulk-progress');
+    const statusDiv = document.getElementById('progress-status');
+    
+    // Simulate progress
+    let progress = 0;
+    const interval = setInterval(() => {
+        progress += Math.random() * 20;
+        if (progress > 100) progress = 100;
+        
+        progressBar.style.width = progress + '%';
+        statusDiv.textContent = `Traitement... ${Math.round(progress)}%`;
+        
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+                progressModal.hide();
+                alert(`Action "${action}" exécutée avec succès sur ${selected.length} élément(s).`);
+                // Reload data
+                if (type === 'boutiques') loadBoutiques();
+                else if (type === 'users') loadUsers();
+                else if (type === 'categories') loadCategories();
+                else if (type === 'payments') loadPayments();
+            }, 500);
+        }
+    }, 200);
+}
+
+// Load data functions (simplified for demo)
+function loadBoutiques() {
+    const tbody = document.getElementById('boutiques-tbody');
+    tbody.innerHTML = `
+        <tr>
+            <td><input type="checkbox" value="1" onchange="toggleSelection('boutiques', '1')"></td>
+            <td>TechStore Pro</td>
+            <td>John Doe</td>
+            <td><span class="badge bg-success">Actif</span></td>
+            <td>E-commerce</td>
+            <td>15/01/2024</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" value="2" onchange="toggleSelection('boutiques', '2')"></td>
+            <td>Fashion Boutique</td>
+            <td>Jane Smith</td>
+            <td><span class="badge bg-warning">En cours</span></td>
+            <td>Fashion</td>
+            <td>12/01/2024</td>
+        </tr>
+    `;
+}
+
+function loadUsers() {
+    const tbody = document.getElementById('users-tbody');
+    tbody.innerHTML = `
+        <tr>
+            <td><input type="checkbox" value="1" onchange="toggleSelection('users', '1')"></td>
+            <td>John Doe</td>
+            <td>john@example.com</td>
+            <td><span class="badge bg-primary">USER</span></td>
+            <td><span class="badge bg-success">Vérifié</span></td>
+            <td>France</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" value="2" onchange="toggleSelection('users', '2')"></td>
+            <td>Jane Smith</td>
+            <td>jane@example.com</td>
+            <td><span class="badge bg-danger">ADMIN</span></td>
+            <td><span class="badge bg-success">Vérifié</span></td>
+            <td>Belgique</td>
+        </tr>
+    `;
+}
+
+function loadCategories() {
+    const tbody = document.getElementById('categories-tbody');
+    tbody.innerHTML = `
+        <tr>
+            <td><input type="checkbox" value="1" onchange="toggleSelection('categories', '1')"></td>
+            <td>E-commerce</td>
+            <td>ecommerce</td>
+            <td>1</td>
+            <td><span class="badge bg-success">Actif</span></td>
+            <td>10/01/2024</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" value="2" onchange="toggleSelection('categories', '2')"></td>
+            <td>Portfolio</td>
+            <td>portfolio</td>
+            <td>2</td>
+            <td><span class="badge bg-success">Actif</span></td>
+            <td>08/01/2024</td>
+        </tr>
+    `;
+}
+
+function loadPayments() {
+    const tbody = document.getElementById('payments-tbody');
+    tbody.innerHTML = `
+        <tr>
+            <td><input type="checkbox" value="1" onchange="toggleSelection('payments', '1')"></td>
+            <td>001</td>
+            <td>John Doe</td>
+            <td>Premium</td>
+            <td>€29.99</td>
+            <td><span class="badge bg-success">Actif</span></td>
+            <td>15/01/2024</td>
+        </tr>
+        <tr>
+            <td><input type="checkbox" value="2" onchange="toggleSelection('payments', '2')"></td>
+            <td>002</td>
+            <td>Jane Smith</td>
+            <td>Standard</td>
+            <td>€19.99</td>
+            <td><span class="badge bg-warning">En attente</span></td>
+            <td>12/01/2024</td>
+        </tr>
+    `;
+}
+
+// Toggle individual selection
+function toggleSelection(type, id) {
+    const checkbox = event.target;
+    if (checkbox.checked) {
+        selectedItems[type].add(id);
+    } else {
+        selectedItems[type].delete(id);
+    }
+    updateSelectionInfo(type);
+}
+
+// Select/Clear all functions
+function selectAll(type) {
+    const checkboxes = document.querySelectorAll(`#${type}-tbody input[type="checkbox"]`);
+    checkboxes.forEach(cb => {
+        cb.checked = true;
+        selectedItems[type].add(cb.value);
+    });
+    document.getElementById(`select-all-${type}`).checked = true;
+    updateSelectionInfo(type);
+}
+
+function clearSelection(type) {
+    const checkboxes = document.querySelectorAll(`#${type}-tbody input[type="checkbox"]`);
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+    });
+    document.getElementById(`select-all-${type}`).checked = false;
+    selectedItems[type].clear();
+    updateSelectionInfo(type);
+}
+
+// Search functions
+function searchBoutiques() {
+    const query = document.getElementById('boutique-search').value;
+    console.log('Searching boutiques:', query);
+    // Implement search logic
+}
+
+function searchUsers() {
+    const query = document.getElementById('user-search').value;
+    console.log('Searching users:', query);
+    // Implement search logic
+}
+
+function filterPayments() {
+    const filter = document.getElementById('payment-filter').value;
+    console.log('Filtering payments:', filter);
+    // Implement filter logic
+}
+
+// Import categories
+function importCategories() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.xlsx';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            alert('Import de ' + file.name + ' en cours...');
+            // Implement import logic
+        }
+    };
+    input.click();
+}
+</script>
+{% endblock %}

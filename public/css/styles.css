@@ -2,14 +2,14 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
 :root {
-    --primary: #60c2bf;
-    --secondary: #afa2a9;
-    --accent: #87a8a2;
-    --glass-bg: rgba(255, 255, 255, 0.2);
+    --primary: #358b88;
+    --secondary: #e06fab;
+    --accent: #4fb09e;
+    --glass-bg: rgba(119, 84, 84, 0.2);
     --glass-blur: 15px;
     --radius: 18px;
     --transition: 0.3s ease-in-out;
-    --neon: 0 0 10px #7e7176, 0 0 20px #a87a8c, 0 0 30px #8c6b77;
+    --neon: 0 0 10px #433239, 0 0 20px #d14d80, 0 0 30px #9c4e6a;
 }
 
 * {

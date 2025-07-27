@@ -55,6 +55,7 @@
                 <div class="form-group">
                     <label for="{{ registrationForm.nom.vars.id }}">Full Name :</label>
                     {{ form_widget(registrationForm.nom, {'attr': {'placeholder': ' '}}) }}
+                    {{ form_errors(registrationForm.nom) }}
                 </div>
                 <div class="form-group">
                     <label for="{{ registrationForm.devise.vars.id }}">Currency :</label>
@@ -72,7 +73,7 @@
                     {{ form_widget(registrationForm.agreeTerms) }}
                     {{ form_label(registrationForm.agreeTerms, 'I agree to the Terms and Conditions') }}
                 </div>
-                <button type="submit" class="login-button">REGISTER</button>
+                <button type="submit" class="login-button" id="register-btn">REGISTER</button>
             {{ form_end(registrationForm) }}
             <div class="signup-link">
                 Already have an account?<br>
@@ -84,4 +85,17 @@
 
 {% block stylesheets %}
     {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+      const btn = document.getElementById('register-btn');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          this.disabled = true;
+          this.form.submit();
+        });
+      }
+    </script>
 {% endblock %}

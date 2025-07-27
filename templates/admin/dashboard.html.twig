@@ -1,0 +1,153 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord Admin - ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Tableau de bord</h1>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <!-- Boutiques Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Boutiques Totales
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.boutiques.total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-store fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Boutiques Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Boutiques Actives
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.boutiques.active }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Utilisateurs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.users.total }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flagged Boutiques Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Boutiques Signalées
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.boutiques.flagged }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Boutiques -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Boutiques Récentes</h6>
+                </div>
+                <div class="card-body">
+                    {% for boutique in recent_boutiques %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="mr-3">
+                                <div class="icon-circle bg-primary">
+                                    <i class="fas fa-store text-white"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold">{{ boutique.nom }}</div>
+                                <div class="text-muted small">{{ boutique.dateCreation|date('d/m/Y H:i') }}</div>
+                            </div>
+                            <div class="ml-auto">
+                                <span class="badge badge-{{ boutique.statut == 'actif' ? 'success' : 'warning' }}">
+                                    {{ boutique.statut|title }}
+                                </span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <a class="btn btn-primary btn-sm" href="{{ path('admin_boutiques') }}">Voir toutes</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flagged Boutiques -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Boutiques Signalées</h6>
+                </div>
+                <div class="card-body">
+                    {% if flagged_boutiques %}
+                        {% for boutique in flagged_boutiques %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="mr-3">
+                                    <div class="icon-circle bg-warning">
+                                        <i class="fas fa-exclamation-triangle text-white"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">{{ boutique.nom }}</div>
+                                    <div class="text-muted small">{{ boutique.commercant.nom }}</div>
+                                </div>
+                                <div class="ml-auto">
+                                    <a href="{{ path('admin_boutique_show', {id: boutique.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">Aucune boutique signalée</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

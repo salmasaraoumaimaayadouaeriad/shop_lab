@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Commercant;
 use App\Entity\Boutique;
-use App\Entity\Subscription;
+use App\Entity\BoutiqueSubscription;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -89,13 +89,17 @@ class SubscriptionController extends AbstractController
         Request $request, 
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator
-    ): Response {
+    ): JsonResponse {
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
+
+        // Add logging for debugging
+        error_log('Subscription process started for user: ' . $user->getId());
         
         try {
             // Get form data
             $formData = $request->request->all();
+            error_log('Form data received: ' . json_encode(array_keys($formData)));
             
             // Validate required fields
             $requiredFields = [
@@ -104,10 +108,16 @@ class SubscriptionController extends AbstractController
                 'country', 'shop_name', 'shop_description', 'niche', 'template'
             ];
             
+            $missingFields = [];
             foreach ($requiredFields as $field) {
                 if (empty($formData[$field])) {
-                    throw new \InvalidArgumentException("Field {$field} is required");
+                    $missingFields[] = $field;
                 }
+            }
+
+            if (!empty($missingFields)) {
+                error_log('Missing required fields: ' . implode(', ', $missingFields));
+                throw new \InvalidArgumentException("Missing required fields: " . implode(', ', $missingFields));
             }
 
             // Validate payment for non-basic plans
@@ -117,6 +127,7 @@ class SubscriptionController extends AbstractController
                     throw new \InvalidArgumentException("Payment method is required for paid plans");
                 }
 
+                if ($paymentMethod === 'card') {
                 // Verify payment intent status
                 $paymentIntentId = $formData['payment_intent'] ?? null;
                 if ($paymentIntentId) {
@@ -126,9 +137,22 @@ class SubscriptionController extends AbstractController
                     }
                 } else {
                     throw new \InvalidArgumentException("Payment intent ID is required");
+                    }
+                } elseif ($paymentMethod === 'bank') {
+                    // Validate bank transfer fields
+                    $bankFields = ['rib_code', 'bank_name', 'account_holder'];
+                    foreach ($bankFields as $field) {
+                        if (empty($formData[$field])) {
+                            throw new \InvalidArgumentException("Bank field {$field} is required");
+                        }
+                    }
                 }
             }
-            
+
+            // Start database transaction
+            $entityManager->beginTransaction();
+
+            try {
             // Create Commercant entity
             $commercant = new Commercant();
             $commercant->setNom($formData['first_name'] . ' ' . $formData['last_name']);
@@ -172,7 +196,7 @@ class SubscriptionController extends AbstractController
             }
             
             // Set initial status
-            $boutique->setStatut('en_cours');
+                $boutique->setStatut('active');
             
             // Validate Boutique
             $errors = $validator->validate($boutique);
@@ -182,47 +206,152 @@ class SubscriptionController extends AbstractController
             
             $entityManager->persist($boutique);
             
-            // Create Subscription entity
-            $subscription = new Subscription();
-            $subscription->setCommercant($commercant);
-            $subscription->setPlan($formData['selected_plan']);
-            $subscription->setStatut('active');
-            $subscription->setDateDebut(new \DateTime());
-            $subscription->setDateFin(new \DateTime('+1 month'));
-            if ($formData['selected_plan'] !== 'basic' && $paymentIntentId) {
-                $subscription->setPaymentIntentId($paymentIntentId);
-            }
-            
-            $entityManager->persist($subscription);
+                // Check for existing subscription
+                $existing = $entityManager->getRepository(BoutiqueSubscription::class)
+                    ->findOneBy(['commercant' => $commercant, 'boutique' => $boutique]);
+                if ($existing) {
+                    $entityManager->commit();
+                    return new JsonResponse([
+                        'success' => false,
+                        'message' => 'You are already subscribed to this boutique.'
+                    ]);
+                }
+
+                // Create BoutiqueSubscription entity (comprehensive tracking)
+                $boutiqueSubscription = new BoutiqueSubscription();
+                $boutiqueSubscription->setCommercant($commercant);
+                $boutiqueSubscription->setBoutique($boutique);
+                $boutiqueSubscription->setPlan($formData['selected_plan']);
+                $boutiqueSubscription->setStatut('active');
+                $boutiqueSubscription->setDateDebut(new \DateTime());
+                $boutiqueSubscription->setDateFin(new \DateTime('+1 month'));
+
+                // Set plan prices
+                $planPrices = [
+                    'basic' => '0.00',
+                    'standard' => '12.99',
+                    'premium' => '18.99'
+                ];
+                $boutiqueSubscription->setPrix($planPrices[$formData['selected_plan']]);
+
+                // Store business information
+                $boutiqueSubscription->setBusinessName($formData['business_name']);
+                $boutiqueSubscription->setBusinessType($formData['business_type']);
+                $boutiqueSubscription->setBusinessAddress($formData['address'] . ', ' . $formData['city'] . ', ' . $formData['postal_code'] . ', ' . $formData['country']);
+                $boutiqueSubscription->setPhone($formData['phone']);
+
+                // Store shop customization data
+                $boutiqueSubscription->setShopName($formData['shop_name']);
+                $boutiqueSubscription->setShopDescription($formData['shop_description']);
+                $boutiqueSubscription->setNiche($formData['niche']);
+                $boutiqueSubscription->setTemplate($formData['template']);
+                $boutiqueSubscription->setCustomDomain($formData['custom_domain'] ?? null);
+
+                // Store payment information
+                if ($formData['selected_plan'] !== 'basic') {
+                    $boutiqueSubscription->setPaymentMethod($formData['payment_method']);
+                    
+                    if ($formData['payment_method'] === 'card') {
+                        // Store billing information (NO CARD DETAILS!)
+                        $boutiqueSubscription->setBillingName($formData['billing_name'] ?? null);
+                        $boutiqueSubscription->setBillingAddress($formData['billing_address1'] ?? null);
+                        $boutiqueSubscription->setBillingCity($formData['billing_city'] ?? null);
+                        $boutiqueSubscription->setBillingPostalCode($formData['billing_postal_code'] ?? null);
+                        $boutiqueSubscription->setBillingCountry($formData['billing_country'] ?? null);
+                        
+                        if (isset($formData['payment_intent'])) {
+                            $boutiqueSubscription->setPaymentReference($formData['payment_intent']);
+                            $boutiqueSubscription->setStripeSubscriptionId($formData['payment_intent']);
+                        }
+                    } elseif ($formData['payment_method'] === 'bank') {
+                        // Store bank transfer information
+                        $boutiqueSubscription->setBankName($formData['bank_name'] ?? null);
+                        $boutiqueSubscription->setAccountHolder($formData['account_holder'] ?? null);
+                        $boutiqueSubscription->setRibCode($formData['rib_code'] ?? null);
+                        $boutiqueSubscription->setIban($formData['iban'] ?? null);
+                        $boutiqueSubscription->setBicSwift($formData['bic_swift'] ?? null);
+                        $boutiqueSubscription->setPaymentReference('BANK_TRANSFER_' . uniqid());
+                    }
+                }
+
+                // Store all form data as JSON for future reference
+                $boutiqueSubscription->setStepData([
+                    'step1' => ['plan' => $formData['selected_plan']],
+                    'step2' => [
+                        'first_name' => $formData['first_name'],
+                        'last_name' => $formData['last_name'],
+                        'email' => $formData['email'],
+                        'phone' => $formData['phone'],
+                        'business_name' => $formData['business_name'],
+                        'business_type' => $formData['business_type'],
+                        'website' => $formData['website'] ?? null
+                    ],
+                    'step3' => [
+                        'address' => $formData['address'],
+                        'city' => $formData['city'],
+                        'postal_code' => $formData['postal_code'],
+                        'country' => $formData['country']
+                    ],
+                    'step4' => [
+                        'payment_method' => $formData['payment_method'] ?? null,
+                        'payment_status' => $formData['selected_plan'] === 'basic' ? 'free' : 'paid'
+                    ],
+                    'step5' => [
+                        'shop_name' => $formData['shop_name'],
+                        'shop_description' => $formData['shop_description'],
+                        'niche' => $formData['niche'],
+                        'template' => $formData['template'],
+                        'custom_domain' => $formData['custom_domain'] ?? null
+                    ]
+                ]);
+
+                $entityManager->persist($boutiqueSubscription);
             
             // Save all entities
             $entityManager->flush();
-            
-            // Send confirmation email (implement this)
-            // $this->sendConfirmationEmail($commercant, $boutique);
-            
-            // Return success response
-            if ($request->isXmlHttpRequest()) {
-                return new JsonResponse([
+                $entityManager->commit();
+
+                // At the end, ensure we return proper JSON response
+                $shopUrl = $boutique->getUrl();
+                
+                // Add protocol if not present
+                if (!str_starts_with($shopUrl, 'http')) {
+                    $shopUrl = 'https://' . $shopUrl;
+                }
+
+                $successMessage = sprintf(
+                    'Subscription successful! You can launch your store through this link: %s',
+                    $shopUrl
+                );
+
+                $responseData = [
                     'success' => true,
-                    'shop_url' => $boutique->getUrl(),
-                    'message' => 'Subscription created successfully'
-                ]);
+                    'shop_url' => $shopUrl,
+                    'message' => $successMessage,
+                    'shop_name' => $boutique->getNom(),
+                    'plan' => $boutiqueSubscription->getPlan(),
+                    'subscription_id' => $boutiqueSubscription->getId(),
+                    'boutique_id' => $boutique->getId(),
+                    'commercant_id' => $commercant->getId()
+                ];
+
+                error_log('Success response: ' . json_encode($responseData));
+                return new JsonResponse($responseData);
+
+            } catch (\Exception $e) {
+                $entityManager->rollback();
+                throw $e;
             }
-            
-            $this->addFlash('success', 'Your subscription has been created successfully!');
-            return $this->redirectToRoute('dashboard');
-            
+
         } catch (\Exception $e) {
-            if ($request->isXmlHttpRequest()) {
+            error_log('Subscription process error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'An error occurred: ' . $e->getMessage()
+                'message' => 'An error occurred: ' . $e->getMessage(),
+                'debug' => $e->getFile() . ':' . $e->getLine()
                 ], 400);
-            }
-            
-            $this->addFlash('error', 'An error occurred while processing your subscription. Please try again.');
-            return $this->redirectToRoute('subscription_index');
         }
     }
     

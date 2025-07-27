@@ -33,7 +33,8 @@ class RegistrationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // Check if email already exists
-            $existingUser = $entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $form->get('email')->getData()]);
+            $email = $form->get('email')->getData();
+            $existingUser = $entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
             if ($existingUser) {
                 $this->addFlash('error', 'This email is already used. Please use another one or log in.');
                 return $this->redirectToRoute('app_register');
@@ -46,11 +47,18 @@ class RegistrationController extends AbstractController
             $user->setNom($form->get('nom')->getData());
             $user->setDevise($form->get('devise')->getData());
             $user->setPays($form->get('pays')->getData());
+            $user->setRoles(['ROLE_COMMERCANT']);
+            $user->setEmail($email);
+
+            if (!$user->getEmail()) {
+                throw new \InvalidArgumentException('Email cannot be null');
+            }
+            if (!$user->getNom()) {
+                throw new \InvalidArgumentException('Name cannot be null');
+            }
 
             // Encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
-
-            // Mark user as verified by default (no email verification)
             $user->setIsVerified(true);
 
             $entityManager->persist($user);
@@ -59,10 +67,10 @@ class RegistrationController extends AbstractController
             // Create and persist a Commercant for this user
             $commercant = new \App\Entity\Commercant();
             $commercant->setUtilisateur($user);
+            $commercant->setNom($user->getNom() ?: $user->getEmail());
             $entityManager->persist($commercant);
             $entityManager->flush();
 
-            // Add success notification and redirect to login
             $this->addFlash('success', 'Registration successful! Please log in.');
             return $this->redirectToRoute('app_login');
         }
@@ -92,5 +100,21 @@ class RegistrationController extends AbstractController
         $this->addFlash('success', 'Your email address has been verified.');
 
         return $this->redirectToRoute('app_register');
+    }
+
+    // Utility method to ensure every user has a Commercant
+    public static function ensureCommercantsForAllUsers(EntityManagerInterface $entityManager): void
+    {
+        $users = $entityManager->getRepository(\App\Entity\Utilisateur::class)->findAll();
+        foreach ($users as $user) {
+            $commercant = $entityManager->getRepository(\App\Entity\Commercant::class)->findOneBy(['utilisateur' => $user]);
+            if (!$commercant) {
+                $commercant = new \App\Entity\Commercant();
+                $commercant->setUtilisateur($user);
+                $commercant->setNom($user->getNom() ?: $user->getEmail());
+                $entityManager->persist($commercant);
+            }
+        }
+        $entityManager->flush();
     }
 }

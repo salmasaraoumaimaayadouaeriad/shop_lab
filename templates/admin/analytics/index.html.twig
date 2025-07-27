@@ -1,0 +1,408 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Analytics Avancées - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Analytics Avancées</h1>
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-calendar"></i> Période
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="setPeriod('7d')">7 derniers jours</a></li>
+                <li><a class="dropdown-item" href="#" onclick="setPeriod('30d')">30 derniers jours</a></li>
+                <li><a class="dropdown-item" href="#" onclick="setPeriod('90d')">90 derniers jours</a></li>
+                <li><a class="dropdown-item" href="#" onclick="setPeriod('1y')">1 an</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Revenus Totaux
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-revenue">€12,450</div>
+                            <div class="text-success small">
+                                <i class="fas fa-arrow-up"></i> +15.3% vs mois dernier
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-euro-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Nouvelles Boutiques
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="new-stores">47</div>
+                            <div class="text-success small">
+                                <i class="fas fa-arrow-up"></i> +8.2% vs mois dernier
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-store fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taux de Conversion
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="conversion-rate">3.2%</div>
+                            <div class="text-danger small">
+                                <i class="fas fa-arrow-down"></i> -2.1% vs mois dernier
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Utilisateurs Actifs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="active-users">1,234</div>
+                            <div class="text-success small">
+                                <i class="fas fa-arrow-up"></i> +12.5% vs mois dernier
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Revenue Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Évolution des Revenus</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <a class="dropdown-item" href="#" onclick="exportChart('revenue')">Exporter PNG</a>
+                            <a class="dropdown-item" href="#" onclick="exportChart('revenue', 'pdf')">Exporter PDF</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="revenueChart" width="100%" height="40"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pie Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Répartition par Plan</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="planChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-primary"></i> Premium
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-success"></i> Standard
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-info"></i> Basic
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Analytics -->
+    <div class="row">
+        <!-- Top Performing Stores -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Top Boutiques Performantes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Boutique</th>
+                                    <th>Revenus</th>
+                                    <th>Croissance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top-stores">
+                                <tr>
+                                    <td>TechStore Pro</td>
+                                    <td>€2,450</td>
+                                    <td><span class="text-success">+25%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Fashion Boutique</td>
+                                    <td>€1,890</td>
+                                    <td><span class="text-success">+18%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Home & Garden</td>
+                                    <td>€1,650</td>
+                                    <td><span class="text-success">+12%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Sports World</td>
+                                    <td>€1,420</td>
+                                    <td><span class="text-danger">-5%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Beauty Corner</td>
+                                    <td>€1,280</td>
+                                    <td><span class="text-success">+8%</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Geographic Distribution -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Répartition Géographique</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="geoChart" width="100%" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        Activité en Temps Réel
+                        <span class="badge bg-success ms-2" id="online-indicator">
+                            <i class="fas fa-circle"></i> En ligne
+                        </span>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="activity-feed" style="height: 300px; overflow-y: auto;">
+                        <!-- Real-time activity will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Revenue Chart
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+const revenueChart = new Chart(revenueCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+        datasets: [{
+            label: 'Revenus (€)',
+            data: [1200, 1900, 3000, 5000, 2000, 3000, 4500, 6000, 7500, 8200, 9100, 12450],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '€' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Plan Distribution Chart
+const planCtx = document.getElementById('planChart').getContext('2d');
+const planChart = new Chart(planCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Premium', 'Standard', 'Basic'],
+        datasets: [{
+            data: [45, 35, 20],
+            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc'],
+            hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf'],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Geographic Chart
+const geoCtx = document.getElementById('geoChart').getContext('2d');
+const geoChart = new Chart(geoCtx, {
+    type: 'bar',
+    data: {
+        labels: ['France', 'Belgique', 'Suisse', 'Canada', 'Maroc', 'Tunisie'],
+        datasets: [{
+            label: 'Boutiques',
+            data: [450, 89, 67, 45, 32, 28],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.8)',
+                'rgba(54, 162, 235, 0.8)',
+                'rgba(255, 205, 86, 0.8)',
+                'rgba(75, 192, 192, 0.8)',
+                'rgba(153, 102, 255, 0.8)',
+                'rgba(255, 159, 64, 0.8)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Real-time activity simulation
+function loadRealtimeActivity() {
+    const activities = [
+        { type: 'new_store', message: 'Nouvelle boutique créée: "Tech Paradise"', time: '2 min' },
+        { type: 'payment', message: 'Paiement reçu: €29.99 - Plan Premium', time: '5 min' },
+        { type: 'user_signup', message: 'Nouvel utilisateur inscrit: john.doe@email.com', time: '8 min' },
+        { type: 'store_published', message: 'Boutique publiée: "Fashion Store"', time: '12 min' },
+        { type: 'subscription', message: 'Abonnement renouvelé: Plan Standard', time: '15 min' }
+    ];
+
+    const feed = document.getElementById('activity-feed');
+    feed.innerHTML = '';
+
+    activities.forEach(activity => {
+        const div = document.createElement('div');
+        div.className = 'border-left-primary border-left-4 p-3 mb-2 bg-light';
+        
+        const icon = {
+            'new_store': 'fas fa-store text-primary',
+            'payment': 'fas fa-euro-sign text-success',
+            'user_signup': 'fas fa-user-plus text-info',
+            'store_published': 'fas fa-globe text-warning',
+            'subscription': 'fas fa-credit-card text-secondary'
+        };
+
+        div.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="${icon[activity.type]} me-3"></i>
+                <div class="flex-grow-1">
+                    <div class="small text-gray-500">Il y a ${activity.time}</div>
+                    <div>${activity.message}</div>
+                </div>
+            </div>
+        `;
+        feed.appendChild(div);
+    });
+}
+
+// Load real-time activity on page load
+loadRealtimeActivity();
+
+// Refresh activity every 30 seconds
+setInterval(loadRealtimeActivity, 30000);
+
+// Period selection
+function setPeriod(period) {
+    console.log('Setting period to:', period);
+    // Here you would reload the charts with new data
+    // For demo purposes, we'll just show an alert
+    alert('Période changée à: ' + period);
+}
+
+// Export functionality
+function exportChart(chartType, format = 'png') {
+    console.log('Exporting', chartType, 'as', format);
+    alert('Export de ' + chartType + ' en ' + format.toUpperCase());
+}
+
+// Update online indicator
+setInterval(() => {
+    const indicator = document.getElementById('online-indicator');
+    indicator.innerHTML = '<i class="fas fa-circle"></i> En ligne (' + Math.floor(Math.random() * 50 + 100) + ' utilisateurs)';
+}, 5000);
+</script>
+{% endblock %}

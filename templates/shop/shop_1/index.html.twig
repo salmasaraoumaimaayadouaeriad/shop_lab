@@ -632,6 +632,7 @@
             <button class="tab-btn" onclick="switchTab('typography')">Typography</button>
             <button class="tab-btn" onclick="switchTab('layout')">Layout</button>
             <button class="tab-btn" onclick="switchTab('advanced')">Advanced</button>
+            <button class="tab-btn" onclick="switchTab('about')">About</button>
         </div>
 
         <form id="customizeForm">
@@ -958,6 +959,36 @@
                 </div>
             </div>
 
+            <!-- About Tab -->
+            <div id="about-tab" class="tab-content">
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-info-circle"></i> About Title</label>
+                    <input type="text" id="about_title" class="form-control-custom" value="{{ about_title|default('About ' ~ site_name|default('Stylish')) }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-align-left"></i> About Description</label>
+                    <textarea id="about_description" class="form-control-custom" rows="3">{{ about_description|default('We are passionate about providing high-quality footwear that combines style, comfort, and durability.') }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-paragraph"></i> About Text</label>
+                    <textarea id="about_text" class="form-control-custom" rows="4">{{ about_text|default("Since our founding, we've been committed to offering our customers the latest trends in footwear from leading brands around the world. Our carefully curated collection ensures that you'll find the perfect shoes for any occasion.") }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-users"></i> Customers Count</label>
+                    <input type="text" id="customers_count" class="form-control-custom" value="{{ customers_count|default('1000+') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-box"></i> Products Count</label>
+                    <input type="text" id="products_count" class="form-control-custom" value="{{ products_count|default('50+') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-image"></i> About Image URL</label>
+                    <input type="url" id="about_image_url" class="form-control-custom" value="{{ about_image_url|default('https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg') }}">
+                    <label class="form-label mt-2"><i class="fas fa-upload"></i> Upload About Image</label>
+                    <input type="file" id="aboutImageFile" class="form-control-custom" accept="image/*">
+                </div>
+            </div>
+
             <!-- Action Buttons -->
             <div class="d-grid gap-2 mt-4">
                 <button id="save-config-btn" type="button" class="btn btn-danger btn-block">SAVE CONFIGURATION</button>
@@ -1066,6 +1097,36 @@
                 
                 <div class="row g-4" id="productGrid">
                     <!-- Products will be rendered here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-5" style="background: var(--card-bg);">
+            <div class="container-custom">
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h2 class="mb-4" id="aboutTitleDisplay">{{ about_title|default('About ' ~ site_name|default('Stylish')) }}</h2>
+                        <p class="lead mb-4" id="aboutDescriptionDisplay">{{ about_description|default('We are passionate about providing high-quality footwear that combines style, comfort, and durability.') }}</p>
+                        <p id="aboutTextDisplay">{{ about_text|default("Since our founding, we've been committed to offering our customers the latest trends in footwear from leading brands around the world. Our carefully curated collection ensures that you'll find the perfect shoes for any occasion.") }}</p>
+                        <div class="row mt-4">
+                            <div class="col-sm-6">
+                                <div class="text-center">
+                                    <h3 class="text-primary" id="customersCountDisplay">{{ customers_count|default('1000+') }}</h3>
+                                    <p class="text-muted">Happy Customers</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="text-center">
+                                    <h3 class="text-primary" id="productsCountDisplay">{{ products_count|default('50+') }}</h3>
+                                    <p class="text-muted">Product Varieties</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <img id="aboutImageDisplay" src="{{ about_image_url|default('https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg') }}" alt="About Us" class="img-fluid rounded shadow">
+                    </div>
                 </div>
             </div>
         </section>
@@ -1586,6 +1647,8 @@
                         const reader = new FileReader();
                         reader.onload = function(evt) {
                             logoDisplay.innerHTML = `<img src="${evt.target.result}" alt="Logo" style="height: 40px; margin-right: 10px;">`;
+                            // Set the value of the logo_url input to the Data URL
+                            logoUrlInput.value = evt.target.result;
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1611,13 +1674,15 @@
                     if (file) {
                         const reader = new FileReader();
                         reader.onload = function(evt) {
-                            let favicon = document.querySelector('link[rel="icon"]');
+                            let favicon = document.querySelector('link[rel=\"icon\"]');
                             if (!favicon) {
                                 favicon = document.createElement('link');
                                 favicon.rel = 'icon';
                                 document.head.appendChild(favicon);
                             }
                             favicon.href = evt.target.result;
+                            // Set the value of the favicon_url input to the Data URL
+                            faviconUrlInput.value = evt.target.result;
                         };
                         reader.readAsDataURL(file);
                     }
@@ -1656,6 +1721,64 @@
 
             // Initialize products
             renderProducts();
+
+            // About section updates
+            const aboutTitleInput = document.getElementById('about_title');
+            const aboutTitleDisplay = document.getElementById('aboutTitleDisplay');
+            if (aboutTitleInput && aboutTitleDisplay) {
+                aboutTitleInput.addEventListener('input', function() {
+                    aboutTitleDisplay.textContent = this.value;
+                });
+            }
+            const aboutDescriptionInput = document.getElementById('about_description');
+            const aboutDescriptionDisplay = document.getElementById('aboutDescriptionDisplay');
+            if (aboutDescriptionInput && aboutDescriptionDisplay) {
+                aboutDescriptionInput.addEventListener('input', function() {
+                    aboutDescriptionDisplay.textContent = this.value;
+                });
+            }
+            const aboutTextInput = document.getElementById('about_text');
+            const aboutTextDisplay = document.getElementById('aboutTextDisplay');
+            if (aboutTextInput && aboutTextDisplay) {
+                aboutTextInput.addEventListener('input', function() {
+                    aboutTextDisplay.textContent = this.value;
+                });
+            }
+            const customersCountInput = document.getElementById('customers_count');
+            const customersCountDisplay = document.getElementById('customersCountDisplay');
+            if (customersCountInput && customersCountDisplay) {
+                customersCountInput.addEventListener('input', function() {
+                    customersCountDisplay.textContent = this.value;
+                });
+            }
+            const productsCountInput = document.getElementById('products_count');
+            const productsCountDisplay = document.getElementById('productsCountDisplay');
+            if (productsCountInput && productsCountDisplay) {
+                productsCountInput.addEventListener('input', function() {
+                    productsCountDisplay.textContent = this.value;
+                });
+            }
+            const aboutImageUrlInput = document.getElementById('about_image_url');
+            const aboutImageFileInput = document.getElementById('aboutImageFile');
+            const aboutImageDisplay = document.getElementById('aboutImageDisplay');
+            if (aboutImageUrlInput && aboutImageDisplay) {
+                aboutImageUrlInput.addEventListener('input', function() {
+                    aboutImageDisplay.src = this.value || 'https://images.pexels.com/photos/1598505/pexels-photo-1598505.jpeg';
+                });
+            }
+            if (aboutImageFileInput && aboutImageUrlInput && aboutImageDisplay) {
+                aboutImageFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            aboutImageDisplay.src = evt.target.result;
+                            aboutImageUrlInput.value = evt.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
         });
 
         // Product management
@@ -2079,13 +2202,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 heroImageDisplay.src = this.value || 'https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg';
             });
         }
-        if (heroImageFileInput && heroImageDisplay) {
+        if (heroImageFileInput && heroImageUrlInput && heroImageDisplay) {
             heroImageFileInput.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(evt) {
                         heroImageDisplay.src = evt.target.result;
+                        // Set the value of the hero_image_url input to the Data URL
+                        heroImageUrlInput.value = evt.target.result;
                     };
                     reader.readAsDataURL(file);
                 }

@@ -1,0 +1,257 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ boutique.nom }} - Boutique Details{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ boutique.nom }}</h1>
+        <div>
+            <a href="{{ path('admin_boutiques') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <a href="{{ path('admin_boutique_edit', {id: boutique.id}) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Basic Info -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations de base</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Nom:</strong></td>
+                                    <td>{{ boutique.nom }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Slug:</strong></td>
+                                    <td>{{ boutique.slug }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>URL:</strong></td>
+                                    <td>
+                                        {% if boutique.url %}
+                                            <a href="{{ boutique.url }}" target="_blank">{{ boutique.url }}</a>
+                                        {% else %}
+                                            <span class="text-muted">Non définie</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Domaine personnalisé:</strong></td>
+                                    <td>{{ boutique.domainePersonnalise ?? 'Non défini' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Template:</strong></td>
+                                    <td>
+                                        <span class="badge bg-info">{{ boutique.template ?? 'Aucun' }}</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Statut:</strong></td>
+                                    <td>
+                                        {% set status_class = {
+                                            'actif': 'success',
+                                            'en_cours': 'warning',
+                                            'suspendu': 'danger',
+                                            'signale': 'warning',
+                                            'non_conforme': 'danger'
+                                        } %}
+                                        <span class="badge bg-{{ status_class[boutique.statut] ?? 'secondary' }}">
+                                            {{ boutique.statut|title }}
+                                        </span>
+                                        <form method="POST" action="{{ path('admin_boutique_toggle_status', {id: boutique.id}) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                                                {{ boutique.statut == 'actif' ? 'Suspendre' : 'Activer' }}
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Niche:</strong></td>
+                                    <td>{{ boutique.niche ?? 'Non définie' }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date création:</strong></td>
+                                    <td>{{ boutique.dateCreation|date('d/m/Y H:i') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Slogan:</strong></td>
+                                    <td>{{ boutique.slogan ?? 'Non défini' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {% if boutique.description %}
+                    <div class="mt-3">
+                        <strong>Description:</strong>
+                        <p class="mt-2">{{ boutique.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Customization -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Personnalisation</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Couleurs</h6>
+                            <div class="mb-2">
+                                <strong>Arrière-plan:</strong> 
+                                <span class="badge" style="background-color: {{ boutique.backgroundColor ?? '#ffffff' }}">
+                                    {{ boutique.backgroundColor ?? '#ffffff' }}
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Texte:</strong> 
+                                <span class="badge" style="background-color: {{ boutique.textColor ?? '#000000' }}">
+                                    {{ boutique.textColor ?? '#000000' }}
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <strong>Liens:</strong> 
+                                <span class="badge" style="background-color: {{ boutique.linkColor ?? '#007bff' }}">
+                                    {{ boutique.linkColor ?? '#007bff' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Contenu personnalisé</h6>
+                            {% if boutique.customTitle %}
+                                <div class="mb-2"><strong>Titre:</strong> {{ boutique.customTitle }}</div>
+                            {% endif %}
+                            {% if boutique.customDescription %}
+                                <div class="mb-2"><strong>Description:</strong> {{ boutique.customDescription }}</div>
+                            {% endif %}
+                            {% if boutique.customCategories %}
+                                <div class="mb-2">
+                                    <strong>Catégories personnalisées:</strong>
+                                    {% for category in boutique.customCategories %}
+                                        <span class="badge bg-secondary me-1">{{ category }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Merchant Info -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Commerçant</h6>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h5>{{ boutique.commercant.nom }}</h5>
+                        <p class="text-muted">{{ boutique.commercant.email }}</p>
+                    </div>
+                    <table class="table table-sm table-borderless">
+                        <tr>
+                            <td><strong>Téléphone:</strong></td>
+                            <td>{{ boutique.commercant.telephone ?? 'Non renseigné' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ville:</strong></td>
+                            <td>{{ boutique.commercant.ville ?? 'Non renseignée' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Entreprise:</strong></td>
+                            <td>{{ boutique.commercant.nomEntreprise ?? 'Non renseignée' }}</td>
+                        </tr>
+                    </table>
+                    <a href="{{ path('admin_users') }}" class="btn btn-sm btn-outline-primary">
+                        Voir le profil complet
+                    </a>
+                </div>
+            </div>
+
+            <!-- Logo -->
+            {% if boutique.logo %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Logo</h6>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ boutique.logo }}" class="img-fluid" style="max-height: 150px;">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_boutique_edit', {id: boutique.id}) }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <form method="POST" action="{{ path('admin_boutique_toggle_status', {id: boutique.id}) }}">
+                            <button type="submit" class="btn btn-warning w-100">
+                                <i class="fas fa-toggle-on"></i> 
+                                {{ boutique.statut == 'actif' ? 'Suspendre' : 'Activer' }}
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger" 
+                                onclick="confirmDelete({{ boutique.id }}, '{{ boutique.nom }}')">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la boutique <strong id="boutique-name"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="delete-form" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+    document.getElementById('boutique-name').textContent = name;
+    document.getElementById('delete-form').action = '/admin/boutiques/' + id + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

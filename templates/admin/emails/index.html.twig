@@ -1,0 +1,545 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Emails - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Emails</h1>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
+            <i class="fas fa-plus"></i> Composer un email
+        </button>
+    </div>
+
+    <!-- Email Statistics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Emails Envoyés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">2,847</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-envelope fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Taux d'Ouverture
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">68.5%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-envelope-open fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taux de Clic
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">12.3%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-mouse-pointer fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                En Attente
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">23</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Campaigns -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Campagnes Email</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Campagne</th>
+                                    <th>Destinataires</th>
+                                    <th>Statut</th>
+                                    <th>Envoyé le</th>
+                                    <th>Taux d'ouverture</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="font-weight-bold">Nouvelle fonctionnalité</div>
+                                        <small class="text-muted">Annonce des nouveaux templates</small>
+                                    </td>
+                                    <td>1,234</td>
+                                    <td><span class="badge bg-success">Envoyé</span></td>
+                                    <td>15/01/2024</td>
+                                    <td>72.5%</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewCampaign(1)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="duplicateCampaign(1)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="font-weight-bold">Maintenance programmée</div>
+                                        <small class="text-muted">Information sur la maintenance</small>
+                                    </td>
+                                    <td>2,156</td>
+                                    <td><span class="badge bg-warning">En cours</span></td>
+                                    <td>12/01/2024</td>
+                                    <td>-</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-danger" onclick="stopCampaign(2)">
+                                                <i class="fas fa-stop"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="font-weight-bold">Newsletter mensuelle</div>
+                                        <small class="text-muted">Résumé du mois de décembre</small>
+                                    </td>
+                                    <td>3,421</td>
+                                    <td><span class="badge bg-success">Envoyé</span></td>
+                                    <td>01/01/2024</td>
+                                    <td>65.8%</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary" onclick="viewCampaign(3)">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="duplicateCampaign(3)">
+                                                <i class="fas fa-copy"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions Rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#composeEmailModal">
+                            <i class="fas fa-plus"></i> Nouvelle campagne
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="sendWelcomeEmails()">
+                            <i class="fas fa-hand-wave"></i> Emails de bienvenue
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="sendNewsletters()">
+                            <i class="fas fa-newspaper"></i> Newsletter
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" onclick="sendMaintenanceAlert()">
+                            <i class="fas fa-tools"></i> Alerte maintenance
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Templates -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Templates Email</h6>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Bienvenue
+                            <button class="btn btn-sm btn-outline-primary" onclick="editTemplate('welcome')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Newsletter
+                            <button class="btn btn-sm btn-outline-primary" onclick="editTemplate('newsletter')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Maintenance
+                            <button class="btn btn-sm btn-outline-primary" onclick="editTemplate('maintenance')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            Promotion
+                            <button class="btn btn-sm btn-outline-primary" onclick="editTemplate('promotion')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compose Email Modal -->
+<div class="modal fade" id="composeEmailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Composer un Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="email-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email-subject" class="form-label">Sujet *</label>
+                                <input type="text" class="form-control" id="email-subject" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email-template" class="form-label">Template</label>
+                                <select class="form-select" id="email-template" onchange="loadTemplate()">
+                                    <option value="">Template personnalisé</option>
+                                    <option value="welcome">Bienvenue</option>
+                                    <option value="newsletter">Newsletter</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="promotion">Promotion</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email-recipients" class="form-label">Destinataires</label>
+                                <select class="form-select" id="email-recipients" multiple>
+                                    <option value="all_users">Tous les utilisateurs</option>
+                                    <option value="verified_users">Utilisateurs vérifiés</option>
+                                    <option value="merchants">Commerçants</option>
+                                    <option value="admins">Administrateurs</option>
+                                    <option value="active_stores">Propriétaires de boutiques actives</option>
+                                    <option value="inactive_users">Utilisateurs inactifs</option>
+                                </select>
+                                <div class="form-text">Maintenez Ctrl pour sélectionner plusieurs groupes</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="send-time" class="form-label">Programmation</label>
+                                <select class="form-select" id="send-time">
+                                    <option value="now">Envoyer maintenant</option>
+                                    <option value="schedule">Programmer l'envoi</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="schedule-datetime" style="display: none;">
+                                <input type="datetime-local" class="form-control" id="scheduled-time">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email-content" class="form-label">Contenu de l'email</label>
+                        <div id="email-editor" style="height: 400px;">
+                            <p>Bonjour {{nom_utilisateur}},</p>
+                            <p>Votre message ici...</p>
+                            <p>Cordialement,<br>L'équipe ShopLab</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Variables disponibles</label>
+                                <div class="border p-2 bg-light">
+                                    <small>
+                                        <code>{{nom_utilisateur}}</code> - Nom de l'utilisateur<br>
+                                        <code>{{email_utilisateur}}</code> - Email de l'utilisateur<br>
+                                        <code>{{nom_boutique}}</code> - Nom de la boutique<br>
+                                        <code>{{date_actuelle}}</code> - Date actuelle<br>
+                                        <code>{{lien_connexion}}</code> - Lien de connexion
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Aperçu</label>
+                                <div class="border p-3" id="email-preview" style="height: 150px; overflow-y: auto;">
+                                    <!-- Preview will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-outline-primary" onclick="previewEmail()">
+                    <i class="fas fa-eye"></i> Aperçu
+                </button>
+                <button type="button" class="btn btn-success" onclick="sendEmail()">
+                    <i class="fas fa-paper-plane"></i> Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Quill.js for rich text editing -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<script>
+// Initialize Quill editor
+let quill = new Quill('#email-editor', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['clean']
+        ]
+    }
+});
+
+// Update preview when content changes
+quill.on('text-change', function() {
+    updateEmailPreview();
+});
+
+// Schedule time toggle
+document.getElementById('send-time').addEventListener('change', function() {
+    const scheduleDiv = document.getElementById('schedule-datetime');
+    if (this.value === 'schedule') {
+        scheduleDiv.style.display = 'block';
+    } else {
+        scheduleDiv.style.display = 'none';
+    }
+});
+
+// Load email template
+function loadTemplate() {
+    const template = document.getElementById('email-template').value;
+    const templates = {
+        welcome: {
+            subject: 'Bienvenue sur ShopLab !',
+            content: `<p>Bonjour {{nom_utilisateur}},</p>
+                     <p>Bienvenue sur ShopLab ! Nous sommes ravis de vous compter parmi nos utilisateurs.</p>
+                     <p>Vous pouvez maintenant créer votre première boutique en ligne et commencer à vendre vos produits.</p>
+                     <p><a href="{{lien_connexion}}">Se connecter à mon compte</a></p>
+                     <p>Cordialement,<br>L'équipe ShopLab</p>`
+        },
+        newsletter: {
+            subject: 'Newsletter ShopLab - {{date_actuelle}}',
+            content: `<h2>Newsletter ShopLab</h2>
+                     <p>Bonjour {{nom_utilisateur}},</p>
+                     <p>Voici les dernières nouveautés de ShopLab :</p>
+                     <ul>
+                         <li>Nouveaux templates disponibles</li>
+                         <li>Améliorations de performance</li>
+                         <li>Nouvelles fonctionnalités</li>
+                     </ul>
+                     <p>Cordialement,<br>L'équipe ShopLab</p>`
+        },
+        maintenance: {
+            subject: 'Maintenance programmée - ShopLab',
+            content: `<p>Bonjour {{nom_utilisateur}},</p>
+                     <p>Nous vous informons qu'une maintenance est programmée le {{date_actuelle}}.</p>
+                     <p>Pendant cette période, la plateforme sera temporairement indisponible.</p>
+                     <p>Nous nous excusons pour la gêne occasionnée.</p>
+                     <p>Cordialement,<br>L'équipe ShopLab</p>`
+        },
+        promotion: {
+            subject: 'Offre spéciale ShopLab !',
+            content: `<h2>Offre spéciale !</h2>
+                     <p>Bonjour {{nom_utilisateur}},</p>
+                     <p>Profitez de notre offre spéciale : <strong>-50% sur tous les plans Premium</strong> !</p>
+                     <p>Cette offre est valable jusqu'au {{date_actuelle}}.</p>
+                     <p><a href="{{lien_connexion}}">Profiter de l'offre</a></p>
+                     <p>Cordialement,<br>L'équipe ShopLab</p>`
+        }
+    };
+
+    if (templates[template]) {
+        document.getElementById('email-subject').value = templates[template].subject;
+        quill.root.innerHTML = templates[template].content;
+        updateEmailPreview();
+    }
+}
+
+// Update email preview
+function updateEmailPreview() {
+    const content = quill.root.innerHTML;
+    const preview = document.getElementById('email-preview');
+    
+    // Replace variables with sample data for preview
+    let previewContent = content
+        .replace(/{{nom_utilisateur}}/g, 'John Doe')
+        .replace(/{{email_utilisateur}}/g, 'john@example.com')
+        .replace(/{{nom_boutique}}/g, 'Ma Boutique')
+        .replace(/{{date_actuelle}}/g, new Date().toLocaleDateString('fr-FR'))
+        .replace(/{{lien_connexion}}/g, '#');
+    
+    preview.innerHTML = previewContent;
+}
+
+// Send email
+function sendEmail() {
+    const subject = document.getElementById('email-subject').value;
+    const recipients = Array.from(document.getElementById('email-recipients').selectedOptions).map(o => o.value);
+    const content = quill.root.innerHTML;
+    const sendTime = document.getElementById('send-time').value;
+    const scheduledTime = document.getElementById('scheduled-time').value;
+
+    if (!subject || recipients.length === 0) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+    }
+
+    const emailData = {
+        subject: subject,
+        recipients: recipients,
+        content: content,
+        sendTime: sendTime,
+        scheduledTime: scheduledTime
+    };
+
+    // Simulate sending
+    alert('Email programmé avec succès !');
+    bootstrap.Modal.getInstance(document.getElementById('composeEmailModal')).hide();
+    
+    // Reset form
+    document.getElementById('email-form').reset();
+    quill.root.innerHTML = '<p>Bonjour {{nom_utilisateur}},</p><p>Votre message ici...</p><p>Cordialement,<br>L\'équipe ShopLab</p>';
+}
+
+// Preview email in new window
+function previewEmail() {
+    const content = quill.root.innerHTML;
+    const previewWindow = window.open('', '_blank', 'width=600,height=800');
+    previewWindow.document.write(`
+        <html>
+        <head>
+            <title>Aperçu Email</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                .email-container { max-width: 600px; margin: 0 auto; border: 1px solid #ddd; padding: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="email-container">
+                ${content.replace(/{{nom_utilisateur}}/g, 'John Doe')
+                        .replace(/{{email_utilisateur}}/g, 'john@example.com')
+                        .replace(/{{nom_boutique}}/g, 'Ma Boutique')
+                        .replace(/{{date_actuelle}}/g, new Date().toLocaleDateString('fr-FR'))
+                        .replace(/{{lien_connexion}}/g, '#')}
+            </div>
+        </body>
+        </html>
+    `);
+}
+
+// Campaign actions
+function viewCampaign(id) {
+    alert('Affichage de la campagne ' + id);
+}
+
+function duplicateCampaign(id) {
+    alert('Duplication de la campagne ' + id);
+}
+
+function stopCampaign(id) {
+    if (confirm('Êtes-vous sûr de vouloir arrêter cette campagne ?')) {
+        alert('Campagne ' + id + ' arrêtée');
+    }
+}
+
+// Quick actions
+function sendWelcomeEmails() {
+    if (confirm('Envoyer des emails de bienvenue à tous les nouveaux utilisateurs ?')) {
+        alert('Emails de bienvenue programmés');
+    }
+}
+
+function sendNewsletters() {
+    if (confirm('Envoyer la newsletter à tous les utilisateurs abonnés ?')) {
+        alert('Newsletter programmée');
+    }
+}
+
+function sendMaintenanceAlert() {
+    if (confirm('Envoyer une alerte de maintenance à tous les utilisateurs ?')) {
+        alert('Alerte de maintenance programmée');
+    }
+}
+
+function editTemplate(templateName) {
+    alert('Édition du template : ' + templateName);
+}
+
+// Initialize preview on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateEmailPreview();
+});
+</script>
+{% endblock %}

@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 use App\Entity\Commercant;
 
 #[ORM\Entity]
@@ -19,6 +20,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank(message: 'Full Name is required.')]
     private ?string $nom = null;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
@@ -42,8 +44,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Administrateur::class)]
     private Collection $administrateur;
 
-    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Commercant::class)]
-    private Collection $commercant;
+    #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Commercant::class, cascade: ['persist', 'remove'])]
+    private ?Commercant $commercant = null;
 
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Session::class)]
     private Collection $session;
@@ -161,9 +163,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->administrateur;
     }
 
-    public function getCommercant(): Collection
+    public function getCommercant(): ?Commercant
     {
         return $this->commercant;
+    }
+
+    public function setCommercant(?Commercant $commercant): self
+    {
+        $this->commercant = $commercant;
+        return $this;
     }
 
     public function getSession(): Collection

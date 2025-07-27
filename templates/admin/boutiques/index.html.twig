@@ -1,0 +1,165 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Boutiques - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Boutiques</h1>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Filtres et Recherche</h6>
+        </div>
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Rechercher</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ search_query }}" placeholder="Nom, description, commerçant...">
+                </div>
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Statut</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">Tous les statuts</option>
+                        <option value="actif" {{ current_status == 'actif' ? 'selected' : '' }}>Actif</option>
+                        <option value="en_cours" {{ current_status == 'en_cours' ? 'selected' : '' }}>En cours</option>
+                        <option value="suspendu" {{ current_status == 'suspendu' ? 'selected' : '' }}>Suspendu</option>
+                        <option value="signale" {{ current_status == 'signale' ? 'selected' : '' }}>Signalé</option>
+                        <option value="non_conforme" {{ current_status == 'non_conforme' ? 'selected' : '' }}>Non conforme</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Filtrer
+                        </button>
+                        <a href="{{ path('admin_boutiques') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Boutiques Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Boutiques ({{ boutiques|length }} résultats)
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Commerçant</th>
+                            <th>Template</th>
+                            <th>Statut</th>
+                            <th>Date création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for boutique in boutiques %}
+                        <tr>
+                            <td>{{ boutique.id }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if boutique.logo %}
+                                        <img src="{{ boutique.logo }}" class="rounded-circle me-2" width="32" height="32">
+                                    {% endif %}
+                                    <div>
+                                        <div class="font-weight-bold">{{ boutique.nom }}</div>
+                                        {% if boutique.url %}
+                                            <small class="text-muted">{{ boutique.url }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>{{ boutique.commercant.nom }}</div>
+                                <small class="text-muted">{{ boutique.commercant.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ boutique.template|default('Aucun') }}</span>
+                            </td>
+                            <td>
+                                {% set status_class = {
+                                    'actif': 'success',
+                                    'en_cours': 'warning',
+                                    'suspendu': 'danger',
+                                    'signale': 'warning',
+                                    'non_conforme': 'danger'
+                                } %}
+                                <span class="badge bg-{{ status_class[boutique.statut] ?? 'secondary' }}">
+                                    {{ boutique.statut|title }}
+                                </span>
+                            </td>
+                            <td>{{ boutique.dateCreation|date('d/m/Y H:i') }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('admin_boutique_show', {id: boutique.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_boutique_edit', {id: boutique.id}) }}" 
+                                       class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmDelete({{ boutique.id }}, '{{ boutique.nom }}')" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">Aucune boutique trouvée</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la boutique <strong id="boutique-name"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="delete-form" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+    document.getElementById('boutique-name').textContent = name;
+    document.getElementById('delete-form').action = '/admin/boutiques/' + id + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

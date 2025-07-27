@@ -1,0 +1,186 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Catégories - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Catégories</h1>
+        <a href="{{ path('admin_category_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvelle catégorie
+        </a>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Catégories Globales ({{ categories|length }})
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Ordre</th>
+                            <th>Nom</th>
+                            <th>Slug</th>
+                            <th>Icône</th>
+                            <th>Couleur</th>
+                            <th>Statut</th>
+                            <th>Date création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categories-table">
+                        {% for categorie in categories %}
+                        <tr data-id="{{ categorie.id }}">
+                            <td>
+                                <span class="badge bg-secondary">{{ categorie.ordre }}</span>
+                                <div class="btn-group-vertical btn-group-sm ms-2">
+                                    <button class="btn btn-outline-secondary btn-xs move-up" title="Monter">
+                                        <i class="fas fa-chevron-up"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-xs move-down" title="Descendre">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if categorie.icone %}
+                                        <i class="{{ categorie.icone }} me-2"></i>
+                                    {% endif %}
+                                    <div>
+                                        <div class="font-weight-bold">{{ categorie.nom }}</div>
+                                        {% if categorie.description %}
+                                            <small class="text-muted">{{ categorie.description|slice(0, 50) }}...</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>{{ categorie.slug }}</code></td>
+                            <td>
+                                {% if categorie.icone %}
+                                    <i class="{{ categorie.icone }} fa-lg"></i>
+                                {% else %}
+                                    <span class="text-muted">Aucune</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if categorie.couleur %}
+                                    <span class="badge" style="background-color: {{ categorie.couleur }}">
+                                        {{ categorie.couleur }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Aucune</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input toggle-status" type="checkbox" 
+                                           data-id="{{ categorie.id }}" {{ categorie.actif ? 'checked' : '' }}>
+                                    <label class="form-check-label">
+                                        {{ categorie.actif ? 'Actif' : 'Inactif' }}
+                                    </label>
+                                </div>
+                            </td>
+                            <td>{{ categorie.dateCreation|date('d/m/Y') }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('admin_category_edit', {id: categorie.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmDelete({{ categorie.id }}, '{{ categorie.nom }}')" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Aucune catégorie trouvée</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer la catégorie <strong id="category-name"></strong> ?</p>
+                <p class="text-danger"><small>Cette action est irréversible.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="delete-form" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+    document.getElementById('category-name').textContent = name;
+    document.getElementById('delete-form').action = '/admin/categories/' + id + '/delete';
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Toggle status
+document.querySelectorAll('.toggle-status').forEach(function(toggle) {
+    toggle.addEventListener('change', function() {
+        const id = this.dataset.id;
+        const isActive = this.checked;
+        
+        fetch(`/admin/categories/${id}/toggle-status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ active: isActive })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const label = this.nextElementSibling;
+                label.textContent = isActive ? 'Actif' : 'Inactif';
+            }
+        });
+    });
+});
+
+// Move categories up/down
+document.querySelectorAll('.move-up, .move-down').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const row = this.closest('tr');
+        const id = row.dataset.id;
+        const direction = this.classList.contains('move-up') ? 'up' : 'down';
+        
+        fetch(`/admin/categories/${id}/move/${direction}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

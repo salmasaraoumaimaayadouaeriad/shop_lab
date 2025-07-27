@@ -31,12 +31,12 @@ class HomeController extends AbstractController
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
-        // Get all Commercant entities for this user
-        $commercants = $user->getCommercant();
+        // Get the single Commercant entity for this user
+        $commercant = $user->getCommercant();
 
-        // Get all boutiques for these commercants
+        // Get all boutiques for this commercant
         $boutiques = [];
-        foreach ($commercants as $commercant) {
+        if ($commercant) {
             $userBoutiques = $boutiqueRepository->findBy(['commercant' => $commercant]);
             foreach ($userBoutiques as $boutique) {
                 $boutiques[] = $boutique;

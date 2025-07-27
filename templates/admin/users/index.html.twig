@@ -1,0 +1,141 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Gestion des Utilisateurs - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Gestion des Utilisateurs</h1>
+        <a href="{{ path('admin_user_new') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nouvel utilisateur
+        </a>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Utilisateurs ({{ users|length }})
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Email</th>
+                            <th>Rôles</th>
+                            <th>Vérifié</th>
+                            <th>Pays</th>
+                            <th>Boutiques</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.nom }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% for role in user.roles %}
+                                    {% if role != 'ROLE_USER' %}
+                                        <span class="badge bg-{{ role == 'ROLE_ADMIN' ? 'danger' : 'primary' }}">
+                                            {{ role|replace({'ROLE_': ''}) }}
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if user.roles|length == 1 and 'ROLE_USER' in user.roles %}
+                                    <span class="badge bg-secondary">USER</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.isVerified %}
+                                    <span class="badge bg-success">Vérifié</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Non vérifié</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.pays }}</td>
+                            <td>
+                                {% set boutique_count = 0 %}
+                                {% for commercant in user.commercant %}
+                                    {% set boutique_count = boutique_count + commercant.boutiques|length %}
+                                {% endfor %}
+                                <span class="badge bg-info">{{ boutique_count }}</span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ path('admin_user_show', {id: user.id}) }}" 
+                                       class="btn btn-sm btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('admin_user_edit', {id: user.id}) }}" 
+                                       class="btn btn-sm btn-outline-secondary" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="POST" action="{{ path('admin_user_toggle_role', {id: user.id}) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning" 
+                                                title="{{ 'ROLE_ADMIN' in user.roles ? 'Retirer admin' : 'Promouvoir admin' }}">
+                                            <i class="fas fa-{{ 'ROLE_ADMIN' in user.roles ? 'user-minus' : 'user-plus' }}"></i>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            onclick="confirmSuspend({{ user.id }}, '{{ user.nom }}')" title="Suspendre">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">Aucun utilisateur trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Suspend Confirmation Modal -->
+<div class="modal fade" id="suspendModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Suspendre l'utilisateur</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir suspendre l'utilisateur <strong id="user-name"></strong> ?</p>
+                <div class="mb-3">
+                    <label for="suspend-reason" class="form-label">Raison de la suspension:</label>
+                    <textarea class="form-control" id="suspend-reason" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <form id="suspend-form" method="POST" style="display: inline;">
+                    <input type="hidden" name="reason" id="suspend-reason-input">
+                    <button type="submit" class="btn btn-danger">Suspendre</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmSuspend(id, name) {
+    document.getElementById('user-name').textContent = name;
+    document.getElementById('suspend-form').action = '/admin/users/' + id + '/suspend';
+    new bootstrap.Modal(document.getElementById('suspendModal')).show();
+}
+
+document.getElementById('suspend-form').addEventListener('submit', function() {
+    document.getElementById('suspend-reason-input').value = document.getElementById('suspend-reason').value;
+});
+</script>
+{% endblock %}
