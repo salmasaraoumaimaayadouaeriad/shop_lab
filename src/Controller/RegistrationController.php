@@ -68,8 +68,15 @@ class RegistrationController extends AbstractController
             $commercant = new \App\Entity\Commercant();
             $commercant->setUtilisateur($user);
             $commercant->setNom($user->getNom() ?: $user->getEmail());
-            $entityManager->persist($commercant);
-            $entityManager->flush();
+            $commercant->setEmail($user->getEmail());
+            try {
+                $entityManager->persist($commercant);
+                $entityManager->flush();
+                error_log('Commercant created: ' . $commercant->getId() . ' for user: ' . $user->getId());
+            } catch (\Throwable $e) {
+                error_log('Failed to create commercant: ' . $e->getMessage());
+                throw $e;
+            }
 
             $this->addFlash('success', 'Registration successful! Please log in.');
             return $this->redirectToRoute('app_login');

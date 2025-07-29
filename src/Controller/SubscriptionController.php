@@ -63,13 +63,16 @@ class SubscriptionController extends AbstractController
                 return new JsonResponse(['clientSecret' => null, 'message' => 'No payment required for Basic plan']);
             }
 
+            /** @var \App\Entity\Utilisateur $user */
+            $user = $this->getUser();
+
             $paymentIntent = PaymentIntent::create([
                 'amount' => $planPrices[$plan],
                 'currency' => 'usd',
                 'payment_method_types' => ['card'],
                 'metadata' => [
                     'plan' => $plan,
-                    'user_id' => $this->getUser()->getId()
+                    'user_id' => $user->getId()
                 ]
             ]);
 
@@ -153,8 +156,17 @@ class SubscriptionController extends AbstractController
             $entityManager->beginTransaction();
 
             try {
-            // Create Commercant entity
+            // Find existing Commercant for this user, or create new
+            $commercant = $entityManager->getRepository(Commercant::class)
+                ->findOneBy(['utilisateur' => $user]);
+
+            if (!$commercant) {
             $commercant = new Commercant();
+                $commercant->setUtilisateur($user);
+                $commercant->setDateCreation(new \DateTime());
+            }
+
+            // Always update fields (whether new or existing)
             $commercant->setNom($formData['first_name'] . ' ' . $formData['last_name']);
             $commercant->setEmail($formData['email']);
             $commercant->setTelephone($formData['phone']);
@@ -165,8 +177,6 @@ class SubscriptionController extends AbstractController
             $commercant->setNomEntreprise($formData['business_name']);
             $commercant->setTypeEntreprise($formData['business_type']);
             $commercant->setSiteWeb($formData['website'] ?? null);
-            $commercant->setUtilisateur($user);
-            $commercant->setDateCreation(new \DateTime());
             
             // Validate Commercant
             $errors = $validator->validate($commercant);
@@ -176,22 +186,37 @@ class SubscriptionController extends AbstractController
             
             $entityManager->persist($commercant);
             
-            // Create Boutique entity
-            $boutique = new Boutique();
+            // Debug: Log received boutique_id
+            error_log('Received boutique_id: ' . ($formData['boutique_id'] ?? 'NONE'));
+            $boutiqueId = $formData['boutique_id'] ?? null;
+            if ($boutiqueId) {
+                // Fetch the boutique by ID and ensure it belongs to this commercant
+                $boutique = $entityManager->getRepository(Boutique::class)
+                    ->findOneBy(['id' => $boutiqueId, 'commercant' => $commercant]);
+                error_log('Boutique found: ' . ($boutique ? $boutique->getId() : 'NOT FOUND'));
+                if (!$boutique) {
+                    error_log('Invalid boutique selected. Not creating new.');
+                    throw new \InvalidArgumentException('Boutique not found or does not belong to you.');
+                }
+            } else {
+                error_log('No boutique_id provided. Not creating new Boutique.');
+                throw new \InvalidArgumentException('No boutique selected.');
+            }
+
+            // Always update fields (whether new or existing)
             $boutique->setNom($formData['shop_name']);
             $boutique->setDescription($formData['shop_description']);
             $boutique->setNiche($formData['niche']);
             $boutique->setTemplate($formData['template']);
-            $boutique->setCommercant($commercant);
-            $boutique->setDateCreation(new \DateTime());
             
-            // Generate shop URL
+            // Generate shop URL and slug
             $customDomain = $formData['custom_domain'] ?? null;
             if ($customDomain) {
                 $boutique->setDomainePersonnalise($customDomain);
                 $boutique->setUrl($customDomain);
             } else {
                 $shopSlug = $this->generateShopSlug($formData['shop_name']);
+                $boutique->setSlug($shopSlug);
                 $boutique->setUrl($shopSlug . '.shoplab.com');
             }
             
@@ -203,7 +228,6 @@ class SubscriptionController extends AbstractController
             if (count($errors) > 0) {
                 throw new \InvalidArgumentException('Validation failed for shop data');
             }
-            
             $entityManager->persist($boutique);
             
                 // Check for existing subscription
@@ -311,13 +335,29 @@ class SubscriptionController extends AbstractController
             $entityManager->flush();
                 $entityManager->commit();
 
-                // At the end, ensure we return proper JSON response
-                $shopUrl = $boutique->getUrl();
-                
-                // Add protocol if not present
-                if (!str_starts_with($shopUrl, 'http')) {
-                    $shopUrl = 'https://' . $shopUrl;
+                // Ensure user has ROLE_COMMERCANT role and update session
+                $user = $this->getUser();
+                $roles = $user->getRoles();
+                if (!in_array('ROLE_COMMERCANT', $roles)) {
+                    $roles[] = 'ROLE_COMMERCANT';
+                    $user->setRoles($roles);
+                    $entityManager->persist($user);
+                    $entityManager->flush();
                 }
+
+                // Refresh the user's token to update the session
+                $token = new \Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken(
+                    $user,
+                    'main',
+                    $user->getRoles()
+                );
+                $this->container->get('security.token_storage')->setToken($token);
+                $request->getSession()->set('_security_main', serialize($token));
+
+                // At the end, ensure we return proper JSON response
+                $shopSlug = $boutique->getSlug();
+                $shopUrl = $this->generateUrl('public_shop', ['slug' => $shopSlug], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
+                $dashboardUrl = $this->generateUrl('commercant_dashboard', ['slug' => $shopSlug], \Symfony\Component\Routing\Generator\UrlGeneratorInterface::ABSOLUTE_URL);
 
                 $successMessage = sprintf(
                     'Subscription successful! You can launch your store through this link: %s',
@@ -327,6 +367,7 @@ class SubscriptionController extends AbstractController
                 $responseData = [
                     'success' => true,
                     'shop_url' => $shopUrl,
+                    'dashboard_url' => $dashboardUrl,
                     'message' => $successMessage,
                     'shop_name' => $boutique->getNom(),
                     'plan' => $boutiqueSubscription->getPlan(),

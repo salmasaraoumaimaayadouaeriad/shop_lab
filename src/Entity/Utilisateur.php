@@ -53,7 +53,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->administrateur = new ArrayCollection();
-        $this->commercant = new ArrayCollection();
+        $this->commercant = null;
         $this->session = new ArrayCollection();
     }
 

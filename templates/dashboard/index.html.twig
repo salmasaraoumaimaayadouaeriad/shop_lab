@@ -1430,9 +1430,9 @@
                         {% if isSubscribed %}
                             <span class="btn-small btn-success">Launched</span>
                         {% else %}
-                            <a href="{{ path('subscription_index') }}" class="btn-small btn-launch">
+                            <a href="{{ path('subscription_index', {'boutique_id': boutique.id}) }}" class="btn-small btn-launch" data-boutique-id="{{ boutique.id }}">
                                 <i class="fas fa-rocket"></i> Launch
-                </a>
+                            </a>
                         {% endif %}
             </div>
         </div>

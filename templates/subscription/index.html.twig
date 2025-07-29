@@ -599,7 +599,7 @@
                 <a href="#" class="success-popup-btn success-popup-btn-primary" id="visitStoreBtn" target="_blank">
                     <i class="fas fa-external-link-alt"></i> Visit Your Store
                 </a>
-                <a href="{{ path('dashboard') }}" class="success-popup-btn success-popup-btn-secondary">
+                <a href="#" class="success-popup-btn success-popup-btn-secondary" id="dashboardBtn">
                     <i class="fas fa-tachometer-alt"></i> Go to Dashboard
                 </a>
             </div>
@@ -1018,6 +1018,7 @@
                     <i class="fas fa-credit-card"></i> Complete Subscription
                 </button>
             </div>
+            <input type="hidden" name="boutique_id" id="boutique_id_field" value="">
         </form>
     </div>
 </div>
@@ -1291,6 +1292,7 @@
                 const message = document.getElementById('successMessage');
                 const url = document.getElementById('successUrl');
                 const visitBtn = document.getElementById('visitStoreBtn');
+                const dashboardBtn = document.getElementById('dashboardBtn'); // Changed from document.querySelector('.success-popup-btn-secondary')
 
                 if (!popup || !message || !url || !visitBtn) {
                     console.error('Popup elements not found');
@@ -1301,6 +1303,15 @@
                 message.textContent = data.message || 'Subscription successful!';
                 url.textContent = data.shop_url || 'yourstore.shoplab.com';
                 visitBtn.href = data.shop_url || '#';
+                
+                // Update dashboard button URL
+                console.log('Dashboard URL from response:', data.dashboard_url); // Debug log
+                if (dashboardBtn && data.dashboard_url) {
+                    dashboardBtn.href = data.dashboard_url;
+                    console.log('Dashboard button href set to:', dashboardBtn.href); // Debug log
+                } else {
+                    console.error('Dashboard button not found or dashboard_url missing'); // Debug log
+                }
 
                 popup.classList.add('show');
                 console.log('Popup should now be visible'); // Debug log
@@ -1426,6 +1437,25 @@
                     });
                     console.log('Templates loaded for niche:', selectedNiche); // Debug log
                 }
+            });
+
+            // Set boutique_id from URL if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const boutiqueIdFromUrl = urlParams.get('boutique_id');
+            if (boutiqueIdFromUrl) {
+                document.getElementById('boutique_id_field').value = boutiqueIdFromUrl;
+            }
+
+            // Set boutique_id when a Launch button is clicked
+            document.querySelectorAll('.btn-launch').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Prevent default if it's a link
+                    if (this.tagName === 'A') e.preventDefault();
+                    const boutiqueId = this.getAttribute('data-boutique-id');
+                    document.getElementById('boutique_id_field').value = boutiqueId;
+                    // Optionally scroll to or open the subscription form/modal
+                    document.getElementById('subscriptionForm').scrollIntoView({ behavior: 'smooth' });
+                });
             });
 
             // Initialize

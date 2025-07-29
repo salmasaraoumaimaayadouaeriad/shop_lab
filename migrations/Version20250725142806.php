@@ -19,15 +19,17 @@ final class Version20250725142806 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
-        // $this->addSql('ALTER TABLE commercant DROP INDEX IDX_ECB4268FFB88E14F, ADD UNIQUE INDEX UNIQ_ECB4268FFB88E14F (utilisateur_id)');
-        $this->addSql('ALTER TABLE commercant ADD UNIQUE INDEX UNIQ_ECB4268FFB88E14F (utilisateur_id)');
+        $connection = $this->connection;
+        $sql = "SHOW INDEX FROM commercant WHERE Key_name = 'UNIQ_ECB4268FFB88E14F'";
+        $result = $connection->executeQuery($sql);
+
+        if ($result->rowCount() === 0) {
+            $this->addSql('ALTER TABLE commercant ADD UNIQUE INDEX UNIQ_ECB4268FFB88E14F (utilisateur_id)');
+        }
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-        // $this->addSql('ALTER TABLE commercant DROP INDEX UNIQ_ECB4268FFB88E14F, ADD INDEX IDX_ECB4268FFB88E14F (utilisateur_id)');
         $this->addSql('ALTER TABLE commercant DROP INDEX UNIQ_ECB4268FFB88E14F');
     }
 }
