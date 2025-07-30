@@ -272,7 +272,9 @@ class CommercantDashboardController extends AbstractController
         }
         $uploadDir = $this->getParameter('kernel.project_dir') . '/public/uploads/products';
         if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+            if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+                return $this->json(['success' => false, 'message' => 'Failed to create upload directory'], 500);
+            }
         }
         $filename = uniqid('prod_') . '.' . $file->guessExtension();
         $file->move($uploadDir, $filename);

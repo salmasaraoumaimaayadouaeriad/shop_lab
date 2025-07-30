@@ -43,9 +43,9 @@ class BoutiqueRepository extends ServiceEntityRepository
     }
 
     /**
-     * Get boutique statistics for admin dashboard
+     * Find boutique statistics for admin dashboard
      */
-    public function getStatistics(): array
+    public function findStatistics(): array
     {
         $qb = $this->createQueryBuilder('b');
         
@@ -58,14 +58,15 @@ class BoutiqueRepository extends ServiceEntityRepository
     }
 
     /**
-     * Find most active boutiques (by creation date for now)
+     * Find most active boutiques based on number of visits and status
      */
     public function findMostActive(int $limit = 10): array
     {
         return $this->createQueryBuilder('b')
             ->andWhere('b.statut = :status')
             ->setParameter('status', 'actif')
-            ->orderBy('b.dateCreation', 'DESC')
+            ->orderBy('b.visites', 'DESC')
+            ->addOrderBy('b.dateCreation', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

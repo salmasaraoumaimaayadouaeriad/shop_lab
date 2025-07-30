@@ -44,17 +44,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Administrateur::class)]
     private Collection $administrateur;
 
-    #[ORM\OneToOne(mappedBy: 'utilisateur', targetEntity: Commercant::class, cascade: ['persist', 'remove'])]
-    private ?Commercant $commercant = null;
+    #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Commercant::class)]
+    private Collection $commercants;
 
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Session::class)]
     private Collection $session;
 
+    #[ORM\Column(type: 'datetime', nullable: true, options: ['default' => null])]
+    private ?\DateTimeInterface $dateCreation = null;
+
     public function __construct()
     {
         $this->administrateur = new ArrayCollection();
-        $this->commercant = null;
+        $this->commercants = new ArrayCollection();
         $this->session = new ArrayCollection();
+        $this->dateCreation = new \DateTime();
     }
 
     // Getters and setters
@@ -93,6 +97,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
+        return $this;
+    }
+
+    public function getDateCreation(): ?\DateTimeInterface
+    {
+        return $this->dateCreation;
+    }
+
+    public function setDateCreation(\DateTimeInterface $dateCreation): self
+    {
+        $this->dateCreation = $dateCreation;
         return $this;
     }
 
@@ -163,14 +178,28 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->administrateur;
     }
 
-    public function getCommercant(): ?Commercant
+    public function getCommercants(): Collection
     {
-        return $this->commercant;
+        return $this->commercants;
     }
 
-    public function setCommercant(?Commercant $commercant): self
+    public function addCommercant(Commercant $commercant): self
     {
-        $this->commercant = $commercant;
+        if (!$this->commercants->contains($commercant)) {
+            $this->commercants->add($commercant);
+            $commercant->setUtilisateur($this);
+        }
+        return $this;
+    }
+
+    public function removeCommercant(Commercant $commercant): self
+    {
+        if ($this->commercants->removeElement($commercant)) {
+            // set the owning side to null (unless already changed)
+            if ($commercant->getUtilisateur() === $this) {
+                $commercant->setUtilisateur(null);
+            }
+        }
         return $this;
     }
 

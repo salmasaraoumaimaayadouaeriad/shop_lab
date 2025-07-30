@@ -12,6 +12,35 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class HomeController extends AbstractController
 {
+    private function getNiches(): array
+    {
+        return [
+            [
+                'name' => 'Fashion & Cosmetics',
+                'slug' => 'fashion-cosmetics',
+                'templates' => [
+                    ['name' => 'Trendy Boutique', 'preview' => '/images/template1.jpg'],
+                    ['name' => 'Beauty Store', 'preview' => '/images/template2.jpg'],
+                ],
+            ],
+            [
+                'name' => 'Electronics & Equipment',
+                'slug' => 'electronics-equipment',
+                'templates' => [
+                    ['name' => 'Gadget Shop', 'preview' => '/images/template3.jpg'],
+                    ['name' => 'Tech Store', 'preview' => '/images/template4.jpg'],
+                ],
+            ],
+            [
+                'name' => 'Home & Living',
+                'slug' => 'home-living',
+                'templates' => [
+                    ['name' => 'Home Decor', 'preview' => '/images/template5.jpg'],
+                ],
+            ],
+        ];
+    }
+
     #[Route('/home', name: 'app_home')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function index(): Response
@@ -31,46 +60,29 @@ class HomeController extends AbstractController
         /** @var \App\Entity\Utilisateur $user */
         $user = $this->getUser();
 
-        // Get the single Commercant entity for this user
-        $commercant = $user->getCommercant();
-
-        // Get all boutiques for this commercant
-        $boutiques = [];
-        if ($commercant) {
-            $userBoutiques = $boutiqueRepository->findBy(['commercant' => $commercant]);
-            foreach ($userBoutiques as $boutique) {
-                $boutiques[] = $boutique;
-            }
+        // Check if user is an admin first
+        if (in_array('ROLE_ADMIN', $user->getRoles())) {
+            return $this->redirectToRoute('admin_dashboard');
         }
 
-        // Restore the static niches variable for dashboard content
-        $niches = [
-            [
-                'name' => 'Fashion & Cosmetics',
-                'templates' => [
-                    ['name' => 'Trendy Boutique', 'preview' => '/images/template1.jpg'],
-                    ['name' => 'Beauty Store', 'preview' => '/images/template2.jpg'],
-                ],
-            ],
-            [
-                'name' => 'Electronics & Equipment',
-                'templates' => [
-                    ['name' => 'Gadget Shop', 'preview' => '/images/template3.jpg'],
-                    ['name' => 'Tech Store', 'preview' => '/images/template4.jpg'],
-                ],
-            ],
-            [
-                'name' => 'Home & Living',
-                'templates' => [
-                    ['name' => 'Home Decor', 'preview' => '/images/template5.jpg'],
-                ],
-            ],
-        ];
+        // Initialize boutiques array
+        $boutiques = [];
 
-        // Pass both boutiques and niches to the template
+        // For merchants, get all their boutiques
+        if (in_array('ROLE_COMMERCANT', $user->getRoles())) {
+            $boutiques = $boutiqueRepository->createQueryBuilder('b')
+                ->join('b.commercant', 'c')
+                ->join('c.utilisateur', 'u')
+                ->where('u = :user')
+                ->setParameter('user', $user)
+                ->getQuery()
+                ->getResult();
+        }
+
+        // Show the main dashboard with boutiques and niches
         return $this->render('dashboard/index.html.twig', [
             'boutiques' => $boutiques,
-            'niches' => $niches,
+            'niches' => $this->getNiches(),
         ]);
     }
 
@@ -78,41 +90,20 @@ class HomeController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function niche(string $slug): Response
     {
-        $niches = [
-            [
-                'slug' => 'fashion-cosmetics',
-                'name' => 'Fashion & Cosmetics',
-                'templates' => [
-                    ['name' => 'Trendy Boutique', 'preview' => '/images/template1.jpg'],
-                    ['name' => 'Beauty Store', 'preview' => '/images/template2.jpg'],
-                ],
-            ],
-            [
-                'slug' => 'electronics-equipment',
-                'name' => 'Electronics & Equipment',
-                'templates' => [
-                    ['name' => 'Gadget Shop', 'preview' => '/images/template3.jpg'],
-                    ['name' => 'Tech Store', 'preview' => '/images/template4.jpg'],
-                ],
-            ],
-            [
-                'slug' => 'home-living',
-                'name' => 'Home & Living',
-                'templates' => [
-                    ['name' => 'Home Decor', 'preview' => '/images/template5.jpg'],
-                ],
-            ],
-        ];
+        $niches = $this->getNiches();
         $niche = null;
+        
         foreach ($niches as $n) {
             if ($n['slug'] === $slug) {
                 $niche = $n;
                 break;
             }
         }
+        
         if (!$niche) {
             throw $this->createNotFoundException('Niche not found');
         }
+        
         return $this->render('dashboard/niche.html.twig', [
             'niche' => $niche,
         ]);

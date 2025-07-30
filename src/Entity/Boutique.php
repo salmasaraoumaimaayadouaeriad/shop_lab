@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\BoutiqueRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\DBAL\Types\Types;
-// Add at the top
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\BoutiqueSubscription;
@@ -48,6 +47,9 @@ class Boutique
 
     #[ORM\Column(type: 'datetime')]
     private ?\DateTimeInterface $dateCreation = null;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $visites = 0;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
@@ -219,12 +221,28 @@ class Boutique
         return $this;
     }
 
+    public function getVisites(): int
+    {
+        return $this->visites;
+    }
+
+    public function setVisites(int $visites): static
+    {
+        $this->visites = $visites;
+        return $this;
+    }
+
+    public function incrementVisites(): static
+    {
+        $this->visites++;
+        return $this;
+    }
+
     public function getSubscriptions(): Collection
     {
         return $this->subscriptions;
     }
 
-    // All other getters and setters remain the same...
     public function getLogo(): ?string
     {
         return $this->logo;

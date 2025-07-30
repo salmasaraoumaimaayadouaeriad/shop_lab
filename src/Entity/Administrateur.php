@@ -20,6 +20,12 @@ class Administrateur
     #[ORM\Column(nullable: true)]
     private ?\DateTime $lastLogin = null;
 
+    #[ORM\Column(length: 50)]
+    private ?string $niveau = null;
+
+    #[ORM\Column(type: 'json', nullable: true)]
+    private array $permissions = [];
+
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +58,30 @@ class Administrateur
     public function setLastLogin(?\DateTime $lastLogin): static
     {
         $this->lastLogin = $lastLogin;
+
+        return $this;
+    }
+
+    public function getNiveau(): ?string
+    {
+        return $this->niveau;
+    }
+
+    public function setNiveau(string $niveau): static
+    {
+        $this->niveau = $niveau;
+
+        return $this;
+    }
+
+    public function getPermissions(): array
+    {
+        return $this->permissions;
+    }
+
+    public function setPermissions(?array $permissions): static
+    {
+        $this->permissions = $permissions ?? [];
 
         return $this;
     }

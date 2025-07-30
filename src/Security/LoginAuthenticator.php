@@ -44,9 +44,8 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
-            return new RedirectResponse($targetPath);
-        }
+        // Always redirect to dashboard after successful login
+        return new RedirectResponse($this->urlGenerator->generate('dashboard'));
 
         // Redirect to dashboard after login
         return new RedirectResponse($this->urlGenerator->generate('dashboard'));

@@ -35,19 +35,26 @@ class AdminController extends AbstractController
     {
         // Get statistics for dashboard
         $stats = [
-            'boutiques' => $this->boutiqueRepository->getStatistics(),
-            'users' => $this->getUserStatistics(),
+            'boutiques' => $this->boutiqueRepository->findStatistics(),
+            'users' => $this->utilisateurRepository->findStatistics(),
             'categories' => $this->categorieRepository->countTotal(),
-            'subscriptions' => $this->getSubscriptionStatistics(),
+            'subscriptions' => $this->subscriptionRepository->findStatistics(),
         ];
 
         // Get recent activities
         $recentBoutiques = $this->boutiqueRepository->findBy([], ['dateCreation' => 'DESC'], 5);
+        $recentUsers = $this->utilisateurRepository->findRecent(5);
+
+        // Get flagged boutiques
         $flaggedBoutiques = $this->boutiqueRepository->findFlagged();
+
+        // Get most active boutiques (those with most visits/orders)
         $mostActiveBoutiques = $this->boutiqueRepository->findMostActive(5);
 
-        return $this->render('admin/dashboard.html.twig', [
+        return $this->render('admin/dashboard/index.html.twig', [
             'stats' => $stats,
+            'recentBoutiques' => $recentBoutiques,
+            'recentUsers' => $recentUsers,
             'recent_boutiques' => $recentBoutiques,
             'flagged_boutiques' => $flaggedBoutiques,
             'most_active_boutiques' => $mostActiveBoutiques,

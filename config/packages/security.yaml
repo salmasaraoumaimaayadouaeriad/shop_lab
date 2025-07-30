@@ -14,10 +14,23 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        
+        # Admin firewall
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\AdminAuthenticator
+            logout:
+                path: admin_logout
+                target: admin_login
+                
+        # Main firewall for regular users
         main:
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\LoginAuthenticator
+            entry_point: App\Security\LoginAuthenticator
             logout:
                 path: app_logout
                 target: app_login
@@ -27,7 +40,8 @@ security:
                 path: /
 
     access_control:
-        # Admin routes - require ROLE_ADMIN
+        # Admin routes - login page is public, rest requires ROLE_ADMIN
+        - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         
         # User routes - require ROLE_USER
@@ -38,7 +52,8 @@ security:
         # Public routes
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
-        - { path: ^/, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }  # Only the exact root path is public
+        - { path: ^/, roles: ROLE_USER }  # All other paths require authentication
 
     # Role hierarchy - ROLE_ADMIN inherits ROLE_USER permissions
     role_hierarchy:

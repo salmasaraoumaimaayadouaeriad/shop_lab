@@ -40,4 +40,27 @@ class AdministrateurRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Find admin statistics including count by niveau and total count
+     * @return array Returns an array of admin statistics
+     */
+    public function findStatistics(): array
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->select('a.niveau, COUNT(a.id) as count')
+            ->groupBy('a.niveau');
+
+        $byNiveau = $qb->getQuery()->getResult();
+
+        $totalQb = $this->createQueryBuilder('a')
+            ->select('COUNT(a.id) as total');
+
+        $total = $totalQb->getQuery()->getSingleScalarResult();
+
+        return [
+            'byNiveau' => $byNiveau,
+            'total' => $total
+        ];
+    }
 }

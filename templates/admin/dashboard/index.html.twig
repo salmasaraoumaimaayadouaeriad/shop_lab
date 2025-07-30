@@ -1,0 +1,90 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Admin Dashboard - ShopLab{% endblock %}
+
+{% block admin_content %}
+    <div class="dashboard-overview">
+        <h1 class="mb-4">Dashboard</h1>
+        
+        {# Statistics Cards #}
+        <div class="row stats-cards">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Boutiques</h5>
+                        <h2 class="card-text">{{ stats.boutiques.total }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Users</h5>
+                        <h2 class="card-text">{{ stats.users.active }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Categories</h5>
+                        <h2 class="card-text">{{ stats.categories }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Subscriptions</h5>
+                        <h2 class="card-text">{{ stats.subscriptions.totalActive }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Recent Activity #}
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Boutiques</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for boutique in recentBoutiques %}
+                                <a href="{{ path('admin_boutique_show', {'id': boutique.id}) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ boutique.nom }}</h6>
+                                        <small>{{ boutique.dateCreation|date('d/m/Y') }}</small>
+                                    </div>
+                                    <small>{{ boutique.commercant.utilisateur.email }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Users</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            {% for user in recentUsers %}
+                                <a href="{{ path('admin_user_show', {'id': user.id}) }}" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ user.email }}</h6>
+                                        <small>{{ user.dateCreation|date('d/m/Y') }}</small>
+                                    </div>
+                                    <small>{{ user.roles|join(', ') }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
