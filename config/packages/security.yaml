@@ -53,6 +53,8 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/register, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }  # Only the exact root path is public
+        - { path: ^/shop, roles: PUBLIC_ACCESS }  # Shop routes are public
+        - { path: ^/preview, roles: PUBLIC_ACCESS }  # Preview route is public
         - { path: ^/, roles: ROLE_USER }  # All other paths require authentication
 
     # Role hierarchy - ROLE_ADMIN inherits ROLE_USER permissions

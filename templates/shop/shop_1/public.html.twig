@@ -544,9 +544,14 @@
                         </a>
                         {% endif %}
                         {% if app.user %}
-                            <a href="#" class="nav-link" id="logoutLink">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="nav-link text-muted small" style="margin: 0;">
+                                    <i class="fas fa-user me-1"></i>{{ app.user.email }}
+                                </span>
+                                <a href="#" class="nav-link" id="logoutLink">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
                         {% else %}
                             <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#loginModal">
                                 <i class="fas fa-user"></i> Login
@@ -1320,11 +1325,54 @@
             if (logoutLink) {
                 logoutLink.addEventListener('click', function(e) {
                     e.preventDefault();
-                    fetch('/logout', { method: 'POST' })
-                        .then(() => {
+                    
+                    // Get slug from URL
+                    const slugMatch = window.location.pathname.match(/\/shop\/([^\/]+)/);
+                    const slug = slugMatch ? slugMatch[1] : null;
+                    
+                    if (!slug) {
+                        showNotification('Boutique slug not found in URL!', 'error');
+                        return;
+                    }
+                    
+                    // Call the shop logout endpoint
+                    fetch(`/shop/${slug}/logout`, { 
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return res.json();
+                    })
+                    .then(result => {
+                        if (result.success) {
+                            // Clear local storage
                             localStorage.removeItem('userEmail');
+                            localStorage.removeItem('cart');
+                            
+                            // Show success message
+                            showNotification('Logged out successfully!', 'success');
+                            
+                            // Reload the page after a short delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        } else {
+                            showNotification(result.message || 'Logout failed', 'error');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Logout error:', err);
+                        // Even if the logout request fails, clear local storage and reload
+                        localStorage.removeItem('userEmail');
+                        localStorage.removeItem('cart');
+                        showNotification('Session ended. Please log in again.', 'info');
+                        setTimeout(() => {
                             window.location.reload();
-                        });
+                        }, 1000);
+                    });
                 });
             }
         });

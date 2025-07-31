@@ -95,8 +95,8 @@ class Shop1Controller extends AbstractController
         'shadow_intensity' => '0.1',
     ];
 
-    #[Route('/perview', name: 'perview')]
-    public function perview(Request $request): Response
+    #[Route('/preview', name: 'preview')]
+    public function preview(Request $request): Response
     {
         $config = [];
         
@@ -694,5 +694,23 @@ class Shop1Controller extends AbstractController
                 'trace' => $e->getTraceAsString()
             ], 500);
         }
+    }
+
+    #[Route('/shop/{slug}/logout', name: 'shop_logout', methods: ['POST'])]
+    public function shopLogout(
+        Request $request,
+        string $slug
+    ): Response {
+        // Clear the session
+        $request->getSession()->invalidate();
+        
+        // Clear the security token
+        $this->container->get('security.token_storage')->setToken(null);
+        
+        return $this->json([
+            'success' => true,
+            'message' => 'Logged out successfully',
+            'redirect' => $this->generateUrl('public_shop', ['slug' => $slug])
+        ]);
     }
 }

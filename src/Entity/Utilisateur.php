@@ -183,6 +183,11 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->commercants;
     }
 
+    public function getCommercant(): ?Commercant
+    {
+        return $this->commercants->first() ?: null;
+    }
+
     public function addCommercant(Commercant $commercant): self
     {
         if (!$this->commercants->contains($commercant)) {
