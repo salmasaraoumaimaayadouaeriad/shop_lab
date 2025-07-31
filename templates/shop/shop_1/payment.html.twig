@@ -357,11 +357,22 @@ document.getElementById('checkoutForm').addEventListener('submit', async functio
     .then(res => res.json())
     .then(result => {
         if (result.success) {
-            document.getElementById('successMessage').textContent = 'Order placed successfully! Thank you.';
+            document.getElementById('successMessage').textContent = 'Order placed successfully! Redirecting to shop...';
             document.getElementById('successMessage').style.display = 'block';
+            
+            // Clear current cart
             localStorage.removeItem('cart');
             renderCartSummary();
             document.getElementById('payBtn').disabled = true;
+            
+            // Redirect to public shop page after 2 seconds
+            setTimeout(() => {
+                if (result.redirect) {
+                    window.location.href = result.redirect + '?success=true';
+                } else {
+                    window.location.href = `/shop/${slug}?success=true`;
+                }
+            }, 2000);
         } else {
             document.getElementById('submitError').textContent = result.message || 'Order failed.';
             document.getElementById('submitError').style.display = 'block';

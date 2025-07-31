@@ -381,6 +381,8 @@ class Shop1Controller extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         \App\Repository\UtilisateurRepository $utilisateurRepository,
+        \App\Repository\BoutiqueRepository $boutiqueRepository,
+        \App\Repository\ClientFinalRepository $clientFinalRepository,
         string $slug
     ): Response {
         try {
@@ -388,18 +390,45 @@ class Shop1Controller extends AbstractController
             if (!$data || empty($data['email']) || empty($data['password']) || empty($data['_csrf_token'])) {
                 return $this->json(['success' => false, 'message' => 'Missing email, password, or CSRF token'], 400);
             }
+            
             // Validate CSRF token
             if (!$this->isCsrfTokenValid('authenticate', $data['_csrf_token'])) {
                 return $this->json(['success' => false, 'message' => 'Invalid CSRF token'], 400);
             }
+            
+            // Find the boutique by slug
+            $boutique = $boutiqueRepository->findOneBy(['slug' => $slug]);
+            if (!$boutique) {
+                return $this->json(['success' => false, 'message' => 'Boutique not found'], 404);
+            }
+            
             $user = $utilisateurRepository->findOneBy(['email' => $data['email']]);
             if (!$user) {
                 return $this->json(['success' => false, 'message' => 'User not found'], 404);
             }
+            
             // Check password (assuming bcrypt)
             if (!password_verify($data['password'], $user->getPassword())) {
                 return $this->json(['success' => false, 'message' => 'Invalid password'], 401);
             }
+            
+            $roles = $user->getRoles();
+            
+            // For ROLE_CLIENT, check if they are associated with this specific boutique
+            if (in_array('ROLE_CLIENT', $roles)) {
+                $clientFinal = $clientFinalRepository->findOneBy([
+                    'utilisateur' => $user,
+                    'boutique' => $boutique
+                ]);
+                
+                if (!$clientFinal) {
+                    return $this->json([
+                        'success' => false, 
+                        'message' => 'You are not registered with this boutique. Please register first.'
+                    ], 403);
+                }
+            }
+            
             // Log in the user (set token in session for 'main' firewall)
             $token = new \Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken(
                 $user,
@@ -409,15 +438,25 @@ class Shop1Controller extends AbstractController
             $this->container->get('security.token_storage')->setToken($token);
             $request->getSession()->set('_security_main', serialize($token));
 
-            $roles = $user->getRoles();
             if (in_array('ROLE_COMMERCANT', $roles)) {
-                // Redirect commercant to dashboard
-                return $this->json([
-                    'success' => true,
-                    'message' => 'Login successful',
-                    'redirect' => $this->generateUrl('commercant_dashboard', ['slug' => $slug]),
-                    'role' => 'ROLE_COMMERCANT',
-                ]);
+                // For commercants, check if they own this boutique
+                $commercant = $entityManager->getRepository(\App\Entity\Commercant::class)
+                    ->findOneBy(['utilisateur' => $user]);
+                
+                if ($commercant && $commercant->getBoutiques()->contains($boutique)) {
+                    // Redirect commercant to dashboard
+                    return $this->json([
+                        'success' => true,
+                        'message' => 'Login successful',
+                        'redirect' => $this->generateUrl('commercant_dashboard', ['slug' => $slug]),
+                        'role' => 'ROLE_COMMERCANT',
+                    ]);
+                } else {
+                    return $this->json([
+                        'success' => false,
+                        'message' => 'You do not have access to this boutique'
+                    ], 403);
+                }
             } elseif (in_array('ROLE_CLIENT', $roles)) {
                 // For client, redirect/reload to shop page
                 return $this->json([
@@ -669,6 +708,8 @@ class Shop1Controller extends AbstractController
         EntityManagerInterface $entityManager,
         \App\Repository\BoutiqueRepository $boutiqueRepository,
         \App\Repository\UtilisateurRepository $utilisateurRepository,
+        \App\Repository\ClientFinalRepository $clientFinalRepository,
+        \App\Repository\ProduitRepository $produitRepository,
         string $slug
     ): Response {
         try {
@@ -676,22 +717,162 @@ class Shop1Controller extends AbstractController
             if (!$data || empty($data['email']) || empty($data['cart']) || empty($data['payment_method'])) {
                 return $this->json(['success' => false, 'message' => 'Missing data'], 400);
             }
+            
             $boutique = $boutiqueRepository->findOneBy(['slug' => $slug]);
             if (!$boutique) {
                 return $this->json(['success' => false, 'message' => 'Boutique not found'], 404);
             }
+            
             $user = $utilisateurRepository->findOneBy(['email' => $data['email']]);
             if (!$user) {
                 return $this->json(['success' => false, 'message' => 'User not found'], 404);
             }
-            // Here, you would process payment, update order status, save shipping info, etc.
-            // For now, just return success.
-            return $this->json(['success' => true, 'message' => 'Order placed and payment processed']);
+            
+            // Check if client is registered with this boutique
+            $clientFinal = $clientFinalRepository->findOneBy(['utilisateur' => $user, 'boutique' => $boutique]);
+            if (!$clientFinal) {
+                return $this->json(['success' => false, 'message' => 'Client profile not found. Please register first.'], 404);
+            }
+            
+            // Create Commande
+            $commande = new \App\Entity\Commande();
+            $commande->setClient($clientFinal);
+            $commande->setDate(new \DateTime());
+            $commande->setStatut('pending');
+            $commande->setMontant(0);
+            $commande->setMethodePaiment($data['payment_method']);
+            $entityManager->persist($commande);
+            
+            $total = 0;
+            foreach ($data['cart'] as $item) {
+                if (empty($item['productId']) || empty($item['quantity'])) continue;
+                $produit = $produitRepository->find($item['productId']);
+                if (!$produit) continue;
+                
+                $ligne = new \App\Entity\LigneCommande();
+                $ligne->setCommande($commande);
+                $ligne->setProduit($produit);
+                $ligne->setQuantite($item['quantity']);
+                $ligne->setPrixUnitaire($produit->getPrix());
+                $entityManager->persist($ligne);
+                $total += $produit->getPrix() * $item['quantity'];
+            }
+            $commande->setMontant($total);
+            
+            // Create PaiementBoutique record
+            $paiement = new \App\Entity\PaiementBoutique();
+            $paiement->setBoutique($boutique);
+            $paiement->setMontant($total);
+            $paiement->setDate(new \DateTime());
+            $paiement->setMethode($data['payment_method']);
+            $entityManager->persist($paiement);
+            
+            // Create cart history in database
+            $cartHistory = new \App\Entity\Panier();
+            $cartHistory->setClient($clientFinal);
+            $cartHistory->setIsHistory(true);
+            $cartHistory->setCreatedAt(new \DateTime());
+            $cartHistory->setCompletedAt(new \DateTime());
+            $entityManager->persist($cartHistory);
+            
+            // Add products to cart history
+            foreach ($data['cart'] as $item) {
+                if (empty($item['productId']) || empty($item['quantity'])) continue;
+                $produit = $produitRepository->find($item['productId']);
+                if (!$produit) continue;
+                
+                $panierProduit = new \App\Entity\PanierProduit();
+                $panierProduit->setPanier($cartHistory);
+                $panierProduit->setProduit($produit);
+                $panierProduit->setQuantite($item['quantity']);
+                $entityManager->persist($panierProduit);
+            }
+            
+            $entityManager->flush();
+            
+            return $this->json([
+                'success' => true, 
+                'message' => 'Order placed successfully', 
+                'orderId' => $commande->getId(),
+                'redirect' => $this->generateUrl('public_shop', ['slug' => $slug])
+            ]);
         } catch (\Throwable $e) {
             return $this->json([
                 'success' => false,
                 'message' => 'Server error: ' . $e->getMessage(),
                 'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+
+    #[Route('/shop/{slug}/cart/history', name: 'shop_cart_history', methods: ['GET'])]
+    public function getCartHistory(
+        Request $request,
+        \App\Repository\BoutiqueRepository $boutiqueRepository,
+        \App\Repository\ClientFinalRepository $clientFinalRepository,
+        \App\Repository\PanierRepository $panierRepository,
+        string $slug
+    ): Response {
+        try {
+            $boutique = $boutiqueRepository->findOneBy(['slug' => $slug]);
+            if (!$boutique) {
+                return $this->json(['success' => false, 'message' => 'Boutique not found'], 404);
+            }
+            
+            // Get user from session
+            $user = $this->getUser();
+            if (!$user) {
+                return $this->json(['success' => false, 'message' => 'User not authenticated'], 401);
+            }
+            
+            // Check if client is registered with this boutique
+            $clientFinal = $clientFinalRepository->findOneBy(['utilisateur' => $user, 'boutique' => $boutique]);
+            if (!$clientFinal) {
+                return $this->json(['success' => false, 'message' => 'Client profile not found'], 404);
+            }
+            
+            // Get cart history for this client
+            $cartHistory = $panierRepository->findBy([
+                'client' => $clientFinal,
+                'isHistory' => true
+            ], ['completedAt' => 'DESC']);
+            
+            $historyData = [];
+            foreach ($cartHistory as $cart) {
+                $cartItems = [];
+                $total = 0;
+                
+                // Get products in this cart
+                foreach ($cart->getPanierProduits() as $panierProduit) {
+                    $produit = $panierProduit->getProduit();
+                    $cartItems[] = [
+                        'id' => $produit->getId(),
+                        'name' => $produit->getNom(),
+                        'price' => $produit->getPrix(),
+                        'image' => $produit->getImage(),
+                        'description' => $produit->getDescription(),
+                        'quantity' => $panierProduit->getQuantite()
+                    ];
+                    $total += $produit->getPrix() * $panierProduit->getQuantite();
+                }
+                
+                $historyData[] = [
+                    'cartId' => $cart->getId(),
+                    'completedAt' => $cart->getCompletedAt()->format('Y-m-d H:i:s'),
+                    'total' => $total,
+                    'items' => $cartItems
+                ];
+            }
+            
+            return $this->json([
+                'success' => true,
+                'history' => $historyData
+            ]);
+            
+        } catch (\Throwable $e) {
+            return $this->json([
+                'success' => false,
+                'message' => 'Server error: ' . $e->getMessage()
             ], 500);
         }
     }
