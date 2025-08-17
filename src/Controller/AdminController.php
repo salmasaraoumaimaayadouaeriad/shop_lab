@@ -95,27 +95,40 @@ class AdminController extends AbstractController
     public function editBoutique(Boutique $boutique, Request $request): Response
     {
         if ($request->isMethod('POST')) {
-            $boutique->setNom($request->request->get('nom'));
-            $boutique->setDescription($request->request->get('description'));
-            $boutique->setNiche($request->request->get('niche'));
-            $boutique->setTemplate($request->request->get('template'));
-            $boutique->setStatut($request->request->get('statut'));
-            $boutique->setSlogan($request->request->get('slogan'));
-        
-            // Update colors
-            $boutique->setBackgroundColor($request->request->get('backgroundColor'));
-            $boutique->setTextColor($request->request->get('textColor'));
-            $boutique->setLinkColor($request->request->get('linkColor'));
-            $boutique->setButtonColor($request->request->get('buttonColor'));
-        
-            // Update custom content
-            $boutique->setCustomTitle($request->request->get('customTitle'));
-            $boutique->setCustomDescription($request->request->get('customDescription'));
-        
-            $this->entityManager->flush();
-        
-            $this->addFlash('success', 'Boutique modifiée avec succès.');
-            return $this->redirectToRoute('admin_boutique_show', ['id' => $boutique->getId()]);
+            // Validate CSRF token
+            $token = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('admin_boutique_form', $token)) {
+                $this->addFlash('error', 'Token de sécurité invalide.');
+                return $this->render('admin/boutiques/edit.html.twig', [
+                    'boutique' => $boutique,
+                ]);
+            }
+
+            try {
+                $boutique->setNom($request->request->get('nom'));
+                $boutique->setDescription($request->request->get('description'));
+                $boutique->setNiche($request->request->get('niche'));
+                $boutique->setTemplate($request->request->get('template'));
+                $boutique->setStatut($request->request->get('statut'));
+                $boutique->setSlogan($request->request->get('slogan'));
+            
+                // Update colors
+                $boutique->setBackgroundColor($request->request->get('backgroundColor'));
+                $boutique->setTextColor($request->request->get('textColor'));
+                $boutique->setLinkColor($request->request->get('linkColor'));
+                $boutique->setButtonColor($request->request->get('buttonColor'));
+            
+                // Update custom content
+                $boutique->setCustomTitle($request->request->get('customTitle'));
+                $boutique->setCustomDescription($request->request->get('customDescription'));
+            
+                $this->entityManager->flush();
+            
+                $this->addFlash('success', 'Boutique modifiée avec succès.');
+                return $this->redirectToRoute('admin_boutique_show', ['id' => $boutique->getId()]);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la modification: ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/boutiques/edit.html.twig', [
@@ -267,20 +280,40 @@ class AdminController extends AbstractController
     public function newUser(Request $request): Response
     {
         if ($request->isMethod('POST')) {
-            $user = new Utilisateur();
-            $user->setNom($request->request->get('nom'));
-            $user->setEmail($request->request->get('email'));
-            $user->setPassword(password_hash($request->request->get('password'), PASSWORD_DEFAULT));
-            $user->setPays($request->request->get('pays'));
-            $user->setDevise($request->request->get('devise', 'EUR'));
-            $user->setRoles([$request->request->get('role', 'ROLE_USER')]);
-            $user->setIsVerified(true);
+            // Validate CSRF token
+            $token = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('admin_user_form', $token)) {
+                $this->addFlash('error', 'Token de sécurité invalide.');
+                return $this->render('admin/users/form.html.twig', [
+                    'user' => new Utilisateur(),
+                    'is_edit' => false,
+                ]);
+            }
 
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
+            try {
+                $user = new Utilisateur();
+                $user->setNom($request->request->get('nom'));
+                $user->setEmail($request->request->get('email'));
+                $user->setPassword(password_hash($request->request->get('password'), PASSWORD_DEFAULT));
+                $user->setPays($request->request->get('pays'));
+                $user->setDevise($request->request->get('devise', 'EUR'));
+                $user->setIsVerified($request->request->get('isVerified') === '1');
+                
+                // Handle roles array from form
+                $roles = $request->request->all('roles');
+                if (empty($roles)) {
+                    $roles = ['ROLE_USER'];
+                }
+                $user->setRoles($roles);
 
-            $this->addFlash('success', 'Utilisateur créé avec succès.');
-            return $this->redirectToRoute('admin_users');
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+
+                $this->addFlash('success', 'Utilisateur créé avec succès.');
+                return $this->redirectToRoute('admin_users');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la création: ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/users/form.html.twig', [
@@ -293,21 +326,37 @@ class AdminController extends AbstractController
     public function editUser(Utilisateur $user, Request $request): Response
     {
         if ($request->isMethod('POST')) {
-            $user->setNom($request->request->get('nom'));
-            $user->setEmail($request->request->get('email'));
-            $user->setPays($request->request->get('pays'));
-            $user->setDevise($request->request->get('devise'));
-        
-            $roles = ['ROLE_USER'];
-            if ($request->request->get('is_admin')) {
-                $roles[] = 'ROLE_ADMIN';
+            // Validate CSRF token
+            $token = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('admin_user_form', $token)) {
+                $this->addFlash('error', 'Token de sécurité invalide.');
+                return $this->render('admin/users/form.html.twig', [
+                    'user' => $user,
+                    'is_edit' => true,
+                ]);
             }
-            $user->setRoles($roles);
 
-            $this->entityManager->flush();
+            try {
+                $user->setNom($request->request->get('nom'));
+                $user->setEmail($request->request->get('email'));
+                $user->setPays($request->request->get('pays'));
+                $user->setDevise($request->request->get('devise'));
+                $user->setIsVerified($request->request->get('isVerified') === '1');
+            
+                // Handle roles array from form
+                $roles = $request->request->all('roles');
+                if (empty($roles)) {
+                    $roles = ['ROLE_USER'];
+                }
+                $user->setRoles($roles);
 
-            $this->addFlash('success', 'Utilisateur modifié avec succès.');
-            return $this->redirectToRoute('admin_users');
+                $this->entityManager->flush();
+
+                $this->addFlash('success', 'Utilisateur modifié avec succès.');
+                return $this->redirectToRoute('admin_users');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Erreur lors de la modification: ' . $e->getMessage());
+            }
         }
 
         return $this->render('admin/users/form.html.twig', [
@@ -317,38 +366,66 @@ class AdminController extends AbstractController
     }
 
     #[Route('/users/{id}/suspend', name: 'admin_user_suspend', methods: ['POST'])]
-    public function suspendUser(Utilisateur $user, Request $request): Response
+    public function suspendUser(Utilisateur $user, Request $request): JsonResponse
     {
-        $reason = $request->request->get('reason');
+        $data = json_decode($request->getContent(), true);
+        $verified = $data['verified'] ?? false;
     
-        // Add suspended role or update status
-        $roles = $user->getRoles();
-        if (!in_array('ROLE_SUSPENDED', $roles)) {
-            $roles[] = 'ROLE_SUSPENDED';
-            $user->setRoles($roles);
-        }
-
+        // Toggle email verification status
+        $user->setIsVerified($verified);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Utilisateur suspendu avec succès.');
-        return $this->redirectToRoute('admin_users');
+        return $this->json([
+            'success' => true, 
+            'message' => $verified ? 'Email vérifié avec succès' : 'Email dévérifié avec succès'
+        ]);
     }
 
     #[Route('/users/{id}/toggle-role', name: 'admin_user_toggle_role', methods: ['POST'])]
-    public function toggleUserRole(Utilisateur $user): Response
+    public function toggleUserRole(Utilisateur $user, Request $request): JsonResponse
     {
-        $roles = $user->getRoles();
-        
-        if (in_array('ROLE_ADMIN', $roles)) {
-            $user->setRoles(['ROLE_USER']);
-        } else {
-            $user->setRoles(['ROLE_USER', 'ROLE_ADMIN']);
+        $data = json_decode($request->getContent(), true);
+        $newRole = $data['role'] ?? null;
+
+        if (!$newRole) {
+            return $this->json(['success' => false, 'message' => 'Rôle manquant']);
         }
 
+        // Update user roles
+        $user->setRoles([$newRole]);
         $this->entityManager->flush();
 
-        $this->addFlash('success', 'Rôle utilisateur modifié avec succès.');
-        return $this->redirectToRoute('admin_users');
+        return $this->json([
+            'success' => true, 
+            'message' => 'Rôle utilisateur modifié avec succès'
+        ]);
+    }
+
+    #[Route('/users/{id}/delete', name: 'admin_user_delete', methods: ['POST'])]
+    public function deleteUser(Utilisateur $user): JsonResponse
+    {
+        try {
+            // Check if user has any related data that should prevent deletion
+            if ($user->getCommercants()->count() > 0 || $user->getAdministrateur()->count() > 0) {
+                return $this->json([
+                    'success' => false, 
+                    'message' => 'Impossible de supprimer cet utilisateur car il a des données associées'
+                ]);
+            }
+
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+
+            return $this->json([
+                'success' => true, 
+                'message' => 'Utilisateur supprimé avec succès'
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'success' => false, 
+                'message' => 'Erreur lors de la suppression: ' . $e->getMessage()
+            ]);
+        }
     }
 
     // PAYMENT MANAGEMENT

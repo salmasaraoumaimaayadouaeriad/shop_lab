@@ -1,0 +1,300 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ is_edit ? 'Modifier' : 'Nouvel' }} Utilisateur - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user"></i> {{ is_edit ? 'Modifier' : 'Nouvel' }} Utilisateur
+        </h1>
+        <a href="{{ path('admin_users') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations utilisateur</h6>
+                </div>
+                <div class="card-body">
+                                         <form method="POST">
+                         <input type="hidden" name="_token" value="{{ csrf_token('admin_user_form') }}">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nom" class="form-label">Nom complet *</label>
+                                    <input type="text" class="form-control" id="nom" name="nom" 
+                                           value="{{ user.nom }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email *</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ user.email }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="pays" class="form-label">Pays *</label>
+                                    <input type="text" class="form-control" id="pays" name="pays" 
+                                           value="{{ user.pays }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="devise" class="form-label">Devise</label>
+                                    <select class="form-control" id="devise" name="devise">
+                                        <option value="EUR" {{ user.devise == 'EUR' ? 'selected' : '' }}>EUR (€)</option>
+                                        <option value="USD" {{ user.devise == 'USD' ? 'selected' : '' }}>USD ($)</option>
+                                        <option value="GBP" {{ user.devise == 'GBP' ? 'selected' : '' }}>GBP (£)</option>
+                                        <option value="MAD" {{ user.devise == 'MAD' ? 'selected' : '' }}>MAD (د.م)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="roles" class="form-label">Rôles *</label>
+                                    <select class="form-control" id="roles" name="roles[]" multiple required>
+                                        <option value="ROLE_USER" {{ 'ROLE_USER' in user.roles ? 'selected' : '' }}>Utilisateur</option>
+                                        <option value="ROLE_CLIENT" {{ 'ROLE_CLIENT' in user.roles ? 'selected' : '' }}>Client</option>
+                                        <option value="ROLE_COMMERCANT" {{ 'ROLE_COMMERCANT' in user.roles ? 'selected' : '' }}>Commerçant</option>
+                                        <option value="ROLE_ADMIN" {{ 'ROLE_ADMIN' in user.roles ? 'selected' : '' }}>Administrateur</option>
+                                    </select>
+                                    <div class="form-text">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs rôles</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="isVerified" class="form-label">Email vérifié</label>
+                                    <select class="form-control" id="isVerified" name="isVerified">
+                                        <option value="1" {{ user.isVerified ? 'selected' : '' }}>Oui</option>
+                                        <option value="0" {{ not user.isVerified ? 'selected' : '' }}>Non</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if not is_edit %}
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Mot de passe *</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                    <div class="form-text">Minimum 8 caractères</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="password_confirm" class="form-label">Confirmer le mot de passe *</label>
+                                    <input type="password" class="form-control" id="password_confirm" name="password_confirm" required>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="dateCreation" class="form-label">Date de création</label>
+                                    <input type="text" class="form-control" id="dateCreation" 
+                                           value="{{ user.dateCreation ? user.dateCreation|date('d/m/Y H:i') : 'Non définie' }}" readonly>
+                                </div>
+                            </div>
+                                                         <div class="col-md-6">
+                                 <div class="mb-3">
+                                     <label for="pays" class="form-label">Pays</label>
+                                     <input type="text" class="form-control" id="pays" name="pays" 
+                                            value="{{ user.pays }}" readonly>
+                                 </div>
+                             </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('admin_users') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> {{ is_edit ? 'Modifier' : 'Créer' }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- User Info -->
+            {% if is_edit %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations</h6>
+                </div>
+                <div class="card-body">
+                                         <div class="mb-3">
+                         <strong>Date de création:</strong><br>
+                         <span class="text-muted">{{ user.dateCreation ? user.dateCreation|date('d/m/Y H:i') : 'Non définie' }}</span>
+                     </div>
+                     <div class="mb-3">
+                         <strong>Commercants:</strong><br>
+                         <span class="text-muted">{{ user.commercants|length }} commercant(s)</span>
+                     </div>
+                     <div class="mb-3">
+                         <strong>Sessions:</strong><br>
+                         <span class="text-muted">{{ user.session|length }} session(s)</span>
+                     </div>
+                     <div class="mb-3">
+                         <strong>Devise:</strong><br>
+                         <span class="text-muted">{{ user.devise ?: 'Non définie' }}</span>
+                     </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Role Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations sur les rôles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>ROLE_USER:</strong><br>
+                        <small class="text-muted">Accès de base à la plateforme</small>
+                    </div>
+                    <div class="mb-3">
+                        <strong>ROLE_CLIENT:</strong><br>
+                        <small class="text-muted">Peut acheter dans les boutiques</small>
+                    </div>
+                    <div class="mb-3">
+                        <strong>ROLE_COMMERCANT:</strong><br>
+                        <small class="text-muted">Peut gérer ses boutiques et produits</small>
+                    </div>
+                    <div class="mb-3">
+                        <strong>ROLE_ADMIN:</strong><br>
+                        <small class="text-muted">Accès complet à l'administration</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if is_edit %}
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_user_show', {id: user.id}) }}" class="btn btn-info btn-sm">
+                            <i class="fas fa-eye"></i> Voir détails
+                        </a>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="toggleUserStatus()">
+                            <i class="fas fa-toggle-on"></i> {{ user.isVerified ? 'Dévérifier' : 'Vérifier' }}
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser()">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if is_edit %}
+<script>
+function toggleUserStatus() {
+    const action = {{ user.isVerified ? 'false' : 'true' }};
+    const message = action ? 'vérifier' : 'dévérifier';
+    
+    if (confirm(`Êtes-vous sûr de vouloir ${message} l'email de cet utilisateur ?`)) {
+        fetch('{{ path('admin_user_suspend', {id: user.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({verified: action})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+
+function deleteUser() {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) {
+        fetch('{{ path('admin_user_delete', {id: user.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{{ path('admin_users') }}';
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+</script>
+{% endif %}
+
+<script>
+// Password confirmation validation
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const passwordConfirm = document.getElementById('password_confirm');
+    
+    if (password && passwordConfirm) {
+        function validatePassword() {
+            if (password.value !== passwordConfirm.value) {
+                passwordConfirm.setCustomValidity('Les mots de passe ne correspondent pas');
+            } else {
+                passwordConfirm.setCustomValidity('');
+            }
+        }
+        
+        password.addEventListener('change', validatePassword);
+        passwordConfirm.addEventListener('keyup', validatePassword);
+    }
+    
+    // Multiple roles selection helper
+    const rolesSelect = document.getElementById('roles');
+    if (rolesSelect) {
+        rolesSelect.addEventListener('change', function() {
+            const selectedRoles = Array.from(this.selectedOptions).map(option => option.value);
+            if (selectedRoles.length === 0) {
+                this.setCustomValidity('Veuillez sélectionner au moins un rôle');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

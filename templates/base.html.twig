@@ -11,8 +11,30 @@
     <link rel="stylesheet" href="{{ asset('css/Rstyles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/niche.css') }}">
     {% endblock %}
+    
+    <style>
+        /* Fixed background container */
+        .vanta-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 1730px;
+            height: 900px;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Ensure content scrolls over the background */
+        body {
+            position: relative;
+            z-index: 1;
+        }
+    </style>
 </head>
 <body>
+    <!-- Fixed Vanta Background Container -->
+    <div class="vanta-background" id="vantaBackground"></div>
+
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -29,6 +51,37 @@
     </header>
 
     {% block body %}{% endblock %}
+
+    <!-- Vanta Background (globally for public pages) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
+    <script>
+    (function() {
+        var vantaInstance;
+        function initVanta() {
+            if (!window.VANTA) return;
+            if (vantaInstance) return;
+            vantaInstance = window.VANTA.FOG({
+                el: '#vantaBackground',
+                mouseControls: true,
+                touchControls: true,
+                gyroControls: false,
+                minHeight: 642,
+                minWidth: 941,
+                highlightColor: 0x212f60,
+                midtoneColor: 0x241717,
+                lowlightColor: 0x2daad1,
+                baseColor: 0xbfc5d1,
+                blurFactor: 0.59,
+                speed: 2.00,
+                zoom: 1.00
+            });
+        }
+        if (document.readyState === 'complete') initVanta();
+        else window.addEventListener('load', initVanta);
+    })();
+    </script>
+
     {% block javascripts %}{% endblock %}
 </body>
 </html>

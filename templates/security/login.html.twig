@@ -4,53 +4,653 @@
 
 {% block header %}{# No nav #}{% endblock %}
 
-{% block body %}
-    <div class="left-section">
-        <div>
-            <!-- Nav removed: no nav at all -->
-            <div class="hero">
-                <h1>Welcome to Shop Lab</h1>
-                <p>Wanna drop your own online store? Say less.</p>
-                <p>Pick a vibe, customize the drip, upload your fire products, and boom – you're live.</p>
-                <p>No coding, no stress, just full creator energy.</p>
-                <p>Start building now. Your brand era starts today.</p>
-                <a href="{{ path('app_register') }}" class="cta-button">Start building now</a>
-            </div>
-        </div>
-        <div class="contact-info">
-            <div>Phone<br>+123-456-7890</div>
-            <div>Website<br>www.reallygreatsite.com</div>
-            <div>E-Mail<br>hello@reallygreatsite.com</div>
-            <div>Address<br>123 Anywhere St., Any City</div>
-        </div>
-    </div>
-    <div class="right-section">
-        <div class="login-form">
-            <h2>LOGIN TO YOUR ACCOUNT</h2>
-            {% if error %}
-                <div class="error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
-            <form method="post" action="{{ path('app_login') }}">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="{{ last_username }}" required autofocus>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-                <div class="signup-link">
-                    Don't have an account?<br>
-                    <a href="{{ path('app_register') }}">Sign Up now</a>
-                </div>
-                <button type="submit" class="login-button">LOGIN</button>
-            </form>
-        </div>
-    </div>
+{% block stylesheets %}
+{{ parent() }}
+<style>
+/* Neumorphic Login Form - Integrated Styles */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+
+    /* Override body styles for neumorphic design */
+    body {
+        background: #e0e5ec !important;
+        font-family: 'Manrope', sans-serif !important;
+    }
+    body {
+        background: #e0e5ec !important;
+        font-family: 'Manrope', sans-serif !important;
+        overflow-x: hidden;
+    }
+
+    .left-section,
+    .right-section {
+        padding-top: 80px; /* Space for fixed navbar */
+    }
+
+    /* Neumorphic input styles */
+    input.form-control {
+        border: none;
+        outline: none;
+        background: #e0e5ec;
+        border-radius: 12px;
+        padding: 12px 20px;
+        box-shadow: inset 6px 6px 12px #c5c8cc,
+                    inset -6px -6px 12px #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    input.form-control:focus {
+        box-shadow: inset 4px 4px 8px #c5c8cc,
+                    inset -4px -4px 8px #ffffff;
+    }
+
+    .btn-primary {
+        background: #4a6fa5;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 20px;
+        font-weight: bold;
+        box-shadow: 6px 6px 12px #c5c8cc,
+                    -6px -6px 12px #ffffff;
+    }
+
+    .btn-primary:hover {
+        background: #3a5d87;
+    }
+
+    /* Neumorphic Form Container */
+    .neu-form-container {
+        width: 450px;
+        max-height: 85vh;
+        overflow-y: auto;
+        background: #e0e5ec;
+        border-radius: 30px;
+        padding: 50px 40px;
+        box-shadow: 
+            20px 20px 60px #bec3cf,
+            -20px -20px 60px #ffffff;
+        position: relative;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .neu-form-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            25px 25px 70px #bec3cf,
+            -25px -25px 70px #ffffff;
+    }
+
+    /* Form Header */
+    .neu-form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .neu-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 24px;
+        background: #e0e5ec;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 
+            8px 8px 20px #bec3cf,
+            -8px -8px 20px #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .neu-icon:hover {
+        box-shadow: 
+            4px 4px 10px #bec3cf,
+            -4px -4px 10px #ffffff,
+            inset 4px 4px 10px #bec3cf,
+            inset -4px -4px 10px #ffffff;
+    }
+
+    .icon-inner {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c7293;
+    }
+
+    .icon-inner svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .neu-form-header h2 {
+        color: #3d4468;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .neu-form-header p {
+        color: #9499b7;
+        font-size: 15px;
+        font-weight: 400;
+    }
+
+    /* Form Groups */
+    .neu-form-group {
+        margin-bottom: 28px;
+        position: relative;
+    }
+
+    /* Neumorphic Inputs */
+    .neu-input {
+        position: relative;
+        background: #e0e5ec;
+        border-radius: 15px;
+        box-shadow: 
+            inset 8px 8px 16px #bec3cf,
+            inset -8px -8px 16px #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .neu-input:focus-within {
+        box-shadow: 
+            inset 4px 4px 8px #bec3cf,
+            inset -4px -4px 8px #ffffff;
+        transform: scale(0.98);
+    }
+
+    .neu-input input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        padding: 20px 24px;
+        padding-left: 55px;
+        color: #3d4468;
+        font-size: 16px;
+        font-weight: 500;
+        outline: none;
+        transition: all 0.3s ease;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .neu-input input::placeholder {
+        color: transparent;
+    }
+
+    .neu-input label {
+        position: absolute;
+        left: 55px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9499b7;
+        font-size: 16px;
+        font-weight: 400;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        background: transparent;
+        padding: 0;
+    }
+
+    .neu-input input:focus + label,
+    .neu-input input:not(:placeholder-shown) + label {
+        top: 8px;
+        font-size: 12px;
+        color: #6c7293;
+        transform: translateY(0);
+        background: #e0e5ec;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        color: #9499b7;
+        transition: all 0.3s ease;
+    }
+
+    .input-icon svg {
+        width: 100%;
+        height: 100%;
+    }
+
+    .neu-input:focus-within .input-icon {
+        color: #6c7293;
+    }
+
+    /* Password Toggle */
+    .password-group {
+        padding-right: 50px;
+    }
+
+    .neu-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #e0e5ec;
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #9499b7;
+        box-shadow: 
+            4px 4px 10px #bec3cf,
+            -4px -4px 10px #ffffff;
+        transition: all 0.3s ease;
+    }
+
+    .neu-toggle:hover {
+        color: #6c7293;
+    }
+
+    .neu-toggle:active {
+        box-shadow: 
+            inset 2px 2px 5px #bec3cf,
+            inset -2px -2px 5px #ffffff;
+    }
+
+    .neu-toggle svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .eye-closed {
+        display: none;
+    }
+
+    .neu-toggle.show-password .eye-open {
+        display: none;
+    }
+
+    .neu-toggle.show-password .eye-closed {
+        display: block;
+    }
+
+    /* Neumorphic Button */
+    .neu-button {
+        width: 100%;
+        background: #e0e5ec;
+        border: none;
+        border-radius: 15px;
+        padding: 18px 32px;
+        color: #3d4468;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        position: relative;
+        margin: 20px 0;
+        box-shadow: 
+            8px 8px 20px #bec3cf,
+            -8px -8px 20px #ffffff;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'Manrope', sans-serif;
+    }
+
+    .neu-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .neu-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            12px 12px 30px #bec3cf,
+            -12px -12px 30px #ffffff;
+    }
+
+    .neu-button:hover::before {
+        left: 100%;
+    }
+
+    .neu-button:active {
+        transform: translateY(0);
+        box-shadow: 
+            inset 4px 4px 10px #bec3cf,
+            inset -4px -4px 10px #ffffff;
+    }
+
+    .btn-text {
+        position: relative;
+        z-index: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .btn-loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .neu-spinner {
+        width: 20px;
+        height: 20px;
+        border: 3px solid #bec3cf;
+        border-top: 3px solid #6c7293;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .neu-button.loading .btn-text {
+        opacity: 0;
+    }
+
+    .neu-button.loading .btn-loader {
+        opacity: 1;
+    }
+
+    .neu-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Signup/Login Links */
+    .neu-signup-link {
+        text-align: center;
+        margin: 25px 0;
+        font-size: 14px;
+        color: #6c7293;
+    }
+
+    .neu-signup-link a {
+        color: #3d4468;
+        text-decoration: none;
+        font-weight: 600;
+        border-bottom: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .neu-signup-link a:hover {
+        border-bottom: 1px solid #3d4468;
+        color: #6c7293;
+    }
+
+    /* Error Messages */
+    .neu-error-message {
+        background: linear-gradient(135deg, rgba(255, 59, 92, 0.1), rgba(255, 59, 92, 0.05));
+        color: #ff3b5c;
+        padding: 12px 16px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+        border-left: 4px solid #ff3b5c;
+        font-weight: 500;
+        box-shadow: 
+            inset 2px 2px 5px rgba(255, 59, 92, 0.1),
+            inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+    }
+
+    .neu-form-group.error .neu-input {
+        box-shadow: 
+            inset 8px 8px 16px #ffb8c4,
+            inset -8px -8px 16px #ffffff,
+            0 0 0 2px #ff3b5c;
+        animation: gentleShake 0.5s ease-in-out;
+    }
+
+    @keyframes gentleShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-3px); }
+        75% { transform: translateX(3px); }
+    }
+
+    /* Hide original form styling */
+    .login-form {
+        display: none;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        .neu-form-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 40px 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .neu-form-container {
+            padding: 35px 25px;
+            border-radius: 20px;
+            max-height: none;
+        }
+        
+        .neu-form-header h2 {
+            font-size: 1.5rem;
+        }
+        
+        .neu-input input {
+            padding: 18px 20px;
+            padding-left: 50px;
+        }
+        
+        .neu-input label {
+            left: 50px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .neu-form-container {
+            padding: 25px 20px;
+        }
+        
+        .neu-form-header h2 {
+            font-size: 1.25rem;
+        }
+    }
+</style>
 {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-    {# Add any extra stylesheets here if needed #}
+{% block body %}
+{% include 'security/black_navbar.html.twig' %}
+
+<div class="left-section">
+<div>
+<div class="hero">
+<h1>Welcome to Shop Lab</h1>
+<p>Wanna drop your own online store? Say less.</p>
+<p>Pick a vibe, customize the drip, upload your fire products, and boom – you're live.</p>
+<p>No coding, no stress, just full creator energy.</p>
+<p>Start building now. Your brand era starts today.</p>
+<a href="{{ path('app_register') }}" class="cta-button">Start building now</a>
+</div>
+</div>
+<div class="contact-info">
+<div>Phone<br>+123-456-7890</div>
+<div>Website<br>www.reallygreatsite.com</div>
+<div>E-Mail<br>hello@reallygreatsite.com</div>
+<div>Address<br>123 Anywhere St., Any City</div>
+</div>
+</div>
+<div class="right-section">
+<div class="neu-form-container">
+<div class="neu-form-header">
+<div class="neu-icon">
+<div class="icon-inner">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+<circle cx="12" cy="7" r="4"/>
+</svg>
+</div>
+</div>
+<h2>LOGIN TO YOUR ACCOUNT</h2>
+<p>Welcome back, please sign in</p>
+</div>
+
+
+        {% if error %}
+            <div class="neu-error-message">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        {% endif %}
+        
+        <form method="post" action="{{ path('app_login') }}" class="neu-form">
+            <div class="neu-form-group">
+                <div class="neu-input">
+                    <input type="email" id="email" name="email" value="{{ last_username }}" required autofocus placeholder=" ">
+                    <label for="email">Email Address</label>
+                    <div class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="neu-form-group">
+                <div class="neu-input password-group">
+                    <input type="password" id="password" name="password" required placeholder=" ">
+                    <label for="password">Password</label>
+                    <div class="input-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                        </svg>
+                    </div>
+                    <button type="button" class="neu-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+                        <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                            <line x1="1" y1="1" x2="23" y2="23"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            
+            <div class="neu-signup-link">
+                Don't have an account?<br>
+                <a href="{{ path('app_register') }}">Sign Up now</a>
+            </div>
+            
+            <button type="submit" class="neu-button">
+                <span class="btn-text">LOGIN</span>
+                <div class="btn-loader">
+                    <div class="neu-spinner"></div>
+                </div>
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const passwordToggle = document.getElementById('passwordToggle');
+const passwordInput = document.getElementById('password');
+const neuButton = document.querySelector('.neu-button');
+const form = document.querySelector('.neu-form');
+
+
+        // Password toggle functionality
+        if (passwordToggle && passwordInput) {
+            passwordToggle.addEventListener('click', function() {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                this.classList.toggle('show-password', type === 'text');
+                
+                // Soft press animation
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        }
+
+        // Soft press effects for inputs
+        const inputs = document.querySelectorAll('.neu-input input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                const inputGroup = this.closest('.neu-input');
+                inputGroup.style.transform = 'scale(0.98)';
+            });
+            
+            input.addEventListener('blur', function() {
+                const inputGroup = this.closest('.neu-input');
+                inputGroup.style.transform = 'scale(1)';
+            });
+        });
+
+        // Button animations
+        if (neuButton) {
+            neuButton.addEventListener('click', function() {
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+            });
+        }
+
+        // Form submission animation
+        if (form) {
+            form.addEventListener('submit', function() {
+                if (neuButton) {
+                    neuButton.classList.add('loading');
+                }
+            });
+        }
+
+        // Ambient light effect on mouse move
+        const card = document.querySelector('.neu-form-container');
+        if (card) {
+            document.addEventListener('mousemove', function(e) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const angleX = (x - centerX) / centerX;
+                    const angleY = (y - centerY) / centerY;
+                    
+                    const shadowX = angleX * 10;
+                    const shadowY = angleY * 10;
+                    
+                    card.style.boxShadow = `
+                        ${20 + shadowX}px ${20 + shadowY}px 60px #bec3cf,
+                        ${-20 - shadowX}px ${-20 - shadowY}px 60px #ffffff
+                    `;
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

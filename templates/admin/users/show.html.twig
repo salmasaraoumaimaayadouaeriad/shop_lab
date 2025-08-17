@@ -1,0 +1,276 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails Utilisateur - Admin ShopLab{% endblock %}
+
+{% block admin_content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">
+            <i class="fas fa-user"></i> Détails Utilisateur
+        </h1>
+        <div>
+            <a href="{{ path('admin_users') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+            <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- User Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations personnelles</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <strong>Nom complet:</strong><br>
+                                <span class="text-muted">{{ user.nom }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Email:</strong><br>
+                                <span class="text-muted">{{ user.email }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Pays:</strong><br>
+                                <span class="text-muted">{{ user.pays ?: 'Non renseigné' }}</span>
+                            </div>
+                        </div>
+                                                 <div class="col-md-6">
+                             <div class="mb-3">
+                                 <strong>Devise:</strong><br>
+                                 <span class="text-muted">{{ user.devise ?: 'Non définie' }}</span>
+                             </div>
+                             <div class="mb-3">
+                                 <strong>Date de création:</strong><br>
+                                 <span class="text-muted">{{ user.dateCreation ? user.dateCreation|date('d/m/Y H:i') : 'Non définie' }}</span>
+                             </div>
+                             <div class="mb-3">
+                                 <strong>Email vérifié:</strong><br>
+                                 <span class="badge {{ user.isVerified ? 'bg-success' : 'bg-warning' }}">
+                                     {{ user.isVerified ? 'Oui' : 'Non' }}
+                                 </span>
+                             </div>
+                         </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong>Rôles:</strong><br>
+                        <div class="mt-2">
+                            {% for role in user.roles %}
+                                <span class="badge bg-primary me-1">{{ role }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+
+            <!-- User Sessions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Sessions récentes</h6>
+                </div>
+                <div class="card-body">
+                    {% if user.session is not empty %}
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for session in user.session|slice(0, 5) %}
+                                        <tr>
+                                            <td>{{ session.dateCreation|date('d/m/Y H:i') }}</td>
+                                            <td><span class="badge bg-success">Active</span></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucune session récente</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- User Statistics -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Statistiques</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-primary">{{ user.commercants|length }}</h4>
+                                <small class="text-muted">Commercants</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ user.administrateur|length }}</h4>
+                            <small class="text-muted">Administrateurs</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <div class="border-end">
+                                <h4 class="text-info">{{ user.session|length }}</h4>
+                                <small class="text-muted">Sessions</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-warning">{{ user.devise }}</h4>
+                            <small class="text-muted">Devise</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Type Specific Info -->
+            {% if 'ROLE_COMMERCANT' in user.roles %}
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Informations Commerçant</h6>
+                    </div>
+                    <div class="card-body">
+                                                 {% set commercant = user.commercants|first %}
+                         {% if commercant %}
+                             <div class="mb-3">
+                                 <strong>Boutiques gérées:</strong><br>
+                                 <span class="text-muted">{{ commercant.boutiques|length }} boutique(s)</span>
+                             </div>
+                             <div class="mb-3">
+                                 <strong>Nom du commercant:</strong><br>
+                                 <span class="text-muted">{{ commercant.nom }}</span>
+                             </div>
+                             <div class="mb-3">
+                                 <strong>Entreprise:</strong><br>
+                                 <span class="text-muted">{{ commercant.nomEntreprise ?: 'Non définie' }}</span>
+                             </div>
+                         {% else %}
+                             <p class="text-muted">Aucune information commercant disponible</p>
+                         {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Quick Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions rapides</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('admin_user_edit', {id: user.id}) }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-edit"></i> Modifier
+                        </a>
+                        <button type="button" class="btn btn-warning btn-sm" onclick="toggleUserStatus()">
+                            <i class="fas fa-toggle-on"></i> {{ user.isVerified ? 'Dévérifier' : 'Vérifier' }}
+                        </button>
+                        <button type="button" class="btn btn-info btn-sm" onclick="toggleUserRole()">
+                            <i class="fas fa-user-tag"></i> Changer rôle
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteUser()">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleUserStatus() {
+    const action = {{ user.isVerified ? 'false' : 'true' }};
+    const message = action ? 'vérifier' : 'dévérifier';
+    
+    if (confirm(`Êtes-vous sûr de vouloir ${message} l'email de cet utilisateur ?`)) {
+        fetch('{{ path('admin_user_suspend', {id: user.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({verified: action})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+
+function toggleUserRole() {
+    const roles = ['ROLE_USER', 'ROLE_CLIENT', 'ROLE_COMMERCANT', 'ROLE_ADMIN'];
+    const currentRoles = {{ user.roles|json_encode|raw }};
+    
+    const newRole = prompt('Choisissez un nouveau rôle:\n' + roles.join('\n'), currentRoles[0]);
+    
+    if (newRole && roles.includes(newRole)) {
+        fetch('{{ path('admin_user_toggle_role', {id: user.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({role: newRole})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+
+function deleteUser() {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')) {
+        fetch('{{ path('admin_user_delete', {id: user.id}) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = '{{ path('admin_users') }}';
+            } else {
+                alert('Erreur: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Une erreur est survenue');
+        });
+    }
+}
+</script>
+{% endblock %} 

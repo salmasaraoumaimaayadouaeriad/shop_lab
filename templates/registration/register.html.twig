@@ -4,10 +4,555 @@
 
 {% block header %}{# No nav #}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* Neumorphic Register Form - Integrated Styles */
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+        /* Override body styles for neumorphic design */
+        body {
+            background: #e0e5ec !important;
+            font-family: 'Manrope', sans-serif !important;
+        }
+
+        /* Neumorphic Form Container */
+        .neu-form-container {
+            width: 450px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: #e0e5ec;
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 
+                20px 20px 60px #bec3cf,
+                -20px -20px 60px #ffffff;
+            position: relative;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .neu-form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                25px 25px 70px #bec3cf,
+                -25px -25px 70px #ffffff;
+        }
+
+        /* Form Header */
+        .neu-form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .neu-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: #e0e5ec;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                8px 8px 20px #bec3cf,
+                -8px -8px 20px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .neu-icon:hover {
+            box-shadow: 
+                4px 4px 10px #bec3cf,
+                -4px -4px 10px #ffffff,
+                inset 4px 4px 10px #bec3cf,
+                inset -4px -4px 10px #ffffff;
+        }
+
+        .icon-inner {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c7293;
+        }
+
+        .icon-inner svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .neu-form-header h2 {
+            color: #3d4468;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .neu-form-header p {
+            color: #9499b7;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        /* Form Groups */
+        .neu-form-group {
+            margin-bottom: 28px;
+            position: relative;
+        }
+
+        /* Neumorphic Inputs */
+        .neu-input {
+            position: relative;
+            background: #e0e5ec;
+            border-radius: 15px;
+            box-shadow: 
+                inset 8px 8px 16px #bec3cf,
+                inset -8px -8px 16px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .neu-input:focus-within {
+            box-shadow: 
+                inset 4px 4px 8px #bec3cf,
+                inset -4px -4px 8px #ffffff;
+            transform: scale(0.98);
+        }
+
+        .neu-input input,
+        .neu-input select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 20px 24px;
+            padding-left: 55px;
+            color: #3d4468;
+            font-size: 16px;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .neu-input input::placeholder,
+        .neu-input select::placeholder {
+            color: transparent;
+        }
+
+        .neu-input label {
+            position: absolute;
+            left: 55px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9499b7;
+            font-size: 16px;
+            font-weight: 400;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            background: transparent;
+            padding: 0;
+        }
+
+        .neu-input input:focus + label,
+        .neu-input input:not(:placeholder-shown) + label,
+        .neu-input select:focus + label,
+        .neu-input select:not([value=""]) + label {
+            top: 8px;
+            font-size: 12px;
+            color: #6c7293;
+            transform: translateY(0);
+            background: #e0e5ec;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9499b7;
+            transition: all 0.3s ease;
+        }
+
+        .input-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .neu-input:focus-within .input-icon {
+            color: #6c7293;
+        }
+
+        /* Password Toggle */
+        .password-group {
+            padding-right: 50px;
+        }
+
+        .neu-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e0e5ec;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9499b7;
+            box-shadow: 
+                4px 4px 10px #bec3cf,
+                -4px -4px 10px #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .neu-toggle:hover {
+            color: #6c7293;
+        }
+
+        .neu-toggle:active {
+            box-shadow: 
+                inset 2px 2px 5px #bec3cf,
+                inset -2px -2px 5px #ffffff;
+        }
+
+        .neu-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .eye-closed {
+            display: none;
+        }
+
+        .neu-toggle.show-password .eye-open {
+            display: none;
+        }
+
+        .neu-toggle.show-password .eye-closed {
+            display: block;
+        }
+
+        /* Checkbox Styling */
+        .neu-checkbox-group {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .neu-remember-wrapper {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .neu-remember-wrapper input[type="checkbox"] {
+            display: none;
+        }
+
+        .neu-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+            color: #6c7293;
+            font-size: 14px;
+            font-weight: 500;
+            position: static;
+            transform: none;
+            background: none;
+            padding: 15px;
+            background: rgba(224, 229, 236, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .neu-checkbox-label:hover {
+            background: rgba(224, 229, 236, 0.5);
+        }
+
+        .neu-checkbox {
+            width: 22px;
+            height: 22px;
+            background: #e0e5ec;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                3px 3px 8px #bec3cf,
+                -3px -3px 8px #ffffff;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-width: 22px;
+        }
+
+        .neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox {
+            box-shadow: 
+                inset 2px 2px 5px #bec3cf,
+                inset -2px -2px 5px #ffffff;
+        }
+
+        .neu-checkbox svg {
+            width: 14px;
+            height: 14px;
+            color: #00c896;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+
+        .neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Neumorphic Button */
+        .neu-button {
+            width: 100%;
+            background: #e0e5ec;
+            border: none;
+            border-radius: 15px;
+            padding: 18px 32px;
+            color: #3d4468;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            margin: 20px 0;
+            box-shadow: 
+                8px 8px 20px #bec3cf,
+                -8px -8px 20px #ffffff;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .neu-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .neu-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                12px 12px 30px #bec3cf,
+                -12px -12px 30px #ffffff;
+        }
+
+        .neu-button:hover::before {
+            left: 100%;
+        }
+
+        .neu-button:active {
+            transform: translateY(0);
+            box-shadow: 
+                inset 4px 4px 10px #bec3cf,
+                inset -4px -4px 10px #ffffff;
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .neu-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #bec3cf;
+            border-top: 3px solid #6c7293;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .neu-button.loading .btn-text {
+            opacity: 0;
+        }
+
+        .neu-button.loading .btn-loader {
+            opacity: 1;
+        }
+
+        .neu-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Signup/Login Links */
+        .neu-signup-link {
+            text-align: center;
+            margin: 25px 0;
+            font-size: 14px;
+            color: #6c7293;
+        }
+
+        .neu-signup-link a {
+            color: #3d4468;
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .neu-signup-link a:hover {
+            border-bottom: 1px solid #3d4468;
+            color: #6c7293;
+        }
+
+        /* Error Messages */
+        .neu-error-message {
+            background: linear-gradient(135deg, rgba(255, 59, 92, 0.1), rgba(255, 59, 92, 0.05));
+            color: #ff3b5c;
+            padding: 12px 16px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #ff3b5c;
+            font-weight: 500;
+            box-shadow: 
+                inset 2px 2px 5px rgba(255, 59, 92, 0.1),
+                inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+        }
+
+        .neu-form-group.error .neu-input {
+            box-shadow: 
+                inset 8px 8px 16px #ffb8c4,
+                inset -8px -8px 16px #ffffff,
+                0 0 0 2px #ff3b5c;
+            animation: gentleShake 0.5s ease-in-out;
+        }
+
+        @keyframes gentleShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        /* Hide original form styling */
+        .login-form {
+            display: none;
+        }
+
+        /* Hide Symfony default form styling */
+        .neu-form > div:not(.neu-form-group):not(.neu-checkbox-group) {
+            display: none;
+        }
+
+        /* Form validation styling */
+        .neu-form .invalid-feedback {
+            color: #ff3b5c;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 8px;
+            margin-left: 20px;
+        }
+
+        /* Custom scrollbar for form container */
+        .neu-form-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .neu-form-container::-webkit-scrollbar-track {
+            background: rgba(224, 229, 236, 0.1);
+            border-radius: 3px;
+        }
+
+        .neu-form-container::-webkit-scrollbar-thumb {
+            background: #bec3cf;
+            border-radius: 3px;
+        }
+
+        .neu-form-container::-webkit-scrollbar-thumb:hover {
+            background: #9499b7;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .neu-form-container {
+                width: 100%;
+                max-width: 450px;
+                padding: 40px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .neu-form-container {
+                padding: 35px 25px;
+                border-radius: 20px;
+                max-height: none;
+            }
+            
+            .neu-form-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .neu-input input,
+            .neu-input select {
+                padding: 18px 20px;
+                padding-left: 50px;
+            }
+            
+            .neu-input label {
+                left: 50px;
+            }
+            
+            .neu-checkbox-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .neu-form-container {
+                padding: 25px 20px;
+            }
+            
+            .neu-form-header h2 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="left-section">
         <div>
-            <!-- Nav removed: no nav at all -->
             <div class="hero">
                 <h1>Welcome to Shop Lab</h1>
                 <p>Wanna drop your own online store? Say less.</p>
@@ -36,46 +581,133 @@
         </div>
     </div>
     <div class="right-section">
-        <div class="login-form">
-            <h2>CREATE YOUR ACCOUNT</h2>
+        <div class="neu-form-container">
+            <div class="neu-form-header">
+                <div class="neu-icon">
+                    <div class="icon-inner">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <path d="M20 8v6"/>
+                            <path d="M23 11h-6"/>
+                        </svg>
+                    </div>
+                </div>
+                <h2>CREATE YOUR ACCOUNT</h2>
+                <p>Join us and start building</p>
+            </div>
+            
             {% for flash_error in app.flashes('verify_email_error') %}
-                <div class="error-message">{{ flash_error }}</div>
+                <div class="neu-error-message">{{ flash_error }}</div>
             {% endfor %}
             {% for flash_error in app.flashes('error') %}
-                <div class="error-message">{{ flash_error }}</div>
+                <div class="neu-error-message">{{ flash_error }}</div>
             {% endfor %}
             {% if form_errors(registrationForm) %}
-                <div class="error-message">{{ form_errors(registrationForm) }}</div>
+                <div class="neu-error-message">{{ form_errors(registrationForm) }}</div>
             {% endif %}
-            {{ form_start(registrationForm) }}
-                <div class="form-group">
-                    <label for="{{ registrationForm.email.vars.id }}">Email Address :</label>
-                    {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' '}}) }}
+            
+            {{ form_start(registrationForm, {'attr': {'class': 'neu-form', 'novalidate': 'novalidate'}}) }}
+                <div class="neu-form-group">
+                    <div class="neu-input">
+                        {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' ', 'id': 'email'}}) }}
+                        <label for="email">Email Address</label>
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </div>
+                    </div>
+                    {{ form_errors(registrationForm.email) }}
                 </div>
-                <div class="form-group">
-                    <label for="{{ registrationForm.nom.vars.id }}">Full Name :</label>
-                    {{ form_widget(registrationForm.nom, {'attr': {'placeholder': ' '}}) }}
+
+                <div class="neu-form-group">
+                    <div class="neu-input">
+                        {{ form_widget(registrationForm.nom, {'attr': {'placeholder': ' ', 'id': 'fullname'}}) }}
+                        <label for="fullname">Full Name</label>
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </div>
+                    </div>
                     {{ form_errors(registrationForm.nom) }}
                 </div>
-                <div class="form-group">
-                    <label for="{{ registrationForm.devise.vars.id }}">Currency :</label>
-                    {{ form_widget(registrationForm.devise, {'attr': {'placeholder': 'e.g., USD'}}) }}
+
+                <div class="neu-form-group">
+                    <div class="neu-input">
+                        {{ form_widget(registrationForm.devise, {'attr': {'placeholder': ' ', 'id': 'currency'}}) }}
+                        <label for="currency">Currency</label>
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6m11-6h-6m-6 0H1"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="{{ registrationForm.pays.vars.id }}">Country :</label>
-                    {{ form_widget(registrationForm.pays, {'attr': {'placeholder': ' '}}) }}
+
+                <div class="neu-form-group">
+                    <div class="neu-input">
+                        {{ form_widget(registrationForm.pays, {'attr': {'placeholder': ' ', 'id': 'country'}}) }}
+                        <label for="country">Country</label>
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="{{ registrationForm.plainPassword.vars.id }}">Password :</label>
-                    {{ form_widget(registrationForm.plainPassword, {'attr': {'placeholder': ' '}}) }}
+
+                <div class="neu-form-group">
+                    <div class="neu-input password-group">
+                        {{ form_widget(registrationForm.plainPassword, {'attr': {'placeholder': ' ', 'id': 'password', 'type': 'password'}}) }}
+                        <label for="password">Password</label>
+                        <div class="input-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0110 0v4"/>
+                            </svg>
+                        </div>
+                        <button type="button" class="neu-toggle" id="passwordToggle" aria-label="Toggle password visibility">
+                            <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="checkbox-group">
-                    {{ form_widget(registrationForm.agreeTerms) }}
-                    {{ form_label(registrationForm.agreeTerms, 'I agree to the Terms and Conditions') }}
+
+                <div class="neu-checkbox-group">
+                    <div class="neu-remember-wrapper">
+                        {{ form_widget(registrationForm.agreeTerms, {'attr': {'id': 'agree-terms'}}) }}
+                        <label for="agree-terms" class="neu-checkbox-label">
+                            <div class="neu-checkbox">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                            I agree to the Terms and Conditions
+                        </label>
+                    </div>
                 </div>
-                <button type="submit" class="login-button" id="register-btn">REGISTER</button>
+
+                <button type="submit" class="neu-button" id="register-btn">
+                    <span class="btn-text">REGISTER</span>
+                    <div class="btn-loader">
+                        <div class="neu-spinner"></div>
+                    </div>
+                </button>
             {{ form_end(registrationForm) }}
-            <div class="signup-link">
+            
+            <div class="neu-signup-link">
                 Already have an account?<br>
                 <a href="{{ path('app_login') }}">Sign In now</a>
             </div>
@@ -83,19 +715,96 @@
     </div>
 {% endblock %}
 
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
-
 {% block javascripts %}
     {{ parent() }}
     <script>
-      const btn = document.getElementById('register-btn');
-      if (btn) {
-        btn.addEventListener('click', function() {
-          this.disabled = true;
-          this.form.submit();
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordToggle = document.getElementById('passwordToggle');
+            const passwordInput = document.getElementById('password');
+            const registerButton = document.getElementById('register-btn');
+            const form = document.querySelector('.neu-form');
+
+            // Password toggle functionality
+            if (passwordToggle && passwordInput) {
+                passwordToggle.addEventListener('click', function() {
+                    const type = passwordInput.type === 'password' ? 'text' : 'password';
+                    passwordInput.type = type;
+                    this.classList.toggle('show-password', type === 'text');
+                    
+                    // Soft press animation
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            }
+
+            // Soft press effects for inputs
+            const inputs = document.querySelectorAll('.neu-input input, .neu-input select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    const inputGroup = this.closest('.neu-input');
+                    inputGroup.style.transform = 'scale(0.98)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    const inputGroup = this.closest('.neu-input');
+                    inputGroup.style.transform = 'scale(1)';
+                });
+            });
+
+            // Register button functionality
+            if (registerButton) {
+                registerButton.addEventListener('click', function(e) {
+                    this.style.transform = 'scale(0.98)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                    
+                    this.disabled = true;
+                    this.classList.add('loading');
+                });
+            }
+
+            // Checkbox animation
+            const checkboxes = document.querySelectorAll('.neu-remember-wrapper input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const checkboxDiv = this.nextElementSibling.querySelector('.neu-checkbox');
+                    if (checkboxDiv) {
+                        checkboxDiv.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            checkboxDiv.style.transform = 'scale(1)';
+                        }, 150);
+                    }
+                });
+            });
+
+            // Ambient light effect on mouse move
+            const card = document.querySelector('.neu-form-container');
+            if (card) {
+                document.addEventListener('mousemove', function(e) {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                        const centerX = rect.width / 2;
+                        const centerY = rect.height / 2;
+                        
+                        const angleX = (x - centerX) / centerX;
+                        const angleY = (y - centerY) / centerY;
+                        
+                        const shadowX = angleX * 10;
+                        const shadowY = angleY * 10;
+                        
+                        card.style.boxShadow = `
+                            ${20 + shadowX}px ${20 + shadowY}px 60px #bec3cf,
+                            ${-20 - shadowX}px ${-20 - shadowY}px 60px #ffffff
+                        `;
+                    }
+                });
+            }
         });
-      }
     </script>
 {% endblock %}
