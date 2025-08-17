@@ -11,30 +11,8 @@
     <link rel="stylesheet" href="{{ asset('css/Rstyles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/niche.css') }}">
     {% endblock %}
-    
-    <style>
-        /* Fixed background container */
-        .vanta-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 1730px;
-            height: 900px;
-            z-index: -1;
-            pointer-events: none;
-        }
-        
-        /* Ensure content scrolls over the background */
-        body {
-            position: relative;
-            z-index: 1;
-        }
-    </style>
 </head>
 <body>
-    <!-- Fixed Vanta Background Container -->
-    <div class="vanta-background" id="vantaBackground"></div>
-
     <header class="header_section">
       <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -62,19 +40,19 @@
             if (!window.VANTA) return;
             if (vantaInstance) return;
             vantaInstance = window.VANTA.FOG({
-                el: '#vantaBackground',
+                el: 'body',
                 mouseControls: true,
                 touchControls: true,
                 gyroControls: false,
-                minHeight: 642,
-                minWidth: 941,
+                minHeight: 200.00,
+                minWidth: 200.00,
                 highlightColor: 0x212f60,
                 midtoneColor: 0x241717,
                 lowlightColor: 0x2daad1,
                 baseColor: 0xbfc5d1,
                 blurFactor: 0.59,
                 speed: 2.00,
-                zoom: 1.00
+                zoom: 0.80
             });
         }
         if (document.readyState === 'complete') initVanta();
