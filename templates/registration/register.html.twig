@@ -255,7 +255,12 @@
         }
 
         .neu-remember-wrapper input[type="checkbox"] {
-            display: none;
+            position: absolute;
+            opacity: 0;
+            pointer-events: auto;
+            width: 22px;
+            height: 22px;
+            margin: 0;
         }
 
         .neu-checkbox-label {
@@ -315,6 +320,22 @@
         .neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox svg {
             opacity: 1;
             transform: scale(1);
+        }
+        
+        /* Make checkbox more visible when checked */
+        .neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox {
+            background: #00c896;
+            box-shadow: 
+                inset 2px 2px 5px #009973,
+                inset -2px -2px 5px #00d9a9;
+        }
+
+        /* Validation styling for checkbox */
+        .neu-remember-wrapper input[type="checkbox"]:invalid + .neu-checkbox-label .neu-checkbox {
+            box-shadow: 
+                3px 3px 8px #ffb8c4,
+                -3px -3px 8px #ffffff,
+                0 0 0 2px #ff3b5c;
         }
 
         /* Neumorphic Button */
@@ -607,7 +628,7 @@
                 <div class="neu-error-message">{{ form_errors(registrationForm) }}</div>
             {% endif %}
             
-            {{ form_start(registrationForm, {'attr': {'class': 'neu-form', 'novalidate': 'novalidate'}}) }}
+            {{ form_start(registrationForm, {'attr': {'class': 'neu-form'}}) }}
                 <div class="neu-form-group">
                     <div class="neu-input">
                         {{ form_widget(registrationForm.email, {'attr': {'placeholder': ' ', 'id': 'email'}}) }}
@@ -756,26 +777,105 @@
             // Register button functionality
             if (registerButton) {
                 registerButton.addEventListener('click', function(e) {
+                    console.log('Register button clicked');
                     this.style.transform = 'scale(0.98)';
                     setTimeout(() => {
                         this.style.transform = 'scale(1)';
                     }, 150);
                     
-                    this.disabled = true;
-                    this.classList.add('loading');
+                    // Don't disable the button - let the form submit naturally
+                    // The loading state will be handled by the form submission
                 });
             }
 
-            // Checkbox animation
+            // Form submission debugging
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    console.log('Form submitted');
+                    
+                    // Log form data for debugging
+                    const email = document.getElementById('email').value;
+                    const fullname = document.getElementById('fullname').value;
+                    const currency = document.getElementById('currency').value;
+                    const country = document.getElementById('country').value;
+                    const password = document.getElementById('password').value;
+                    const agreeTerms = document.getElementById('agree-terms');
+                    
+                    console.log('Email:', email);
+                    console.log('Full Name:', fullname);
+                    console.log('Currency:', currency);
+                    console.log('Country:', country);
+                    console.log('Password length:', password.length);
+                    console.log('Agree Terms element:', agreeTerms);
+                    console.log('Agree Terms checked:', agreeTerms ? agreeTerms.checked : 'element not found');
+                    
+                    // Check if checkbox is checked
+                    if (!agreeTerms || !agreeTerms.checked) {
+                        console.log('Checkbox not checked, preventing submission');
+                        e.preventDefault();
+                        alert('Please agree to the Terms and Conditions');
+                        return false;
+                    }
+                    
+                    // Allow the form to submit - let Symfony handle validation
+                    console.log('Allowing form submission');
+                });
+            }
+
+            // Checkbox animation and validation
             const checkboxes = document.querySelectorAll('.neu-remember-wrapper input[type="checkbox"]');
             checkboxes.forEach(checkbox => {
+                console.log('Found checkbox:', checkbox);
+                // Initialize checkbox state
+                updateCheckboxVisual(checkbox);
+                
                 checkbox.addEventListener('change', function() {
-                    const checkboxDiv = this.nextElementSibling.querySelector('.neu-checkbox');
-                    if (checkboxDiv) {
+                    console.log('Checkbox changed, checked:', this.checked);
+                    updateCheckboxVisual(this);
+                    
+                    // Remove validation styling when checked
+                    if (this.checked) {
+                        this.classList.remove('invalid');
+                    } else {
+                        this.classList.add('invalid');
+                    }
+                });
+                
+                checkbox.addEventListener('click', function(e) {
+                    console.log('Checkbox clicked directly, checked:', this.checked);
+                });
+                
+                // Add validation styling on form submission if not checked
+                checkbox.addEventListener('invalid', function() {
+                    this.classList.add('invalid');
+                });
+            });
+            
+            // Function to update checkbox visual state
+            function updateCheckboxVisual(checkbox) {
+                const checkboxDiv = checkbox.nextElementSibling.querySelector('.neu-checkbox');
+                if (checkboxDiv) {
+                    if (checkbox.checked) {
                         checkboxDiv.style.transform = 'scale(0.9)';
                         setTimeout(() => {
                             checkboxDiv.style.transform = 'scale(1)';
                         }, 150);
+                    }
+                }
+            }
+            
+            // Add click handler to checkbox labels
+            const checkboxLabels = document.querySelectorAll('.neu-checkbox-label');
+            checkboxLabels.forEach(label => {
+                label.addEventListener('click', function(e) {
+                    console.log('Label clicked');
+                    const checkbox = this.previousElementSibling;
+                    console.log('Checkbox element:', checkbox);
+                    if (checkbox && checkbox.type === 'checkbox') {
+                        console.log('Before toggle - checked:', checkbox.checked);
+                        checkbox.checked = !checkbox.checked;
+                        console.log('After toggle - checked:', checkbox.checked);
+                        checkbox.dispatchEvent(new Event('change'));
                     }
                 });
             });

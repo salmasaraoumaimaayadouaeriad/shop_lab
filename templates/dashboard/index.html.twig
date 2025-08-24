@@ -13,7 +13,7 @@
             --gradient-primary: linear-gradient(135deg,rgb(124, 230, 254) 0%,rgb(35, 33, 34) 100%);
             --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
             --shadow-primary: 0 25px 50px -12px rgba(139, 92, 246, 0.25);
-            --shadow-hover: 0 35px 60px -12px rgba(139, 92, 246, 0.4);
+            --shadow-hover: 0 35px 60px -12px rgba(10, 25, 125, 0.4);
             --sidebar-width: 400px;
         }
 
@@ -24,11 +24,15 @@
         }
 
         body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%);
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #e0e7ff 100%) !important;
             overflow-x: hidden;
             position: relative;
             min-height: 100vh;
+            margin: 0;
         }
 
         /* Magical Navigation Bar */
@@ -59,7 +63,7 @@
         .magical-logo {
             font-size: 2rem;
             font-weight: 900;
-            background: linear-gradient(45deg, #8b5cf6, #06b6d4, #ec4899, #f59e0b);
+            background: linear-gradient(45deg, #53699fff, #06b6d4, #ec4899, #f59e0b);
             background-size: 400% 400%;
             -webkit-background-clip: text;
             background-clip: text;
@@ -116,7 +120,7 @@
         }
 
         .nav-link:hover {
-            color: #8b5cf6;
+            color: #53699fff;
             background: rgba(139, 92, 246, 0.1);
             transform: translateY(-2px);
         }
@@ -141,7 +145,7 @@
         }
 
         .dropdown-toggle:hover {
-            color: #8b5cf6;
+            color: #53699fff;
             background: rgba(139, 92, 246, 0.1);
             transform: translateY(-2px);
         }
@@ -183,7 +187,7 @@
 
         .dropdown-item:hover {
             background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
+            color: #53699fff;
             transform: translateX(5px);
         }
 
@@ -298,7 +302,7 @@
 
         .mobile-nav-links a:hover {
             background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
+            color: #53699fff;
         }
 
         /* Animations */
@@ -424,7 +428,7 @@
         }
 
         .tab-button.active {
-            color: #8b5cf6;
+            color: #53699fff;
             background: rgba(139, 92, 246, 0.1);
         }
 
@@ -532,7 +536,7 @@
 
         .btn-edit:hover {
             transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 5px 15px rgba(61, 84, 211, 0.4);
         }
 
         .btn-view {
@@ -613,7 +617,7 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #8b5cf6;
+            border-color: #53699fff;
             box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
         }
 
@@ -639,7 +643,7 @@
         }
 
         .color-option.selected {
-            border-color: #8b5cf6;
+            border-color: #53699fff;
             transform: scale(1.1);
         }
 
@@ -698,7 +702,7 @@
         .floating-element:nth-child(1) {
             width: 300px;
             height: 300px;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            background: linear-gradient(135deg, #53699fff, #ec4899);
             top: 10%;
             left: 10%;
             animation-delay: 0s;
@@ -766,7 +770,7 @@
             position: fixed;
             width: 20px;
             height: 20px;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            background: linear-gradient(135deg, #53699fff, #ec4899);
             border-radius: 50%;
             filter: blur(5px);
             opacity: 0.3;
@@ -945,7 +949,7 @@
         .btn-outline-gradient {
             background: transparent;
             border: 2px solid #5c80f6ff;
-            color: #8b5cf6;
+            color: #53699fff;
             padding: 1rem 2rem;
             border-radius: 50px;
             font-weight: 600;
@@ -1053,7 +1057,7 @@
         }
 
         .niche-card:hover .niche-title {
-            color: #8b5cf6;
+            color: #53699fff;
         }
 
         /* Template Showcase Sections */
@@ -1299,6 +1303,7 @@
                 padding: 2rem;
             }
         }
+        
     </style>
 {% endblock %}
 
@@ -1322,15 +1327,15 @@
                     </button>
                     <div class="dropdown-menu">
                         <a href="{{ path('app_niche', {'slug': 'fashion-cosmetics'}) }}" class="dropdown-item">
-                            <span class="dropdown-icon">👗</span>
+                            <span class="dropdown-icon"></span>
                             <span>Fashion & Cosmetics</span>
                         </a>
                         <a href="{{ path('app_niche', {'slug': 'electronics-equipment'}) }}" class="dropdown-item">
-                            <span class="dropdown-icon">📱</span>
+                            <span class="dropdown-icon"></span>
                             <span>Electronics & Equipment</span>
                         </a>
                         <a href="{{ path('app_niche', {'slug': 'home-living'}) }}" class="dropdown-item">
-                            <span class="dropdown-icon">🏠</span>
+                            <span class="dropdown-icon"></span>
                             <span>Home & Living</span>
                         </a>
                     </div>
@@ -1476,10 +1481,10 @@
             <div class="fade-in-up">
                 <h1 class="hero-title">
                     Welcome to<br>
-                    <span style="position: relative;">
+>
                         Shop Lab
                         <span style="position: absolute; top: -20px; right: -20px; font-size: 2rem;">✨</span>
-                    </span>
+                    
                 </h1>
             </div>
 
@@ -1527,7 +1532,7 @@
                             Fast. Flexible. Built for creators, side-hustlers, and future CEOs.
                         </p>
                         <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gradient-primary); color: white; padding: 1rem 1.5rem; border-radius: 50px; font-weight: 700;">
-                            ⚡ Your business era starts right now. Let's get it.
+                              Your business era starts right now. Let's get it.
                         </div>
                     </div>
                 </div>
@@ -1542,7 +1547,7 @@
                     </a>
                     <a href="#niche-section" class="btn-outline-gradient" onclick="scrollToSection(event, 'niche-section')">
                         View Templates
-                        <span>🌐</span>
+                        <span></span>
                     </a>
                 </div>
             </div>
@@ -1559,7 +1564,7 @@
 
             <div class="niche-grid">
                 <div class="niche-card" onclick="window.location.href='{{ path('app_niche', {'slug': 'fashion-cosmetics'}) }}'">
-                    <span class="niche-icon">👗</span>
+                    <span class="niche-icon"></span>
                     <h3 class="niche-title">Fashion & Cosmetics</h3>
                         <div class="btn-outline-gradient" style="display: inline-flex; padding: 0.75rem 1.5rem;">
                             Explore Templates
@@ -1568,7 +1573,7 @@
                     </div>
                 
                 <div class="niche-card" onclick="window.location.href='{{ path('app_niche', {'slug': 'electronics-equipment'}) }}'">
-                    <span class="niche-icon">📱</span>
+                    <span class="niche-icon"></span>
                     <h3 class="niche-title">Electronics & Equipment</h3>
                     <div class="btn-outline-gradient" style="display: inline-flex; padding: 0.75rem 1.5rem;">
                         Explore Templates
@@ -1577,7 +1582,7 @@
                 </div>
                 
                 <div class="niche-card" onclick="window.location.href='{{ path('app_niche', {'slug': 'home-living'}) }}'">
-                    <span class="niche-icon">🏠</span>
+                    <span class="niche-icon"></span>
                     <h3 class="niche-title">Home & Living</h3>
                     <div class="btn-outline-gradient" style="display: inline-flex; padding: 0.75rem 1.5rem;">
                         Explore Templates
@@ -1594,11 +1599,10 @@
             <h2 class="section-title">Fashion & Cosmetics</h2>
                 <div class="template-grid">
                         <div class="template-card">
-                    <img src="https://images.pexels.com/photos/1884581/pexels-photo-1884581.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                                 class="template-card-img" 
-                         alt="Fashion Template">
+                    <img src="{{ asset('images/boutique.jpg') }}" alt="Trendy boutique"> 
+                                 
                             <div class="template-card-body">
-                        <h5 class="template-card-title">Elegant Fashion Store</h5>
+                        <h5 class="template-card-title">Trendy boutique</h5>
                         <a href="{{ path('app_niche', {'slug': 'fashion-cosmetics'}) }}" 
                                    class="template-preview-btn">
                                     Preview Template
@@ -1608,11 +1612,10 @@
                         </div>
                 
                             <div class="template-card">
-                    <img src="https://images.pexels.com/photos/2113994/pexels-photo-2113994.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                                     class="template-card-img" 
-                         alt="Cosmetics Template">
+                    <img src="{{ asset('images/cosmetics.jpg') }}" alt="Beauty store"> 
+                                    
                                 <div class="template-card-body">
-                        <h5 class="template-card-title">Beauty Essentials</h5>
+                        <h5 class="template-card-title">Beauty Store</h5>
                         <a href="{{ path('app_niche', {'slug': 'fashion-cosmetics'}) }}" 
                                        class="template-preview-btn">
                                         Preview Template
@@ -1622,9 +1625,7 @@
                             </div>
                 
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Streetwear Template">
+                    <img src="{{ asset('images/urban.jpg') }}" alt="Urban Streetwear">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Urban Streetwear</h5>
                         <a href="{{ path('app_niche', {'slug': 'fashion-cosmetics'}) }}" 
@@ -1643,9 +1644,7 @@
             <h2 class="section-title">Electronics & Equipment</h2>
             <div class="template-grid">
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Tech Store Template">
+                    <img src="{{ asset('images/techhub.jpg') }}" alt="Tech Hub Store">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Tech Hub Store</h5>
                         <a href="{{ path('app_niche', {'slug': 'electronics-equipment'}) }}" 
@@ -1657,9 +1656,7 @@
                 </div>
                 
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/325153/pexels-photo-325153.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Gaming Template">
+                    <img src="{{ asset('images/gaminggear.jpg') }}" alt="Gaming Gear">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Gaming Gear</h5>
                         <a href="{{ path('app_niche', {'slug': 'electronics-equipment'}) }}" 
@@ -1671,9 +1668,7 @@
                 </div>
                 
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/442150/pexels-photo-442150.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Audio Template">
+                    <img src="{{ asset('images/audioequi.jpg') }}" alt="Audio Equipment">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Audio Equipment</h5>
                         <a href="{{ path('app_niche', {'slug': 'electronics-equipment'}) }}" 
@@ -1692,9 +1687,7 @@
             <h2 class="section-title">Home & Living</h2>
             <div class="template-grid">
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Home Decor Template">
+                    <img src="{{ asset('images/homedeco.jpg') }}" alt="Moder Home Decor">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Modern Home Decor</h5>
                         <a href="{{ path('app_niche', {'slug': 'home-living'}) }}" 
@@ -1706,9 +1699,7 @@
                 </div>
                 
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/1350789/pexels-photo-1350789.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Kitchen Template">
+                    <img src="{{ asset('images/kitchen.jpg') }}" alt="kitchen Essentials">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Kitchen Essentials</h5>
                         <a href="{{ path('app_niche', {'slug': 'home-living'}) }}" 
@@ -1720,9 +1711,7 @@
                 </div>
                 
                 <div class="template-card">
-                    <img src="https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=300&h=200&fit=crop" 
-                         class="template-card-img" 
-                         alt="Garden Template">
+                    <img src="{{ asset('images/garden.jpg') }}" alt="Garden & Outdoor">
                     <div class="template-card-body">
                         <h5 class="template-card-title">Garden & Outdoor</h5>
                         <a href="{{ path('app_niche', {'slug': 'home-living'}) }}" 
@@ -1794,10 +1783,164 @@
                 </div>
             </div>
         </div>
+        
     </section>
 </div>
+        <!-- Remove the container if you want to extend the Footer to full width. -->
 
+  <!-- Footer -->
+  <footer
+          class="text-center text-lg-start text-white"
+          style="background: var(--gradient-primary);"
+          >
+    <!-- Section: Social media -->
+    <section
+             class="d-flex justify-content-between p-4"
+             style="background-color: #0000006b"
+             >
+      <!-- Left -->
+      <div class="me-5">
+  <span>Get connected with us on social networks:</span>
+    </div>
 
+    <style>
+    .me-5 {
+        color: white ;
+        font-weight: bold;
+    }
+    </style>
+      <!-- Left -->
+
+      <!-- Right -->
+      <div>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-twitter"></i>
+        </a>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-google"></i>
+        </a>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-instagram"></i>
+        </a>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-linkedin"></i>
+        </a>
+        <a href="" class="text-white me-4">
+          <i class="fab fa-github"></i>
+        </a>
+      </div>
+      <!-- Right -->
+    </section>
+    <!-- Section: Social media -->
+
+    <!-- Section: Links  -->
+    <section class="">
+      <div class="container text-center text-md-start mt-5">
+        <!-- Grid row -->
+        <div class="row mt-3">
+          <!-- Grid column -->
+          <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+            <!-- Content -->
+            <h6 class="text-uppercase fw-bold">SHOPLAB</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p>
+              Your destination for trendy, affordable, and stylish websites.  
+  We bring you the latest models at the best prices.
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Products</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p>
+              <a href="#!" class="text-white">fashion&cosmetics</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">electronics&equipment</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">Home&living</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">Bootstrap Angular</a>
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Useful links</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p>
+              <a href="#!" class="text-white">Your Account</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">Privacy Policy</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">Terms & Conditions</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">Help center</a>
+            </p>
+            <p>
+              <a href="#!" class="text-white">subscription</a>
+            </p>
+          </div>
+          <!-- Grid column -->
+
+          <!-- Grid column -->
+          <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+            <!-- Links -->
+            <h6 class="text-uppercase fw-bold">Contact</h6>
+            <hr
+                class="mb-4 mt-0 d-inline-block mx-auto"
+                style="width: 60px; background-color: #7c4dff; height: 2px"
+                />
+            <p><i class="fas fa-home mr-3"></i> Kenitra , Haouzia bloc m n 5 , Maroc</p>
+            <p><i class="fas fa-envelope mr-3"></i> shoplabcenter@gmail.com</p>
+            <p><i class="fas fa-phone mr-3"></i> + 01 234 567 88</p>
+            <p><i class="fas fa-print mr-3"></i> + 01 234 567 89</p>
+          </div>
+          <!-- Grid column -->
+        </div>
+        <!-- Grid row -->
+      </div>
+    </section>
+    <!-- Section: Links  -->
+
+    <!-- Copyright -->
+    <div
+         class="text-center p-3"
+         style="background-color: rgba(0, 0, 0, 0.2)"
+         >
+      © © 2025 MyFashionShop. All rights reserved.
+      <a class="text-white" href="none"
+         >shoplab.com</a
+        >
+    </div>
+    <!-- Copyright -->
+  </footer>
+  <!-- Footer -->
+
+</div>
+<!-- End of .container -->
 {% endblock %}
 
 {% block javascripts %}

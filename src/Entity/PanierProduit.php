@@ -13,7 +13,7 @@ class PanierProduit
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'panierProduits')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Panier $panier = null;
 

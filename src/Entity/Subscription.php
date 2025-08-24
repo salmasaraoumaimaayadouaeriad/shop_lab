@@ -14,7 +14,7 @@ class Subscription
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Commercant::class)]
+    #[ORM\ManyToOne(targetEntity: Commercant::class, inversedBy: 'subscriptions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Commercant $commercant = null;
 

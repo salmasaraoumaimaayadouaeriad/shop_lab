@@ -1,0 +1,606 @@
+/* Neumorphic Form Styles - Integration with existing design */
+
+/* Reset default form styles */
+.neu-form-container {
+    width: 450px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: #e0e5ec;
+    border-radius: 30px;
+    padding: 50px 40px;
+    box-shadow: 
+        20px 20px 60px #bec3cf,
+        -20px -20px 60px #ffffff;
+    position: relative;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.neu-form-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 
+        25px 25px 70px #bec3cf,
+        -25px -25px 70px #ffffff;
+}
+
+/* Form Header */
+.neu-form-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.neu-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    background: #e0e5ec;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        8px 8px 20px #bec3cf,
+        -8px -8px 20px #ffffff;
+    transition: all 0.3s ease;
+}
+
+.neu-icon:hover {
+    box-shadow: 
+        4px 4px 10px #bec3cf,
+        -4px -4px 10px #ffffff,
+        inset 4px 4px 10px #bec3cf,
+        inset -4px -4px 10px #ffffff;
+}
+
+.icon-inner {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c7293;
+}
+
+.icon-inner svg {
+    width: 100%;
+    height: 100%;
+}
+
+.neu-form-header h2 {
+    color: #3d4468;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.neu-form-header p {
+    color: #9499b7;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+/* Form Groups */
+.neu-form-group {
+    margin-bottom: 28px;
+    position: relative;
+}
+
+/* Neumorphic Inputs */
+.neu-input {
+    position: relative;
+    background: #e0e5ec;
+    border-radius: 15px;
+    box-shadow: 
+        inset 8px 8px 16px #bec3cf,
+        inset -8px -8px 16px #ffffff;
+    transition: all 0.3s ease;
+}
+
+.neu-input:focus-within {
+    box-shadow: 
+        inset 4px 4px 8px #bec3cf,
+        inset -4px -4px 8px #ffffff;
+    transform: scale(0.98);
+}
+
+.neu-input input,
+.neu-input select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 20px 24px;
+    padding-left: 55px;
+    color: #3d4468;
+    font-size: 16px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.3s ease;
+    font-family: 'Manrope', sans-serif;
+}
+
+.neu-input input::placeholder,
+.neu-input select::placeholder {
+    color: transparent;
+}
+
+.neu-input label {
+    position: absolute;
+    left: 55px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9499b7;
+    font-size: 16px;
+    font-weight: 400;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    background: transparent;
+    padding: 0;
+}
+
+.neu-input input:focus + label,
+.neu-input input:not(:placeholder-shown) + label,
+.neu-input select:focus + label,
+.neu-input select:not([value=""]) + label {
+    top: 8px;
+    font-size: 12px;
+    color: #6c7293;
+    transform: translateY(0);
+    background: #e0e5ec;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #9499b7;
+    transition: all 0.3s ease;
+}
+
+.input-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.neu-input:focus-within .input-icon {
+    color: #6c7293;
+}
+
+/* Password Toggle */
+.password-group {
+    padding-right: 50px;
+}
+
+.neu-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #e0e5ec;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9499b7;
+    box-shadow: 
+        4px 4px 10px #bec3cf,
+        -4px -4px 10px #ffffff;
+    transition: all 0.3s ease;
+}
+
+.neu-toggle:hover {
+    color: #6c7293;
+}
+
+.neu-toggle:active {
+    box-shadow: 
+        inset 2px 2px 5px #bec3cf,
+        inset -2px -2px 5px #ffffff;
+}
+
+.neu-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.eye-closed {
+    display: none;
+}
+
+.neu-toggle.show-password .eye-open {
+    display: none;
+}
+
+.neu-toggle.show-password .eye-closed {
+    display: block;
+}
+
+/* Checkbox Styling */
+.neu-checkbox-group {
+    display: flex;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.neu-remember-wrapper {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.neu-remember-wrapper input[type="checkbox"] {
+    display: none;
+}
+
+.neu-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+    color: #6c7293;
+    font-size: 14px;
+    font-weight: 500;
+    position: static;
+    transform: none;
+    background: none;
+    padding: 15px;
+    background: rgba(224, 229, 236, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.neu-checkbox-label:hover {
+    background: rgba(224, 229, 236, 0.5);
+}
+
+.neu-checkbox {
+    width: 22px;
+    height: 22px;
+    background: #e0e5ec;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 
+        3px 3px 8px #bec3cf,
+        -3px -3px 8px #ffffff;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-width: 22px;
+}
+
+.neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox {
+    box-shadow: 
+        inset 2px 2px 5px #bec3cf,
+        inset -2px -2px 5px #ffffff;
+}
+
+.neu-checkbox svg {
+    width: 14px;
+    height: 14px;
+    color: #00c896;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s ease;
+}
+
+.neu-remember-wrapper input[type="checkbox"]:checked + .neu-checkbox-label .neu-checkbox svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Neumorphic Button */
+.neu-button {
+    width: 100%;
+    background: #e0e5ec;
+    border: none;
+    border-radius: 15px;
+    padding: 18px 32px;
+    color: #3d4468;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    margin: 20px 0;
+    box-shadow: 
+        8px 8px 20px #bec3cf,
+        -8px -8px 20px #ffffff;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Manrope', sans-serif;
+}
+
+.neu-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+}
+
+.neu-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        12px 12px 30px #bec3cf,
+        -12px -12px 30px #ffffff;
+}
+
+.neu-button:hover::before {
+    left: 100%;
+}
+
+.neu-button:active {
+    transform: translateY(0);
+    box-shadow: 
+        inset 4px 4px 10px #bec3cf,
+        inset -4px -4px 10px #ffffff;
+}
+
+.btn-text {
+    position: relative;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.btn-loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.neu-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #bec3cf;
+    border-top: 3px solid #6c7293;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.neu-button.loading .btn-text {
+    opacity: 0;
+}
+
+.neu-button.loading .btn-loader {
+    opacity: 1;
+}
+
+.neu-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Signup/Login Links */
+.neu-signup-link {
+    text-align: center;
+    margin: 25px 0;
+    font-size: 14px;
+    color: #6c7293;
+}
+
+.neu-signup-link a {
+    color: #3d4468;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 1px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.neu-signup-link a:hover {
+    border-bottom: 1px solid #3d4468;
+    color: #6c7293;
+}
+
+/* Error Messages */
+.neu-error-message {
+    background: linear-gradient(135deg, rgba(255, 59, 92, 0.1), rgba(255, 59, 92, 0.05));
+    color: #ff3b5c;
+    padding: 12px 16px;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-left: 4px solid #ff3b5c;
+    font-weight: 500;
+    box-shadow: 
+        inset 2px 2px 5px rgba(255, 59, 92, 0.1),
+        inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+}
+
+.neu-form-group.error .neu-input {
+    box-shadow: 
+        inset 8px 8px 16px #ffb8c4,
+        inset -8px -8px 16px #ffffff,
+        0 0 0 2px #ff3b5c;
+    animation: gentleShake 0.5s ease-in-out;
+}
+
+@keyframes gentleShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* Hide Symfony default form styling */
+.neu-form > div:not(.neu-form-group):not(.neu-checkbox-group) {
+    display: none;
+}
+
+.neu-form label:not(.neu-checkbox-label) {
+    /* Styling handled by .neu-input label */
+}
+
+/* Form validation styling */
+.neu-form .invalid-feedback {
+    color: #ff3b5c;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 8px;
+    margin-left: 20px;
+}
+
+/* Custom scrollbar for form container */
+.neu-form-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.neu-form-container::-webkit-scrollbar-track {
+    background: rgba(224, 229, 236, 0.1);
+    border-radius: 3px;
+}
+
+.neu-form-container::-webkit-scrollbar-thumb {
+    background: #bec3cf;
+    border-radius: 3px;
+}
+
+.neu-form-container::-webkit-scrollbar-thumb:hover {
+    background: #9499b7;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .neu-form-container {
+        width: 100%;
+        max-width: 450px;
+        padding: 40px 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .neu-form-container {
+        padding: 35px 25px;
+        border-radius: 20px;
+        max-height: none;
+    }
+    
+    .neu-form-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .neu-input input,
+    .neu-input select {
+        padding: 18px 20px;
+        padding-left: 50px;
+    }
+    
+    .neu-input label {
+        left: 50px;
+    }
+    
+    .neu-checkbox-group {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .neu-form-container {
+        padding: 25px 20px;
+    }
+    
+    .neu-form-header h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Override any conflicting styles */
+.right-section .neu-form-container {
+    background: #e0e5ec !important;
+    backdrop-filter: none !important;
+}
+
+/* Make sure contact info remains unchanged */
+.contact-info {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 25px !important;
+    max-width: 550px !important;
+    margin: 0 auto !important;
+    position: absolute !important;
+    bottom: 60px !important;
+    left: 60px !important;
+    right: 60px !important;
+}
+
+.contact-info div {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    font-size: 14px !important;
+    color: #666666 !important;
+    transition: all 0.3s ease !important;
+    padding: 5px !important;
+    border-radius: 8px !important;
+}
+
+.contact-info div:hover {
+    transform: translateY(-2px) !important;
+    color: #444444 !important;
+}
+
+.contact-info div::before {
+    content: '' !important;
+    width: 45px !important;
+    height: 45px !important;
+    background: linear-gradient(135deg, #ffffff, #f8f8f8) !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.contact-info div:hover::before {
+    transform: scale(1.1) !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15) !important;
+}
+
+.contact-info div:nth-child(1)::before {
+    content: '📞' !important;
+    font-size: 20px !important;
+}
+
+.contact-info div:nth-child(2)::before {
+    content: '🌐' !important;
+    font-size: 20px !important;
+}
+
+.contact-info div:nth-child(3)::before {
+    content: '✉️' !important;
+    font-size: 20px !important;
+}
+
+.contact-info div:nth-child(4)::before {
+    content: '📍' !important;
+    font-size: 20px !important;
+}

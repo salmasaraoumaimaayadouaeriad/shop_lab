@@ -31,11 +31,16 @@ class RegistrationController extends AbstractController
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
 
+
+
         if ($form->isSubmitted() && $form->isValid()) {
+            error_log('Form is valid, proceeding with registration');
+            
             // Check if email already exists
             $email = $form->get('email')->getData();
             $existingUser = $entityManager->getRepository(Utilisateur::class)->findOneBy(['email' => $email]);
             if ($existingUser) {
+                error_log('Email already exists: ' . $email);
                 $this->addFlash('error', 'This email is already used. Please use another one or log in.');
                 return $this->redirectToRoute('app_register');
             }
@@ -51,18 +56,28 @@ class RegistrationController extends AbstractController
             $user->setEmail($email);
 
             if (!$user->getEmail()) {
+                error_log('Email is null');
                 throw new \InvalidArgumentException('Email cannot be null');
             }
             if (!$user->getNom()) {
+                error_log('Name is null');
                 throw new \InvalidArgumentException('Name cannot be null');
             }
+
+            error_log('About to persist user with email: ' . $user->getEmail());
 
             // Encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             $user->setIsVerified(true);
 
-            $entityManager->persist($user);
-            $entityManager->flush();
+            try {
+                $entityManager->persist($user);
+                $entityManager->flush();
+                error_log('User persisted successfully with ID: ' . $user->getId());
+            } catch (\Throwable $e) {
+                error_log('Failed to persist user: ' . $e->getMessage());
+                throw $e;
+            }
 
             // Create and persist a Commercant for this user
             $commercant = new \App\Entity\Commercant();
