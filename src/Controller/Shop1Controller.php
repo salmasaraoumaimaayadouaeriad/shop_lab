@@ -811,6 +811,7 @@ class Shop1Controller extends AbstractController
         \App\Repository\BoutiqueRepository $boutiqueRepository,
         \App\Repository\ClientFinalRepository $clientFinalRepository,
         \App\Repository\PanierRepository $panierRepository,
+        \App\Repository\UtilisateurRepository $utilisateurRepository,
         string $slug
     ): Response {
         try {
@@ -819,10 +820,20 @@ class Shop1Controller extends AbstractController
                 return $this->json(['success' => false, 'message' => 'Boutique not found'], 404);
             }
             
-            // Get user from session
-            $user = $this->getUser();
+            // Get email from query parameters or session
+            $email = $request->query->get('email');
+            if (!$email) {
+                // Try to get from session if available
+                $email = $request->getSession()->get('user_email');
+            }
+            
+            if (!$email) {
+                return $this->json(['success' => false, 'message' => 'Email required to view cart history'], 400);
+            }
+            
+            $user = $utilisateurRepository->findOneBy(['email' => $email]);
             if (!$user) {
-                return $this->json(['success' => false, 'message' => 'User not authenticated'], 401);
+                return $this->json(['success' => false, 'message' => 'User not found'], 404);
             }
             
             // Check if client is registered with this boutique
@@ -837,14 +848,24 @@ class Shop1Controller extends AbstractController
                 'isHistory' => true
             ], ['completedAt' => 'DESC']);
             
+            // Debug: Log the number of cart history items found
+            error_log("Found " . count($cartHistory) . " cart history items for client ID: " . $clientFinal->getId());
+            
             $historyData = [];
             foreach ($cartHistory as $cart) {
                 $cartItems = [];
                 $total = 0;
                 
                 // Get products in this cart
-                foreach ($cart->getPanierProduits() as $panierProduit) {
+                $cartProducts = $cart->getPanierProduits();
+                error_log("Cart ID " . $cart->getId() . " has " . $cartProducts->count() . " products");
+                
+                foreach ($cartProducts as $panierProduit) {
                     $produit = $panierProduit->getProduit();
+                    if (!$produit) {
+                        error_log("Warning: PanierProduit ID " . $panierProduit->getId() . " has no associated product");
+                        continue;
+                    }
                     $cartItems[] = [
                         'id' => $produit->getId(),
                         'name' => $produit->getNom(),
@@ -864,9 +885,17 @@ class Shop1Controller extends AbstractController
                 ];
             }
             
+            error_log("Returning " . count($historyData) . " history items");
+            
             return $this->json([
                 'success' => true,
-                'history' => $historyData
+                'history' => $historyData,
+                'debug' => [
+                    'clientId' => $clientFinal->getId(),
+                    'boutiqueId' => $boutique->getId(),
+                    'userEmail' => $email,
+                    'totalCartsFound' => count($cartHistory)
+                ]
             ]);
             
         } catch (\Throwable $e) {

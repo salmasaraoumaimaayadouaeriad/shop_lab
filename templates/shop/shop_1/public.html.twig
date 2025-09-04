@@ -1174,10 +1174,40 @@
                 return;
             }
             
+            // Get user email from localStorage or prompt
+            let userEmail = localStorage.getItem('userEmail');
+            if (!userEmail) {
+                userEmail = prompt('Please enter your email to view order history:');
+                if (!userEmail) {
+                    cartHistoryModalBody.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--danger-color);"></i>
+                            <h5 style="color: var(--text-color);">Email Required</h5>
+                            <p style="color: var(--secondary-color);">Please provide your email to view order history.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                localStorage.setItem('userEmail', userEmail);
+            }
+            
             // Fetch cart history from database
-            fetch(`/shop/${slug}/cart/history`)
+            fetch(`/shop/${slug}/cart/history?email=${encodeURIComponent(userEmail)}`)
                 .then(res => res.json())
                 .then(result => {
+                    console.log('Cart history response:', result); // Debug log
+                    
+                    if (!result.success) {
+                        cartHistoryModalBody.innerHTML = `
+                            <div class="text-center py-5">
+                                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--danger-color);"></i>
+                                <h5 style="color: var(--text-color);">Error</h5>
+                                <p style="color: var(--secondary-color);">${result.message || 'Failed to load order history'}</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                    
                     if (result.success && result.history && result.history.length > 0) {
                         let historyHtml = '';
                         
@@ -1236,6 +1266,7 @@
                             <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: var(--danger-color);"></i>
                             <h5 style="color: var(--text-color);">Error Loading History</h5>
                             <p style="color: var(--secondary-color);">Could not load your order history. Please try again later.</p>
+                            <small class="text-muted">Error: ${error.message}</small>
                         </div>
                     `;
                 });
