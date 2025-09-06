@@ -6,6 +6,35 @@
 <div class="container-fluid">
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
         <h1 class="h3 mb-0 text-gray-800">Tableau de bord</h1>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="refreshCharts()">
+                <i class="fas fa-sync-alt"></i> Actualiser
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-outline-success btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-download"></i> Exporter
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" onclick="exportDashboard()">
+                        <i class="fas fa-chart-bar me-2"></i>Rapport Complet (JSON)
+                    </a></li>
+                    <li><a class="dropdown-item" href="#" onclick="exportChartsOnly()">
+                        <i class="fas fa-image me-2"></i>Graphiques (PNG)
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ path('admin_export_csv', {'type': 'boutiques'}) }}">
+                        <i class="fas fa-store me-2"></i>Boutiques (CSV)
+                    </a></li>
+                    <li><a class="dropdown-item" href="{{ path('admin_export_csv', {'type': 'users'}) }}">
+                        <i class="fas fa-users me-2"></i>Utilisateurs (CSV)
+                    </a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{{ path('admin_export_dashboard') }}">
+                        <i class="fas fa-file-alt me-2"></i>Rapport Serveur (JSON)
+                    </a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
@@ -20,6 +49,10 @@
                                 Boutiques Totales
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.boutiques.total }}</div>
+                            <div class="text-xs text-muted">
+                                <i class="fas fa-check-circle text-success me-1"></i>
+                                {{ stats.boutiques.active }} actives
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-store fa-2x text-gray-300"></i>
@@ -58,6 +91,10 @@
                                 Utilisateurs
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.users.total }}</div>
+                            <div class="text-xs text-muted">
+                                <i class="fas fa-user-check text-info me-1"></i>
+                                {{ stats.users.active }} vérifiés
+                            </div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-users fa-2x text-gray-300"></i>
@@ -87,67 +124,913 @@
         </div>
     </div>
 
-    <div class="row">
-        <!-- Recent Boutiques -->
-        <div class="col-lg-6">
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Revenue Chart -->
+        <div class="col-xl-8 col-lg-7">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Boutiques Récentes</h6>
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-chart-line me-2"></i>Évolution des Revenus
+                    </h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                            <div class="dropdown-header">Options du graphique:</div>
+                            <a class="dropdown-item" href="#" onclick="toggleChartType('revenue')">
+                                <i class="fas fa-exchange-alt me-2"></i>Changer le type
+                            </a>
+                            <a class="dropdown-item" href="#" onclick="exportChart('revenue')">
+                                <i class="fas fa-download me-2"></i>Télécharger
+                            </a>
+                            <a class="dropdown-item" href="#" onclick="toggleChartFullscreen('revenue')">
+                                <i class="fas fa-expand me-2"></i>Plein écran
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="refreshCharts()">
+                                <i class="fas fa-sync-alt me-2"></i>Actualiser
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    {% for boutique in recent_boutiques %}
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="mr-3">
-                                <div class="icon-circle bg-primary">
-                                    <i class="fas fa-store text-white"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="font-weight-bold">{{ boutique.nom }}</div>
-                                <div class="text-muted small">{{ boutique.dateCreation|date('d/m/Y H:i') }}</div>
-                            </div>
-                            <div class="ml-auto">
-                                <span class="badge badge-{{ boutique.statut == 'actif' ? 'success' : 'warning' }}">
-                                    {{ boutique.statut|title }}
-                                </span>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    <a class="btn btn-primary btn-sm" href="{{ path('admin_boutiques') }}">Voir toutes</a>
+                    <div class="chart-area">
+                        <!-- Removed explicit width/height attributes to let Chart.js handle sizing -->
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Flagged Boutiques -->
-        <div class="col-lg-6">
+        <!-- Boutique Growth Chart -->
+        <div class="col-xl-4 col-lg-5">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-warning">Boutiques Signalées</h6>
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="fas fa-chart-pie me-2"></i>Croissance des Boutiques
+                    </h6>
                 </div>
                 <div class="card-body">
-                    {% if flagged_boutiques %}
-                        {% for boutique in flagged_boutiques %}
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="mr-3">
-                                    <div class="icon-circle bg-warning">
-                                        <i class="fas fa-exclamation-triangle text-white"></i>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div class="font-weight-bold">{{ boutique.nom }}</div>
-                                    <div class="text-muted small">{{ boutique.commercant.nom }}</div>
-                                </div>
-                                <div class="ml-auto">
-                                    <a href="{{ path('admin_boutique_show', {id: boutique.id}) }}" class="btn btn-sm btn-outline-primary">Voir</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% else %}
-                        <p class="text-muted">Aucune boutique signalée</p>
-                    {% endif %}
+                    <div class="chart-pie pt-4 pb-2">
+                        <!-- Removed explicit width/height attributes to let Chart.js handle sizing -->
+                        <canvas id="boutiqueGrowthChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-success"></i> Actives
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-warning"></i> En cours
+                        </span>
+                        <span class="mr-2">
+                            <i class="fas fa-circle text-danger"></i> Signalées
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Second Charts Row -->
+    <div class="row mb-4">
+        <!-- User Activity Chart -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">
+                        <i class="fas fa-chart-bar me-2"></i>Activité des Utilisateurs
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <!-- Removed explicit width/height attributes to let Chart.js handle sizing -->
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Distribution Chart -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-chart-doughnut me-2"></i>Distribution par Catégorie
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-doughnut">
+                        <!-- Removed explicit width/height attributes to let Chart.js handle sizing -->
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('[v0] DOM loaded, checking Chart.js availability...');
+    
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.error('[v0] Chart.js is not loaded! Please check the CDN link.');
+        return;
+    }
+    
+    console.log('[v0] Chart.js is available, initializing charts...');
+    console.log('[v0] Stats data:', {{ stats|json_encode|raw }});
+    console.log('[v0] Revenue data:', {{ revenueData|json_encode|raw }});
+    console.log('[v0] User activity data:', {{ userActivityData|json_encode|raw }});
+    console.log('[v0] Category data:', {{ categoryData|json_encode|raw }});
+    
+    // Chart configurations and data
+    const chartConfigs = {
+        revenue: {
+            type: 'line',
+            data: {
+                labels: {{ revenueData.labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Revenus (€)',
+                    data: {{ revenueData.monthly|json_encode|raw }},
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 10,
+                    pointHoverBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointHoverBorderColor: '#fff',
+                    pointHoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 2,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return 'Revenus: ' + context.parsed.y.toLocaleString() + ' €';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false,
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value.toLocaleString() + ' €';
+                            },
+                            font: {
+                                size: 11
+                            },
+                            color: '#666'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: '#666'
+                        }
+                    }
+                }
+            }
+        },
+        
+        boutiqueGrowth: {
+            type: 'doughnut',
+            data: {
+                labels: ['Actives', 'En cours', 'Signalées'],
+                datasets: [{
+                    data: [
+                        {{ stats.boutiques.active|default(15) }}, 
+                        {{ stats.boutiques.pending|default(5) }}, 
+                        {{ stats.boutiques.flagged|default(2) }}
+                    ],
+                    backgroundColor: [
+                        'rgba(28, 200, 138, 0.8)',
+                        'rgba(246, 194, 62, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(28, 200, 138, 1)',
+                        'rgba(246, 194, 62, 1)',
+                        'rgba(231, 76, 60, 1)'
+                    ],
+                    borderWidth: 3,
+                    hoverOffset: 8,
+                    hoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        
+        userActivity: {
+            type: 'bar',
+            data: {
+                labels: {{ userActivityData.labels|json_encode|raw }},
+                datasets: [{
+                    label: 'Nouveaux utilisateurs',
+                    data: {{ userActivityData.daily|json_encode|raw }},
+                    backgroundColor: [
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)',
+                        'rgba(54, 185, 204, 0.8)'
+                    ],
+                    borderColor: 'rgba(54, 185, 204, 1)',
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                    hoverBackgroundColor: 'rgba(54, 185, 204, 1)',
+                    hoverBorderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return 'Nouveaux utilisateurs: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)',
+                            drawBorder: false,
+                            lineWidth: 1
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: '#666'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 11
+                            },
+                            color: '#666'
+                        }
+                    }
+                }
+            }
+        },
+        
+        category: {
+            type: 'doughnut',
+            data: {
+                labels: {{ categoryData.labels|json_encode|raw }},
+                datasets: [{
+                    data: {{ categoryData.data|json_encode|raw }},
+                    backgroundColor: {{ categoryData.colors|json_encode|raw }},
+                    borderColor: {{ categoryData.colors|json_encode|raw }},
+                    borderWidth: 3,
+                    hoverOffset: 8,
+                    hoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '50%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeInOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(1) : 0;
+                                return context.label + ': ' + context.parsed + ' boutiques (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    // Initialize charts with improved error handling and loading states
+    let charts = {};
+    
+    function showLoadingState(canvasId) {
+        const canvas = document.getElementById(canvasId);
+        if (canvas) {
+            const loadingDiv = document.createElement('div');
+            loadingDiv.id = canvasId + '-loading';
+            loadingDiv.className = 'chart-loading';
+            loadingDiv.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div>';
+            loadingDiv.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;';
+            canvas.parentElement.style.position = 'relative';
+            canvas.parentElement.appendChild(loadingDiv);
+        }
+    }
+    
+    function hideLoadingState(canvasId) {
+        const loadingDiv = document.getElementById(canvasId + '-loading');
+        if (loadingDiv) {
+            loadingDiv.remove();
+        }
+    }
+    
+    function initializeChart(canvasId, configKey) {
+        console.log(`[v0] Attempting to initialize ${configKey} chart...`);
+        
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) {
+            console.error(`[v0] Canvas element with id '${canvasId}' not found`);
+            return null;
+        }
+        
+        // Show loading state
+        showLoadingState(canvasId);
+        
+        console.log(`[v0] Canvas element '${canvasId}' found, creating chart...`);
+        
+        try {
+            // Create chart immediately without setTimeout
+            const chart = new Chart(canvas, chartConfigs[configKey]);
+            hideLoadingState(canvasId);
+            console.log(`[v0] ${configKey} chart initialized successfully`);
+            return chart;
+        } catch (error) {
+            hideLoadingState(canvasId);
+            console.error(`[v0] Error initializing ${configKey} chart:`, error);
+            return null;
+        }
+    }
+    
+    // Initialize all charts with delay to ensure DOM is fully ready
+    setTimeout(() => {
+        console.log('[v0] Starting chart initialization...');
+        
+        charts.revenue = initializeChart('revenueChart', 'revenue');
+        charts.boutiqueGrowth = initializeChart('boutiqueGrowthChart', 'boutiqueGrowth');
+        charts.userActivity = initializeChart('userActivityChart', 'userActivity');
+        charts.category = initializeChart('categoryChart', 'category');
+        
+        console.log('[v0] Chart initialization complete. Active charts:', Object.keys(charts).filter(key => charts[key] !== null));
+        console.log('[v0] Charts object:', charts);
+        console.log('[v0] Revenue chart:', charts.revenue);
+        console.log('[v0] BoutiqueGrowth chart:', charts.boutiqueGrowth);
+        console.log('[v0] UserActivity chart:', charts.userActivity);
+        console.log('[v0] Category chart:', charts.category);
+    }, 100);
+    
+    // Global functions for chart interactions
+    window.refreshCharts = function() {
+        console.log('[v0] Refreshing dashboard...');
+        
+        // Show loading state
+        const refreshBtn = document.querySelector('button[onclick="refreshCharts()"]');
+        const originalText = refreshBtn.innerHTML;
+        refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualisation...';
+        refreshBtn.disabled = true;
+        
+        // Reload the page to get fresh data
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    };
+
+    window.exportChart = function(chartName) {
+        const chart = charts[chartName];
+        if (chart) {
+            const link = document.createElement('a');
+            link.download = `${chartName}-chart-${new Date().toISOString().split('T')[0]}.png`;
+            link.href = chart.toBase64Image('image/png', 1.0);
+            link.click();
+            showNotification('Graphique exporté avec succès!', 'success');
+        }
+    };
+
+    window.toggleChartFullscreen = function(chartName) {
+        const chart = charts[chartName];
+        if (chart) {
+            const canvas = chart.canvas;
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.msRequestFullscreen) {
+                canvas.msRequestFullscreen();
+            }
+        }
+    };
+
+    window.toggleChartType = function(chartName) {
+        const chart = charts[chartName];
+        if (chart) {
+            const newType = chart.config.type === 'line' ? 'bar' : 'line';
+            chart.config.type = newType;
+            chart.update();
+            showNotification(`Type de graphique changé vers ${newType}`, 'info');
+        }
+    };
+
+    window.downloadChart = function(chartName) {
+        const chart = charts[chartName];
+        if (chart) {
+            const link = document.createElement('a');
+            link.download = `${chartName}-chart.png`;
+            link.href = chart.toBase64Image();
+            link.click();
+            showNotification('Graphique téléchargé avec succès!', 'success');
+        }
+    };
+
+    window.exportDashboard = function() {
+        console.log('[v0] Exporting dashboard...');
+        
+        try {
+            // Create a comprehensive dashboard report
+            const reportData = {
+                timestamp: new Date().toISOString(),
+                stats: {{ stats|json_encode|raw }},
+                revenueData: {{ revenueData|json_encode|raw }},
+                userActivityData: {{ userActivityData|json_encode|raw }},
+                categoryData: {{ categoryData|json_encode|raw }},
+                generatedBy: 'ShopLab Admin Dashboard'
+            };
+            
+            console.log('[v0] Report data prepared:', reportData);
+            
+            // Create and download JSON report
+            const dataStr = JSON.stringify(reportData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            console.log('[v0] Blob created, URL:', url);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `shoplab-dashboard-report-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('[v0] Download triggered successfully');
+            showNotification('Rapport du dashboard exporté avec succès!', 'success');
+            
+        } catch (error) {
+            console.error('Export error:', error);
+            showNotification('Erreur lors de l\'export: ' + error.message, 'danger');
+        }
+    };
+    
+    function exportAllCharts() {
+        const chartNames = ['revenue', 'boutiqueGrowth', 'userActivity', 'category'];
+        let exportedCount = 0;
+        
+        chartNames.forEach((chartName, index) => {
+            setTimeout(() => {
+                if (charts[chartName]) {
+                    try {
+                        const link = document.createElement('a');
+                        link.download = `shoplab-${chartName}-chart-${new Date().toISOString().split('T')[0]}.png`;
+                        link.href = charts[chartName].toBase64Image('image/png', 1.0);
+                        link.click();
+                        exportedCount++;
+                        console.log(`[v0] Exported ${chartName} chart successfully`);
+                    } catch (error) {
+                        console.error(`[v0] Error exporting ${chartName} chart:`, error);
+                    }
+                } else {
+                    console.warn(`[v0] Chart ${chartName} not available for export`);
+                }
+            }, index * 500); // Stagger downloads
+        });
+        
+        // Log final count
+        setTimeout(() => {
+            console.log(`[v0] Export completed. ${exportedCount} charts exported.`);
+        }, chartNames.length * 500 + 1000);
+    }
+
+    function exportAvailableCharts(chartNames) {
+        let exportedCount = 0;
+        let failedCount = 0;
+        
+        chartNames.forEach((chartName, index) => {
+            setTimeout(() => {
+                const chart = charts[chartName];
+                const canvas = document.getElementById(chartName + 'Chart');
+                
+                if (chart && chart.canvas && canvas) {
+                    try {
+                        console.log(`[v0] Attempting to export ${chartName} chart...`);
+                        console.log(`[v0] Chart object:`, chart);
+                        console.log(`[v0] Chart canvas:`, chart.canvas);
+                        
+                        // Get the base64 image data
+                        const imageData = chart.toBase64Image('image/png', 1.0);
+                        console.log(`[v0] Got image data for ${chartName}, length: ${imageData.length}`);
+                        console.log(`[v0] Image data preview:`, imageData.substring(0, 50) + '...');
+                        
+                        if (imageData && imageData.length > 0) {
+                            // Create download link
+                            const link = document.createElement('a');
+                            link.download = `shoplab-${chartName}-chart-${new Date().toISOString().split('T')[0]}.png`;
+                            link.href = imageData;
+                            link.style.display = 'none';
+                            
+                            console.log(`[v0] Created download link for ${chartName}:`, link);
+                            
+                            // Add to DOM, click, and remove
+                            document.body.appendChild(link);
+                            console.log(`[v0] Link added to DOM, attempting click...`);
+                            
+                            // Trigger download
+                            link.click();
+                            
+                            // Wait a bit before removing
+                            setTimeout(() => {
+                                document.body.removeChild(link);
+                                console.log(`[v0] Link removed from DOM`);
+                            }, 100);
+                            
+                            exportedCount++;
+                            console.log(`[v0] Successfully exported ${chartName} chart`);
+                        } else {
+                            console.error(`[v0] No image data generated for ${chartName}`);
+                            failedCount++;
+                        }
+                    } catch (error) {
+                        console.error(`[v0] Error exporting ${chartName} chart:`, error);
+                        failedCount++;
+                        
+                        // Try alternative method using canvas directly
+                        try {
+                            console.log(`[v0] Trying alternative method for ${chartName}...`);
+                            const canvas = document.getElementById(chartName + 'Chart');
+                            console.log(`[v0] Canvas element:`, canvas);
+                            
+                            if (canvas) {
+                                const canvasData = canvas.toDataURL('image/png');
+                                console.log(`[v0] Canvas data length: ${canvasData.length}`);
+                                console.log(`[v0] Canvas data preview:`, canvasData.substring(0, 50) + '...');
+                                
+                                const link = document.createElement('a');
+                                link.download = `shoplab-${chartName}-chart-${new Date().toISOString().split('T')[0]}.png`;
+                                link.href = canvasData;
+                                link.style.display = 'none';
+                                
+                                document.body.appendChild(link);
+                                link.click();
+                                
+                                setTimeout(() => {
+                                    document.body.removeChild(link);
+                                }, 100);
+                                
+                                exportedCount++;
+                                failedCount--;
+                                console.log(`[v0] Alternative method worked for ${chartName}`);
+                            } else {
+                                console.error(`[v0] Canvas element not found for ${chartName}`);
+                            }
+                        } catch (altError) {
+                            console.error(`[v0] Alternative method also failed for ${chartName}:`, altError);
+                        }
+                    }
+                } else {
+                    console.warn(`[v0] Chart ${chartName} not available for export`);
+                    failedCount++;
+                }
+            }, index * 1000); // Increased delay to 1 second between downloads
+        });
+        
+        // Log final count and show notification
+        setTimeout(() => {
+            console.log(`[v0] Export completed. ${exportedCount} charts exported successfully, ${failedCount} failed.`);
+            
+            if (exportedCount > 0 && failedCount === 0) {
+                showNotification(`${exportedCount} graphique(s) exporté(s) avec succès!`, 'success');
+            } else if (exportedCount > 0 && failedCount > 0) {
+                showNotification(`${exportedCount} graphique(s) exporté(s), ${failedCount} ont échoué`, 'warning');
+            } else if (exportedCount === 0 && failedCount > 0) {
+                showNotification(`${failedCount} graphique(s) ont échoué à l'export`, 'danger');
+            } else {
+                showNotification('Aucun graphique n\'a pu être exporté', 'danger');
+            }
+        }, chartNames.length * 1000 + 2000);
+    }
+
+    // Test function to verify download mechanism
+    window.testDownload = function() {
+        console.log('[v0] Testing download mechanism...');
+        const testData = 'data:text/plain;charset=utf-8,Test download file content';
+        const link = document.createElement('a');
+        link.href = testData;
+        link.download = 'test-download.txt';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+            document.body.removeChild(link);
+        }, 100);
+        console.log('[v0] Test download completed');
+    };
+
+    // Function to check current chart status
+    window.checkCharts = function() {
+        console.log('[v0] Checking chart status...');
+        const chartNames = ['revenue', 'boutiqueGrowth', 'userActivity', 'category'];
+        
+        chartNames.forEach((chartName) => {
+            const chart = charts[chartName];
+            const canvas = document.getElementById(chartName + 'Chart');
+            
+            console.log(`[v0] ${chartName}:`, {
+                chartObject: !!chart,
+                chartType: chart?.constructor?.name || 'undefined',
+                canvas: !!canvas,
+                canvasWidth: canvas?.width || 0,
+                canvasHeight: canvas?.height || 0,
+                chartConfig: !!chartConfigs[chartName]
+            });
+        });
+        
+        console.log('[v0] Full charts object:', charts);
+    };
+
+    // Test function to verify chart export specifically
+    window.testChartExport = function() {
+        console.log('[v0] Testing chart export...');
+        const chartNames = ['revenue', 'boutiqueGrowth', 'userActivity', 'category'];
+        
+        chartNames.forEach((chartName, index) => {
+            setTimeout(() => {
+                const chart = charts[chartName];
+                const canvas = document.getElementById(chartName + 'Chart');
+                
+                console.log(`[v0] Testing ${chartName}:`, {
+                    chart: !!chart,
+                    canvas: !!canvas,
+                    canvasWidth: canvas?.width || 0,
+                    canvasHeight: canvas?.height || 0
+                });
+                
+                if (chart && canvas) {
+                    try {
+                        const imageData = chart.toBase64Image('image/png', 1.0);
+                        console.log(`[v0] ${chartName} image data length:`, imageData.length);
+                        
+                        // Test download
+                        const link = document.createElement('a');
+                        link.href = imageData;
+                        link.download = `test-${chartName}.png`;
+                        link.style.display = 'none';
+                        document.body.appendChild(link);
+                        link.click();
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                        }, 100);
+                        
+                        console.log(`[v0] Test download triggered for ${chartName}`);
+                    } catch (error) {
+                        console.error(`[v0] Error testing ${chartName}:`, error);
+                    }
+                }
+            }, index * 1000);
+        });
+    };
+
+    window.exportChartsOnly = function() {
+        console.log('[v0] Exporting charts only...');
+        showNotification('Export des graphiques en cours...', 'info');
+        
+        // Clear any existing notifications after 3 seconds
+        setTimeout(() => {
+            const notifications = document.querySelectorAll('.alert');
+            notifications.forEach(notification => {
+                if (notification.textContent.includes('Export des graphiques en cours')) {
+                    notification.remove();
+                }
+            });
+        }, 3000);
+        
+        // Wait a bit for charts to be fully initialized
+        setTimeout(() => {
+            // Check if charts are loaded
+            const chartNames = ['revenue', 'boutiqueGrowth', 'userActivity', 'category'];
+            let chartsReady = 0;
+            let availableCharts = [];
+            
+            chartNames.forEach((chartName) => {
+                const chart = charts[chartName];
+                const canvas = document.getElementById(chartName + 'Chart');
+                
+                if (chart && chart.canvas && canvas && canvas.width > 0) {
+                    chartsReady++;
+                    availableCharts.push(chartName);
+                    console.log(`[v0] Chart ${chartName} is ready (canvas size: ${canvas.width}x${canvas.height})`);
+                } else {
+                    console.warn(`[v0] Chart ${chartName} is not ready:`, {
+                        chart: !!chart,
+                        canvas: !!chart?.canvas,
+                        canvasElement: !!canvas,
+                        canvasWidth: canvas?.width || 0
+                    });
+                }
+            });
+            
+            console.log(`[v0] ${chartsReady} out of ${chartNames.length} charts are ready`);
+            console.log('[v0] Available charts:', availableCharts);
+            
+            if (chartsReady === 0) {
+                // Try fallback method - check canvas elements directly
+                console.log('[v0] Trying fallback method - checking canvas elements directly');
+                const fallbackCharts = [];
+                chartNames.forEach((chartName) => {
+                    const canvas = document.getElementById(chartName + 'Chart');
+                    if (canvas && canvas.width > 0) {
+                        fallbackCharts.push(chartName);
+                        console.log(`[v0] Fallback: Found canvas for ${chartName}`);
+                    }
+                });
+                
+                if (fallbackCharts.length > 0) {
+                    console.log('[v0] Using fallback method with charts:', fallbackCharts);
+                    exportAvailableCharts(fallbackCharts);
+                } else {
+                    showNotification('Aucun graphique disponible pour l\'export. Veuillez attendre que les graphiques se chargent.', 'warning');
+                }
+                return;
+            }
+            
+            // Export only available charts
+            exportAvailableCharts(availableCharts);
+        }, 1000); // Wait 1 second for charts to initialize
+    };
+
+    function showNotification(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+        toast.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 3000);
+    }
+});
+</script>
 {% endblock %}

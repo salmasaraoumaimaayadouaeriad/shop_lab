@@ -47,13 +47,41 @@ class BoutiqueRepository extends ServiceEntityRepository
      */
     public function findStatistics(): array
     {
-        $qb = $this->createQueryBuilder('b');
+        // Total boutiques
+        $total = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        // Active boutiques
+        $active = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.statut = :status')
+            ->setParameter('status', 'actif')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        // Pending boutiques
+        $pending = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.statut = :status')
+            ->setParameter('status', 'en_cours')
+            ->getQuery()
+            ->getSingleScalarResult();
+        
+        // Flagged boutiques
+        $flagged = $this->createQueryBuilder('b')
+            ->select('COUNT(b.id)')
+            ->where('b.statut IN (:statuses)')
+            ->setParameter('statuses', ['signale', 'non_conforme'])
+            ->getQuery()
+            ->getSingleScalarResult();
         
         return [
-            'total' => $qb->select('COUNT(b.id)')->getQuery()->getSingleScalarResult(),
-            'active' => $qb->select('COUNT(b.id)')->andWhere('b.statut = :status')->setParameter('status', 'actif')->getQuery()->getSingleScalarResult(),
-            'pending' => $qb->select('COUNT(b.id)')->andWhere('b.statut = :status')->setParameter('status', 'en_cours')->getQuery()->getSingleScalarResult(),
-            'flagged' => $qb->select('COUNT(b.id)')->andWhere('b.statut IN (:statuses)')->setParameter('statuses', ['signale', 'non_conforme'])->getQuery()->getSingleScalarResult(),
+            'total' => $total,
+            'active' => $active,
+            'pending' => $pending,
+            'flagged' => $flagged,
         ];
     }
 

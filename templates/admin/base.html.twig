@@ -420,6 +420,17 @@
             margin: 0 !important;
             text-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
         }
+
+        /* Chart containers */
+        .chart-area, .chart-pie, .chart-bar, .chart-doughnut {
+            position: relative !important;
+            height: 300px !important;
+            width: 100% !important;
+        }
+
+        .chart-area canvas, .chart-pie canvas, .chart-bar canvas, .chart-doughnut canvas {
+            max-height: 300px !important;
+        }
     </style>
 
     {% block stylesheets %}{% endblock %}
@@ -487,6 +498,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     {% block javascripts %}{% endblock %}
 </body>
 </html>

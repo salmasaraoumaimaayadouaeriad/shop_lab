@@ -41,6 +41,15 @@ class AdminController extends AbstractController
             'subscriptions' => $this->subscriptionRepository->findStatistics(),
         ];
 
+        // Get real revenue data
+        $revenueData = $this->getRealRevenueData();
+        
+        // Get real user activity data
+        $userActivityData = $this->getRealUserActivityData();
+        
+        // Get real category distribution data
+        $categoryData = $this->getRealCategoryData();
+
         // Get recent activities
         $recentBoutiques = $this->boutiqueRepository->findBy([], ['dateCreation' => 'DESC'], 5);
         $recentUsers = $this->utilisateurRepository->findRecent(5);
@@ -51,8 +60,11 @@ class AdminController extends AbstractController
         // Get most active boutiques (those with most visits/orders)
         $mostActiveBoutiques = $this->boutiqueRepository->findMostActive(5);
 
-        return $this->render('admin/dashboard/index.html.twig', [
+        return $this->render('admin/dashboard.html.twig', [
             'stats' => $stats,
+            'revenueData' => $revenueData,
+            'userActivityData' => $userActivityData,
+            'categoryData' => $categoryData,
             'recentBoutiques' => $recentBoutiques,
             'recentUsers' => $recentUsers,
             'recent_boutiques' => $recentBoutiques,
@@ -763,5 +775,228 @@ class AdminController extends AbstractController
     {
         RegistrationController::ensureCommercantsForAllUsers($entityManager);
         return new Response('All users now have a commercant. You can remove this route now.');
+    }
+
+    // EXPORT FUNCTIONALITY
+    #[Route('/export/dashboard', name: 'admin_export_dashboard')]
+    public function exportDashboard(): Response
+    {
+        // Get all dashboard data
+        $stats = [
+            'boutiques' => $this->boutiqueRepository->findStatistics(),
+            'users' => $this->utilisateurRepository->findStatistics(),
+            'categories' => $this->categorieRepository->countTotal(),
+            'subscriptions' => $this->subscriptionRepository->findStatistics(),
+        ];
+
+        $revenueData = $this->getRealRevenueData();
+        $userActivityData = $this->getRealUserActivityData();
+        $categoryData = $this->getRealCategoryData();
+
+        // Create comprehensive report
+        $report = [
+            'export_date' => (new \DateTime())->format('Y-m-d H:i:s'),
+            'platform' => 'ShopLab',
+            'statistics' => $stats,
+            'revenue_analysis' => $revenueData,
+            'user_activity' => $userActivityData,
+            'category_distribution' => $categoryData,
+            'summary' => [
+                'total_boutiques' => $stats['boutiques']['total'],
+                'active_boutiques' => $stats['boutiques']['active'],
+                'total_users' => $stats['users']['total'],
+                'total_revenue' => $revenueData['total'],
+                'revenue_growth' => $revenueData['growth'] . '%'
+            ]
+        ];
+
+        // Return JSON response
+        $response = new JsonResponse($report);
+        $response->headers->set('Content-Disposition', 'attachment; filename="shoplab-dashboard-export-' . date('Y-m-d') . '.json"');
+        
+        return $response;
+    }
+
+    #[Route('/export/csv/{type}', name: 'admin_export_csv')]
+    public function exportCsv(string $type): Response
+    {
+        $filename = '';
+        $data = [];
+        $headers = [];
+
+        switch ($type) {
+            case 'boutiques':
+                $boutiques = $this->boutiqueRepository->findBy([], ['dateCreation' => 'DESC']);
+                $filename = 'boutiques-export-' . date('Y-m-d') . '.csv';
+                $headers = ['ID', 'Nom', 'Description', 'Niche', 'Statut', 'Date Création', 'Commerçant'];
+                
+                foreach ($boutiques as $boutique) {
+                    $data[] = [
+                        $boutique->getId(),
+                        $boutique->getNom(),
+                        $boutique->getDescription(),
+                        $boutique->getNiche(),
+                        $boutique->getStatut(),
+                        $boutique->getDateCreation()->format('Y-m-d H:i:s'),
+                        $boutique->getCommercant() ? $boutique->getCommercant()->getNom() : 'N/A'
+                    ];
+                }
+                break;
+
+            case 'users':
+                $users = $this->utilisateurRepository->findBy([], ['id' => 'DESC']);
+                $filename = 'users-export-' . date('Y-m-d') . '.csv';
+                $headers = ['ID', 'Nom', 'Email', 'Pays', 'Devise', 'Vérifié', 'Rôles', 'Date Création'];
+                
+                foreach ($users as $user) {
+                    $data[] = [
+                        $user->getId(),
+                        $user->getNom(),
+                        $user->getEmail(),
+                        $user->getPays(),
+                        $user->getDevise(),
+                        $user->getIsVerified() ? 'Oui' : 'Non',
+                        implode(', ', $user->getRoles()),
+                        $user->getDateCreation() ? $user->getDateCreation()->format('Y-m-d H:i:s') : 'N/A'
+                    ];
+                }
+                break;
+
+            default:
+                throw new \InvalidArgumentException('Invalid export type');
+        }
+
+        // Create CSV content
+        $csvContent = '';
+        $csvContent .= implode(',', array_map(function($header) {
+            return '"' . str_replace('"', '""', $header) . '"';
+        }, $headers)) . "\n";
+
+        foreach ($data as $row) {
+            $csvContent .= implode(',', array_map(function($field) {
+                return '"' . str_replace('"', '""', $field) . '"';
+            }, $row)) . "\n";
+        }
+
+        $response = new Response($csvContent);
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+        return $response;
+    }
+
+    // REAL DATA METHODS FOR DASHBOARD
+    private function getRealRevenueData(): array
+    {
+        // Get real revenue from subscriptions
+        $qb = $this->subscriptionRepository->createQueryBuilder('bs');
+        
+        // Get monthly revenue for the last 12 months
+        $monthlyRevenue = [];
+        $labels = [];
+        
+        for ($i = 11; $i >= 0; $i--) {
+            $date = new \DateTime("-$i months");
+            $monthStart = $date->format('Y-m-01');
+            $monthEnd = $date->format('Y-m-t');
+            
+            $revenue = $qb->select('SUM(bs.prix)')
+                ->where('bs.statut = :status')
+                ->andWhere('bs.dateCreation >= :start')
+                ->andWhere('bs.dateCreation <= :end')
+                ->setParameter('status', 'active')
+                ->setParameter('start', $monthStart)
+                ->setParameter('end', $monthEnd)
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $monthlyRevenue[] = $revenue ?? 0;
+            $labels[] = $date->format('M');
+        }
+        
+        // Calculate total and growth
+        $total = array_sum($monthlyRevenue);
+        $previousTotal = array_sum(array_slice($monthlyRevenue, 0, -1));
+        $growth = $previousTotal > 0 ? (($total - $previousTotal) / $previousTotal) * 100 : 0;
+        
+        return [
+            'monthly' => $monthlyRevenue,
+            'labels' => $labels,
+            'total' => $total,
+            'growth' => round($growth, 1)
+        ];
+    }
+
+    private function getRealUserActivityData(): array
+    {
+        // Get user registrations for the last 7 days
+        $qb = $this->utilisateurRepository->createQueryBuilder('u');
+        
+        $dailyUsers = [];
+        $labels = [];
+        
+        for ($i = 6; $i >= 0; $i--) {
+            $date = new \DateTime("-$i days");
+            $dayStart = $date->format('Y-m-d 00:00:00');
+            $dayEnd = $date->format('Y-m-d 23:59:59');
+            
+            $count = $qb->select('COUNT(u.id)')
+                ->where('u.dateCreation >= :start')
+                ->andWhere('u.dateCreation <= :end')
+                ->setParameter('start', $dayStart)
+                ->setParameter('end', $dayEnd)
+                ->getQuery()
+                ->getSingleScalarResult();
+            
+            $dailyUsers[] = $count;
+            $labels[] = $date->format('D');
+        }
+        
+        return [
+            'daily' => $dailyUsers,
+            'labels' => $labels
+        ];
+    }
+
+    private function getRealCategoryData(): array
+    {
+        // Get real category distribution from boutiques
+        $qb = $this->boutiqueRepository->createQueryBuilder('b');
+        
+        // Get categories with boutique counts
+        $categoryStats = $qb->select('b.niche, COUNT(b.id) as count')
+            ->where('b.statut = :status')
+            ->setParameter('status', 'actif')
+            ->groupBy('b.niche')
+            ->orderBy('count', 'DESC')
+            ->getQuery()
+            ->getResult();
+        
+        $labels = [];
+        $data = [];
+        $colors = [
+            'rgba(78, 115, 223, 0.8)',
+            'rgba(28, 200, 138, 0.8)',
+            'rgba(246, 194, 62, 0.8)',
+            'rgba(231, 76, 60, 0.8)',
+            'rgba(108, 117, 125, 0.8)'
+        ];
+        
+        foreach ($categoryStats as $index => $stat) {
+            $labels[] = $stat['niche'] ?? 'Autres';
+            $data[] = $stat['count'];
+        }
+        
+        // If no categories, show default data
+        if (empty($labels)) {
+            $labels = ['E-commerce', 'Portfolio', 'Restaurant', 'Business', 'Autres'];
+            $data = [0, 0, 0, 0, 0];
+        }
+        
+        return [
+            'labels' => $labels,
+            'data' => $data,
+            'colors' => array_slice($colors, 0, count($labels))
+        ];
     }
 }
